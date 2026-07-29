@@ -1,0 +1,118 @@
+/* ==========================================================
+   SIDEBAR
+========================================================== */
+
+.sidebar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+    background: #2563eb;
+    color: #fff;
+    overflow-y: auto;
+    transition: .3s;
+    z-index: 1050;
+}
+
+.sidebar-header{
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,.15);
+}
+
+.sidebar-header img{
+    width: 70px;
+    margin-bottom: 15px;
+}
+
+.sidebar-header h5{
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.sidebar-header small{
+    color: rgba(255,255,255,.8);
+    letter-spacing: 1px;
+}
+
+.sidebar-menu{
+    list-style: none;
+    margin: 0;
+    padding: 20px 0;
+}
+
+.sidebar-menu li{
+    margin-bottom: 5px;
+}
+
+.sidebar-menu li a{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 25px;
+    color: #fff;
+    text-decoration: none;
+    transition: .3s;
+    font-weight: 500;
+}
+
+.sidebar-menu li a:hover{
+    background: rgba(255,255,255,.15);
+}
+
+.sidebar-menu li a.active{
+    background: #ffffff;
+    color: #2563eb;
+    border-radius: 12px;
+    margin: 0 10px;
+}
+
+.sidebar-menu i{
+    font-size: 18px;
+    width: 22px;
+    text-align: center;
+}
+
+/* ==========================================================
+   CONTENT
+========================================================== */
+
+.main-content{
+    margin-left: 260px;
+    padding: 25px;
+    min-height: 100vh;
+    background: #f5f7fb;
+}
+
+/* ==========================================================
+   NAVBAR
+========================================================== */
+
+.navbar{
+    margin-left: 260px;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 992px){
+
+    .sidebar{
+        left: -260px;
+    }
+
+    .sidebar.show{
+        left: 0;
+    }
+
+    .navbar{
+        margin-left: 0;
+    }
+
+    .main-content{
+        margin-left: 0;
+    }
+
+}

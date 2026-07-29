@@ -1,0 +1,119 @@
+/* ==========================================================
+   LOGIN PAGE
+========================================================== */
+
+body{
+    background:#f4f7fc;
+}
+
+.container-app{
+    padding:30px 15px;
+}
+
+.card-app{
+    border:none;
+    border-radius:20px;
+    background:#fff;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+.card-body{
+    padding:35px;
+}
+
+.card-body img{
+    width:90px;
+}
+
+h3{
+    font-weight:700;
+    color:#1e293b;
+}
+
+.text-muted{
+    font-size:.95rem;
+}
+
+/* ==========================================================
+   FORM
+========================================================== */
+
+.form-label{
+    font-weight:600;
+    color:#334155;
+}
+
+.form-control,
+.form-select{
+    height:48px;
+    border-radius:12px;
+    border:1px solid #dbe2ea;
+    box-shadow:none;
+    transition:.3s;
+}
+
+.form-control:focus,
+.form-select:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 .2rem rgba(37,99,235,.15);
+}
+
+.btn-primary-app{
+    background:#2563eb;
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    height:48px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.btn-primary-app:hover{
+    background:#1d4ed8;
+    color:#fff;
+}
+
+.btn-outline-secondary{
+    height:48px;
+    border-radius:12px;
+    font-weight:600;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media(max-width:768px){
+
+    .container-app{
+        padding:20px 10px;
+    }
+
+    .card-body{
+        padding:25px;
+    }
+
+    .card-body img{
+        width:75px;
+    }
+
+    h3{
+        font-size:1.5rem;
+    }
+
+}
+
+@media(max-width:576px){
+
+    .card-body{
+        padding:20px;
+    }
+
+    .form-control,
+    .form-select,
+    .btn{
+        height:45px;
+        font-size:.95rem;
+    }
+
+}

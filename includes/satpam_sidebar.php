@@ -1,3 +1,10 @@
+<?php
+$scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+$laporanHref = basename($scriptDir) === 'buku_mutasi'
+    ? 'index.php'
+    : 'buku_mutasi/index.php';
+?>
+
 <div class="sidebar">
 
     <div class="sidebar-header text-center">
@@ -22,7 +29,7 @@
         </li>
 
         <li>
-            <a href="laporan.php">
+            <a href="<?= $laporanHref ?>">
                 <i class="bi bi-journal-text"></i>
                 Buku Mutasi
             </a>

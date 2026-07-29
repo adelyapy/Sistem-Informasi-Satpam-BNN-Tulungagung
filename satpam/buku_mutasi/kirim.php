@@ -41,9 +41,11 @@ if(mysqli_num_rows($q)==0){
 
 $laporan = mysqli_fetch_assoc($q);
 
-if($laporan['status'] != 'draft'){
-    echo "<script>alert('Laporan sudah dikirim.');
-    window.location='detail.php';
+if ($laporan['status'] != 'draft') {
+    echo "<script>
+        alert('Laporan sudah dikirim.');
+        window.location='detail.php';
+    </script>";
     exit;
 }
 

@@ -23,13 +23,13 @@ if ($role == "admin" || $role == "kepala") {
     $password = $_POST['password'];
 
     $query = mysqli_query($conn,"
-        SELECT *
-        FROM users
-        WHERE id_user='$id_user'
-        AND role='$role'
-        AND status='aktif'
-        LIMIT 1
-    ");
+SELECT *
+FROM users
+WHERE
+    role='$role'
+    AND status='aktif'
+LIMIT 1
+");
 
     if(mysqli_num_rows($query)==0){
         die("<script>
@@ -49,13 +49,18 @@ if ($role == "admin" || $role == "kepala") {
 
     }
 
-    $_SESSION['login']=true;
-    $_SESSION['id_user']=$user['id_user'];
-    $_SESSION['nama']=$user['nama'];
-    $_SESSION['role']=$user['role'];
+    $_SESSION['login'] = true;
+$_SESSION['id_user'] = $user['id_user'];
+$_SESSION['nama'] = $user['nama'];
+$_SESSION['role'] = $user['role'];
 
-    header("Location: dashboard.php");
-    exit;
+if ($user['role'] == "admin") {
+    header("Location: admin/dashboard/dashboard.php");
+} elseif ($user['role'] == "kepala") {
+    header("Location: kepala/dashboard.php");
+}
+
+exit;
 }
 
 /*==================================================
@@ -72,13 +77,13 @@ $tanggal=date("Y-m-d");
 cek satpam
 ---------------------------------*/
 
-$qUser=mysqli_query($conn,"
+$qUser = mysqli_query($conn,"
 SELECT *
 FROM users
 WHERE
-id_user='$id_user'
-AND role='satpam'
-AND status='aktif'
+    id_user = '$id_user'
+    AND role = 'satpam'
+    AND status = 'aktif'
 LIMIT 1
 ");
 
@@ -248,5 +253,5 @@ $_SESSION['id_laporan']=$id_laporan;
 
 /*---------------------------------*/
 
-header("Location: dashboard.php");
+header("Location: satpam/dashboard.php");
 exit;

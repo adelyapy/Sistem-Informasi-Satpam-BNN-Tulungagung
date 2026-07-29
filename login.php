@@ -1,10 +1,18 @@
 <?php
 session_start();
 
-if (isset($_SESSION['login'])) {
-    header("Location: dashboard.php");
-    exit;
-}
+// if (isset($_SESSION['login'])) {
+
+   // if ($_SESSION['role'] == 'admin') {
+     //   header("Location: admin/dashboard/dashboard.php");
+    //} elseif ($_SESSION['role'] == 'kepala') {
+      //  header("Location: kepala/dashboard.php");
+    //} elseif ($_SESSION['role'] == 'satpam') {
+      //  header("Location: satpam/dashboard.php");
+    //}
+
+   // exit;
+//}
 
 require_once "config/database.php";
 
@@ -17,11 +25,11 @@ $shift = [];
 $qUser = mysqli_query($conn, "
     SELECT
         id_user,
-        nama,
-        role
+        nama
     FROM users
-    WHERE status = 'aktif'
-    ORDER BY role, nama
+    WHERE role='satpam'
+    AND status='aktif'
+    ORDER BY id_user ASC
 ");
 
 while ($row = mysqli_fetch_assoc($qUser)) {
@@ -109,91 +117,81 @@ include "includes/header.php";
 
                             </div>
 
-                            <div class="mb-3">
+                            
 
-                                <label class="form-label">
-                                    User
-                                </label>
+                            <div class="mb-3" id="userGroup" style="display:none;">
 
-                                <select
-                                    class="form-select"
-                                    id="id_user"
-                                    name="id_user"
-                                    required>
+    <label class="form-label">
+        User
+    </label>
 
-                                    <option value="">
-                                        -- Pilih User --
-                                    </option>
+    <select
+        class="form-select"
+        id="id_user"
+        name="id_user">
 
-                                    <?php foreach ($users as $user) : ?>
+        <option value="">
+            -- Pilih Satpam --
+        </option>
 
-                                        <option
-                                            value="<?= $user['id_user']; ?>"
-                                            data-role="<?= $user['role']; ?>"
-                                            style="display:none;">
+        <?php foreach($users as $user){ ?>
 
-                                            <?= htmlspecialchars($user['nama']); ?>
+            <option value="<?= $user['id_user']; ?>">
+                <?= htmlspecialchars($user['nama']); ?>
+            </option>
 
-                                        </option>
+        <?php } ?>
 
-                                    <?php endforeach; ?>
+    </select>
 
-                                </select>
+</div>
 
-                            </div>
+<div class="mb-3" id="shiftGroup" style="display:none;">
 
-                            <div
-                                class="mb-3"
-                                id="passwordGroup"
-                                style="display:none;">
+    <label class="form-label">
+        Shift
+    </label>
 
-                                <label class="form-label">
-                                    Password
-                                </label>
+    <select
+        class="form-select"
+        id="id_shift"
+        name="id_shift">
 
-                                <input
-                                    type="password"
-                                    class="form-control"
-                                    name="password"
-                                    id="password">
+        <option value="">
+            -- Pilih Shift --
+        </option>
 
-                            </div>
+        <?php foreach($shift as $s){ ?>
 
-                            <div
-                                class="mb-3"
-                                id="shiftGroup"
-                                style="display:none;">
+            <option value="<?= $s['id_shift']; ?>">
 
-                                <label class="form-label">
-                                    Shift
-                                </label>
+                <?= htmlspecialchars($s['nama_shift']); ?>
+                (<?= substr($s['jam_mulai'],0,5); ?>
+                -
+                <?= substr($s['jam_selesai'],0,5); ?>)
 
-                                <select
-                                    class="form-select"
-                                    name="id_shift"
-                                    id="id_shift">
+            </option>
 
-                                    <option value="">
-                                        -- Pilih Shift --
-                                    </option>
+        <?php } ?>
 
-                                    <?php foreach ($shift as $s) : ?>
+    </select>
 
-                                        <option value="<?= $s['id_shift']; ?>">
+</div>
 
-                                            <?= htmlspecialchars($s['nama_shift']); ?>
-                                            (<?= substr($s['jam_mulai'],0,5); ?>
-                                            -
-                                            <?= substr($s['jam_selesai'],0,5); ?>)
+<div class="mb-3" id="passwordGroup" style="display:none;">
 
-                                        </option>
+    <label class="form-label">
+        Password
+    </label>
 
-                                    <?php endforeach; ?>
+    <input
+        type="password"
+        class="form-control"
+        id="password"
+        name="password"
+        placeholder="Masukkan password">
 
-                                </select>
-
-                            </div>
-
+</div>
                             <button
                                 class="btn btn-primary-app w-100 mt-2"
                                 type="submit">
@@ -237,43 +235,35 @@ const shift = document.getElementById('id_shift');
 
 role.addEventListener('change', function () {
 
-    user.selectedIndex = 0;
+    const userGroup = document.getElementById('userGroup');
 
-    [...user.options].forEach(function(option){
+    if (role.value === "satpam") {
 
-        if(option.value === ""){
-            option.hidden = false;
-            return;
-        }
-
-        option.hidden = option.dataset.role !== role.value;
-
-    });
-
-    if(role.value === "satpam"){
-
+        userGroup.style.display = "block";
         shiftGroup.style.display = "block";
         passwordGroup.style.display = "none";
 
+        user.required = true;
         shift.required = true;
         password.required = false;
-        password.value = "";
 
-    }else if(role.value === "admin" || role.value === "kepala"){
+    } else if (role.value === "admin" || role.value === "kepala") {
 
+        userGroup.style.display = "none";
         shiftGroup.style.display = "none";
         passwordGroup.style.display = "block";
 
+        user.required = false;
         shift.required = false;
-        shift.selectedIndex = 0;
-
         password.required = true;
 
-    }else{
+    } else {
 
+        userGroup.style.display = "none";
         shiftGroup.style.display = "none";
         passwordGroup.style.display = "none";
 
+        user.required = false;
         shift.required = false;
         password.required = false;
 

@@ -1,7 +1,5 @@
 <?php
-session_start();
-if(!isset($_SESSION['login'])||$_SESSION['role']!='kepala'){header("Location:../../login.php");exit;}
-require "../../config/database.php";
+require_once "../../config/kepala_auth.php";
 include "../../includes/header.php";
 $id=(int)$_GET['id'];
 $l=mysqli_fetch_assoc(mysqli_query($conn,"SELECT l.*,u.nama,j.tanggal,s.nama_shift FROM laporan l JOIN users u ON l.created_by=u.id_user JOIN jadwal_shift j ON l.id_jadwal=j.id_jadwal JOIN shift s ON j.id_shift=s.id_shift WHERE id_laporan='$id'"));

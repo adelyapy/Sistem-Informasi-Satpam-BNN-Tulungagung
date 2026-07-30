@@ -31,7 +31,7 @@ CREATE TABLE `anggota_shift` (
   `id_anggota` int(11) NOT NULL,
   `id_laporan` int(11) NOT NULL,
   `id_satpam` int(11) NOT NULL,
-  `status_login` enum('belum_login','sudah_login') DEFAULT 'belum_login',
+  `status_login` enum('belum_login','sudah_login') NOT NULL DEFAULT 'belum_login',
   `login_at` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -67,7 +67,8 @@ CREATE TABLE `inventaris` (
   `jumlah` int(11) NOT NULL DEFAULT 1,
   `keterangan` text DEFAULT NULL,
   `created_by` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -174,7 +175,8 @@ CREATE TABLE `uraian_kegiatan` (
   `jam` time NOT NULL,
   `uraian` text NOT NULL,
   `created_by` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -202,8 +204,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id_user`, `kode_satpam`, `nama`, `username`, `password`, `foto`, `ttd`, `role`, `status`, `created_at`, `updated_at`) VALUES
-(1, NULL, 'Administrator', 'admin', '$2y$10$placeholder_hash', NULL, NULL, 'admin', 'aktif', '2026-07-28 02:38:48', NULL),
-(2, NULL, 'Kepala BNN', 'kepala', '$2y$10$placeholder_hash', NULL, NULL, 'kepala', 'aktif', '2026-07-28 02:38:48', NULL),
+(1, NULL, 'Administrator', 'admin', '$2y$10$2OXpVK/jyHNj65I/8hU.fu4BdbZL1tsayy8Bec6bt8itveNjUJK0e', NULL, NULL, 'admin', 'aktif', '2026-07-28 02:38:48', NULL),
+(2, NULL, 'Kepala BNN', 'kepala', '$2y$10$4dfcgyACRHcM5ixjbu.8vuN3bXHy8GVTS1tp1WfAhxwFmetRtTPki', NULL, NULL, 'kepala', 'aktif', '2026-07-28 02:38:48', NULL),
 (3, 'STP001', 'Angga', NULL, NULL, NULL, NULL, 'satpam', 'aktif', '2026-07-28 02:38:48', NULL),
 (4, 'STP002', 'Budi', NULL, NULL, NULL, NULL, 'satpam', 'aktif', '2026-07-28 02:38:48', NULL),
 (5, 'STP003', 'Rizky', NULL, NULL, NULL, NULL, 'satpam', 'aktif', '2026-07-28 02:38:48', NULL),
@@ -253,6 +255,7 @@ ALTER TABLE `jadwal_shift`
 --
 ALTER TABLE `laporan`
   ADD PRIMARY KEY (`id_laporan`),
+  ADD UNIQUE KEY `uq_laporan_jadwal` (`id_jadwal`),
   ADD KEY `fk_laporan_created` (`created_by`),
   ADD KEY `fk_laporan_validator` (`validated_by`),
   ADD KEY `idx_laporan_status` (`status`),

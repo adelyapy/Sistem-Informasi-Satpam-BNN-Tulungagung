@@ -1,13 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/authorization.php';
+require_once __DIR__ . '/database.php';
 
-require_once "session.php";
-require_once "database.php";
-
-if (
-    !isset($_SESSION['login']) ||
-    $_SESSION['role'] != 'satpam'
-) {
-    header("Location: ../login.php");
-    exit;
-}
+requireRole('satpam');

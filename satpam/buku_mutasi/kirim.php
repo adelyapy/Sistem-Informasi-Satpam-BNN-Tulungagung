@@ -1,12 +1,5 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['login']) || $_SESSION['role'] != 'satpam') {
-    header("Location: ../../login.php");
-    exit;
-}
-
-require "../../config/database.php";
+require_once "../../config/satpam_auth.php";
 
 $id_user     = $_SESSION['id_user'];
 $id_laporan  = $_SESSION['id_laporan'];
@@ -80,20 +73,13 @@ if(isset($_POST['kirim'])){
 
     mysqli_query($conn,"
     UPDATE laporan
-
-    SET
-
-    status='menunggu_validasi',
-    updated_at=NOW()
-
-    WHERE
-
-    id_laporan='$id_laporan'
+    SET status='menunggu_validasi', updated_at=NOW()
+    WHERE id_laporan='$id_laporan' AND status='draft'
     ");
 
     echo "<script>
     alert('Laporan berhasil dikirim untuk validasi.');
-    window.location='detail.php';
+    window.location='detail.php?id={$id_laporan}';
     </script>";
     exit;
 }
@@ -173,7 +159,7 @@ type="submit"
 name="kirim"
 class="btn btn-primary"
 <?= count($errors)>0?'disabled':''; ?>>
-Kirim Laporan
+Simpan Laporan &amp; Kirim Validasi
 </button>
 
 </form>

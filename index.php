@@ -66,7 +66,7 @@ include 'includes/header.php';
 
                 <div class="col-lg-4 col-md-6">
 
-                    <a href="buku_saku.php">
+                    <a href="satpam/buku_saku/index.php">
 
                         <div class="card-app landing-card h-100">
 

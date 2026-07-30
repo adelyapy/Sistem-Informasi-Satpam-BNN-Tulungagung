@@ -1,12 +1,5 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['login']) || $_SESSION['role'] != 'admin') {
-    header("Location: ../../login.php");
-    exit;
-}
-
-require "../../config/database.php";
+require_once "../../config/admin_auth.php";
 
 include "../../includes/header.php";
 include "../../includes/admin_sidebar.php";

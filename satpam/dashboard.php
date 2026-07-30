@@ -1,8 +1,5 @@
 <?php
-session_start();
-
-require_once "../config/database.php";
-require_once "../config/session.php";
+require_once "../config/satpam_auth.php";
 $id_user     = $_SESSION['id_user'];
 $nama        = $_SESSION['nama'];
 $id_laporan  = $_SESSION['id_laporan'];
@@ -250,7 +247,7 @@ Tambah Nama Satpam
 
 class="card card-menu"
 
-onclick="location.href='inventaris.php'">
+  onclick="location.href='buku_mutasi/inventaris.php'">
 
 <div class="card-body">
 
@@ -292,7 +289,7 @@ Catat inventaris yang digunakan
 
 class="card card-menu"
 
-onclick="location.href='uraian.php'">
+  onclick="location.href='buku_mutasi/uraian.php'">
 
 <div class="card-body">
 

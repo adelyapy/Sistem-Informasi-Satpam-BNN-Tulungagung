@@ -1,7 +1,7 @@
 <?php
 
-require_once "../../config/admin_auth.php";
-require_once "../../config/function.php";
+require_once "../config/admin_auth.php";
+require_once "../config/function.php";
 
 if (!isset($_GET['id'])) {
     header("Location: index.php");

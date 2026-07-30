@@ -88,7 +88,7 @@ function tambahAnggotaShift(mysqli $conn,$idLaporan,$idSatpam){
         return true;
     }
 
-    $status="login";
+    $status="sudah_login";
 
     $q=mysqli_prepare($conn,"
         INSERT INTO anggota_shift
@@ -115,7 +115,7 @@ function tambahAnggotaShift(mysqli $conn,$idLaporan,$idSatpam){
 
 function updateLoginAnggota(mysqli $conn,$idLaporan,$idSatpam){
 
-    $status="login";
+    $status="sudah_login";
 
     $q=mysqli_prepare($conn,"
         UPDATE anggota_shift

@@ -1,24 +1,12 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['login'])) {
-    header("Location: ../../login.php");
-    exit;
-}
-
-if ($_SESSION['role'] != 'satpam') {
-    header("Location: ../../login.php");
-    exit;
-}
-
-require "../../config/database.php";
+require_once "../../config/satpam_auth.php";
 
 $title = "Inventaris";
 $base_url = "../../";
 include "../../includes/header.php";
 
-$id_user     = $_SESSION['id_user'];
-$id_laporan  = $_SESSION['id_laporan'];
+$id_user     = (int) $_SESSION['id_user'];
+$id_laporan  = (int) ($_GET['id'] ?? $_SESSION['id_laporan'] ?? 0);
 
 if (empty($id_laporan)) {
 
@@ -26,8 +14,6 @@ if (empty($id_laporan)) {
     exit;
 
 }
-
-$id_laporan = (int) $_GET['id'];
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +61,12 @@ if(mysqli_num_rows($qLaporan)==0){
 }
 
 $laporan=mysqli_fetch_assoc($qLaporan);
+$kondisiBarang = [
+    'Lengkap berfungsi dengan baik',
+    'Lengkap baik',
+    'Lengkap',
+    'Baik',
+];
 
 /*
 |--------------------------------------------------------------------------
@@ -82,13 +74,20 @@ $laporan=mysqli_fetch_assoc($qLaporan);
 |--------------------------------------------------------------------------
 */
 
-if(isset($_POST['simpan'])){
+if(isset($_POST['simpan']) && $laporan['status'] === 'draft'){
 
     $nama_barang = mysqli_real_escape_string($conn,$_POST['nama_barang']);
 
     $jumlah = (int)$_POST['jumlah'];
 
-    $keterangan = mysqli_real_escape_string($conn,$_POST['keterangan']);
+    $keterangan = trim($_POST['keterangan'] ?? '');
+
+    if (!in_array($keterangan, $kondisiBarang, true)) {
+        header("Location: inventaris.php?id={$id_laporan}&error=kondisi");
+        exit;
+    }
+
+    $keterangan = mysqli_real_escape_string($conn, $keterangan);
 
     $urutan = (int)$_POST['urutan'];
 
@@ -140,7 +139,7 @@ if(isset($_POST['simpan'])){
 |--------------------------------------------------------------------------
 */
 
-if(isset($_POST['edit'])){
+if(isset($_POST['edit']) && $laporan['status'] === 'draft'){
 
     $id_inventaris=(int)$_POST['id_inventaris'];
 
@@ -148,7 +147,14 @@ if(isset($_POST['edit'])){
 
     $jumlah=(int)$_POST['jumlah'];
 
-    $keterangan = mysqli_real_escape_string($conn, $_POST['keterangan']);
+    $keterangan = trim($_POST['keterangan'] ?? '');
+
+    if (!in_array($keterangan, $kondisiBarang, true)) {
+        header("Location: inventaris.php?id={$id_laporan}&error=kondisi");
+        exit;
+    }
+
+    $keterangan = mysqli_real_escape_string($conn, $keterangan);
 
     $urutan=(int)$_POST['urutan'];
 
@@ -183,7 +189,7 @@ if(isset($_POST['edit'])){
 |--------------------------------------------------------------------------
 */
 
-if(isset($_GET['hapus'])){
+if(isset($_GET['hapus']) && $laporan['status'] === 'draft'){
 
     $id=(int)$_GET['hapus'];
 
@@ -565,16 +571,13 @@ ORDER BY urutan ASC
 
                     <div class="mb-3">
 
-                        <label class="form-label">
-
-                            Keterangan
-
-                        </label>
-
-                        <textarea
-                            name="keterangan"
-                            class="form-control"
-                            rows="3"></textarea>
+                        <label class="form-label">Keadaan Barang</label>
+                        <select name="keterangan" class="form-select" required>
+                            <option value="">Pilih keadaan barang</option>
+                            <?php foreach ($kondisiBarang as $kondisi) { ?>
+                                <option value="<?= htmlspecialchars($kondisi) ?>"><?= htmlspecialchars($kondisi) ?></option>
+                            <?php } ?>
+                        </select>
 
                     </div>
 
@@ -714,16 +717,12 @@ if ($laporan['status'] == "draft") {
 
                     <div class="mb-3">
 
-                        <label class="form-label">
-
-                            Keterangan
-
-                        </label>
-
-                        <textarea
-                            name="keterangan"
-                            class="form-control"
-                            rows="3"><?= htmlspecialchars($edit['keterangan']); ?></textarea>
+                        <label class="form-label">Keadaan Barang</label>
+                        <select name="keterangan" class="form-select" required>
+                            <?php foreach ($kondisiBarang as $kondisi) { ?>
+                                <option value="<?= htmlspecialchars($kondisi) ?>" <?= $edit['keterangan'] === $kondisi ? 'selected' : '' ?>><?= htmlspecialchars($kondisi) ?></option>
+                            <?php } ?>
+                        </select>
 
                     </div>
 

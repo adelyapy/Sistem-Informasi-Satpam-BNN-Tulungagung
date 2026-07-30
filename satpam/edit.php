@@ -1,9 +1,9 @@
 <?php
 
-require_once "../../config/admin_auth.php";
-require_once "../../config/function.php";
+require_once "../config/admin_auth.php";
+require_once "../config/function.php";
 
-$title = "Edit Satpam";
+$title = "Detail Satpam";
 $base_url = "../../";
 
 if (!isset($_GET['id'])) {
@@ -11,303 +11,154 @@ if (!isset($_GET['id'])) {
     exit;
 }
 
-$id = (int) $_GET['id'];
+$id = intval($_GET['id']);
 
-$query = mysqli_query($conn,"
+$query = mysqli_query($conn, "
     SELECT *
     FROM users
     WHERE id_user='$id'
     AND role='satpam'
 ");
 
-if(mysqli_num_rows($query)==0){
-    header("Location:index.php");
+if (mysqli_num_rows($query) == 0) {
+    header("Location: index.php");
     exit;
 }
 
 $satpam = mysqli_fetch_assoc($query);
 
-if(isset($_POST['simpan'])){
-
-    $nama = e($_POST['nama']);
-
-    $foto = $satpam['foto'];
-    $ttd  = $satpam['ttd'];
-
-    if(!empty($_FILES['foto']['name'])){
-
-        $upload = uploadFoto($_FILES['foto']);
-
-        if($upload){
-
-            if(
-                !empty($foto) &&
-                file_exists("../../uploads/foto/".$foto)
-            ){
-                unlink("../../uploads/foto/".$foto);
-            }
-
-            $foto = $upload;
-
-        }
-
-    }
-
-    if(!empty($_FILES['ttd']['name'])){
-
-        $upload = uploadTTD($_FILES['ttd']);
-
-        if($upload){
-
-            if(
-                !empty($ttd) &&
-                file_exists("../../uploads/ttd/".$ttd)
-            ){
-                unlink("../../uploads/ttd/".$ttd);
-            }
-
-            $ttd = $upload;
-
-        }
-
-    }
-
-    $update=mysqli_query($conn,"
-        UPDATE users
-        SET
-            nama='$nama',
-            foto='$foto',
-            ttd='$ttd',
-            updated_at=NOW()
-        WHERE id_user='$id'
-    ");
-
-    if($update){
-
-        echo "
-
-        <script>
-
-        Swal.fire({
-
-            icon:'success',
-
-            title:'Berhasil',
-
-            text:'Data Satpam berhasil diperbarui'
-
-        }).then(()=>{
-
-            window.location='index.php';
-
-        });
-
-        </script>
-
-        ";
-
-    }else{
-
-        echo "
-
-        <script>
-
-        Swal.fire({
-
-            icon:'error',
-
-            title:'Gagal',
-
-            text:'Data gagal diperbarui'
-
-        });
-
-        </script>
-
-        ";
-
-    }
-
-}
-
-include "../../includes/header.php";
-
+include "../includes/header.php";
 ?>
 
 <link rel="stylesheet" href="../../assets/css/sidebar.css">
 <link rel="stylesheet" href="../../assets/css/dashboard.css">
 
-<?php include "../../includes/navbar.php"; ?>
-<?php include "../../includes/admin_sidebar.php"; ?>
+<?php include "../includes/navbar.php"; ?>
+<?php include "../includes/admin_sidebar.php"; ?>
 
 <div class="main-content">
 
-<div class="container-fluid">
+    <div class="container-fluid">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
 
-<div>
+            <div>
 
-<h3 class="fw-bold">
+                <h3 class="fw-bold">
+                    Detail Satpam
+                </h3>
 
-Edit Satpam
+                <p class="text-muted mb-0">
+                    Informasi data anggota satpam.
+                </p>
 
-</h3>
+            </div>
 
-<p class="text-muted mb-0">
+            <a href="index.php" class="btn btn-secondary">
 
-Perbarui data satpam.
+                <i class="bi bi-arrow-left"></i>
 
-</p>
+                Kembali
 
-</div>
+            </a>
 
-<a
-href="index.php"
-class="btn btn-secondary">
+        </div>
 
-<i class="bi bi-arrow-left"></i>
+        <div class="card shadow-sm">
 
-Kembali
+            <div class="card-body">
 
-</a>
+                <div class="row">
 
-</div>
+                    <div class="col-lg-4 text-center">
 
-<div class="card shadow-sm border-0">
+                        <?php if(!empty($satpam['foto'])): ?>
 
-<div class="card-body">
+                            <img
+                                src="../../uploads/foto/<?= $satpam['foto']; ?>"
+                                class="img-thumbnail rounded-circle mb-3"
+                                style="width:220px;height:220px;object-fit:cover;">
 
-<form
-method="POST"
-enctype="multipart/form-data">
+                        <?php else: ?>
 
-<div class="row">
+                            <img
+                                src="../../assets/img/default-user.png"
+                                class="img-thumbnail rounded-circle mb-3"
+                                style="width:220px;height:220px;object-fit:cover;">
 
-<div class="col-lg-6 mb-3">
+                        <?php endif; ?>
 
-<label class="form-label">
+                    </div>
 
-Kode Satpam
+                    <div class="col-lg-8">
 
-</label>
+                        <table class="table table-borderless">
 
-<input
-type="text"
-class="form-control"
-value="<?= htmlspecialchars($satpam['kode_satpam']); ?>"
-readonly>
+                            <tr>
+                                <th width="180">Kode Satpam</th>
+                                <td>: <?= $satpam['kode_satpam']; ?></td>
+                            </tr>
 
-</div>
+                            <tr>
+                                <th>Nama Satpam</th>
+                                <td>: <?= htmlspecialchars($satpam['nama']); ?></td>
+                            </tr>
 
-<div class="col-lg-6 mb-3">
+                            <tr>
+                                <th>Tanda Tangan</th>
+                                <td>
 
-<label class="form-label">
+                                    <?php if(!empty($satpam['ttd'])): ?>
 
-Nama Satpam
+                                        <img
+                                            src="../../uploads/ttd/<?= $satpam['ttd']; ?>"
+                                            class="img-thumbnail p-2"
+                                            style="height:120px;">
 
-</label>
+                                    <?php else: ?>
 
-<input
-type="text"
-name="nama"
-class="form-control"
-value="<?= htmlspecialchars($satpam['nama']); ?>"
-required>
+                                        -
 
-</div>
+                                    <?php endif; ?>
 
-<div class="col-lg-6 mb-3">
+                                </td>
 
-<label class="form-label">
+                            </tr>
 
-Foto Baru
+                        </table>
 
-</label>
+                        <div class="mt-4">
 
-<input
-type="file"
-name="foto"
-class="form-control"
-accept=".jpg,.jpeg,.png">
+                            <a
+                                href="edit.php?id=<?= $satpam['id_user']; ?>"
+                                class="btn btn-warning">
 
-<?php if(!empty($satpam['foto'])): ?>
+                                <i class="bi bi-pencil-square me-2"></i>
 
-<div class="mt-3">
+                                Edit
 
-<img
-src="../../uploads/foto/<?= $satpam['foto']; ?>"
-class="img-thumbnail"
-style="width:170px;height:170px;object-fit:cover;">
+                            </a>
 
-</div>
+                            <a
+                                href="index.php"
+                                class="btn btn-secondary">
 
-<?php endif; ?>
+                                Kembali
 
-</div>
+                            </a>
 
-<div class="col-lg-6 mb-3">
+                        </div>
 
-<label class="form-label">
+                    </div>
 
-Tanda Tangan Baru
+                </div>
 
-</label>
+            </div>
 
-<input
-type="file"
-name="ttd"
-class="form-control"
-accept=".jpg,.jpeg,.png">
+        </div>
 
-<?php if(!empty($satpam['ttd'])): ?>
-
-<div class="mt-3">
-
-<img
-src="../../uploads/ttd/<?= $satpam['ttd']; ?>"
-class="img-thumbnail p-2"
-style="height:120px;background:#fff;">
+    </div>
 
 </div>
 
-<?php endif; ?>
-
-</div>
-
-<div class="col-12">
-
-<button
-type="submit"
-name="simpan"
-class="btn btn-primary">
-
-<i class="bi bi-check-circle me-2"></i>
-
-Simpan Perubahan
-
-</button>
-
-<a
-href="index.php"
-class="btn btn-secondary">
-
-Batal
-
-</a>
-
-</div>
-
-</div>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<?php include "../../includes/footer.php"; ?>
+<?php include "../includes/footer.php"; ?>

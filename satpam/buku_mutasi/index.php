@@ -1,12 +1,5 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['login']) || $_SESSION['role'] != 'satpam') {
-    header("Location: ../../login.php");
-    exit;
-}
-
-require "../../config/database.php";
+require_once "../../config/satpam_auth.php";
 
 $title = "Buku Mutasi";
 $base_url = "../../";

@@ -1,18 +1,18 @@
 <?php
-session_start();
+require_once "config/session.php";
 
-// if (isset($_SESSION['login'])) {
+if (isset($_SESSION['login'], $_SESSION['role'])) {
+    $destination = [
+        'admin' => 'admin/dashboard/dashboard.php',
+        'kepala' => 'kepala/dashboard.php',
+        'satpam' => 'satpam/dashboard.php',
+    ][$_SESSION['role']] ?? null;
 
-   // if ($_SESSION['role'] == 'admin') {
-     //   header("Location: admin/dashboard/dashboard.php");
-    //} elseif ($_SESSION['role'] == 'kepala') {
-      //  header("Location: kepala/dashboard.php");
-    //} elseif ($_SESSION['role'] == 'satpam') {
-      //  header("Location: satpam/dashboard.php");
-    //}
-
-   // exit;
-//}
+    if ($destination) {
+        header("Location: {$destination}");
+        exit;
+    }
+}
 
 require_once "config/database.php";
 
@@ -84,6 +84,12 @@ include "includes/header.php";
                             </p>
 
                         </div>
+
+                        <?php if (!empty($_SESSION['login_error'])) { ?>
+                            <div class="alert alert-danger" role="alert">
+                                <?= htmlspecialchars($_SESSION['login_error']); unset($_SESSION['login_error']); ?>
+                            </div>
+                        <?php } ?>
 
                         <form action="login_process.php" method="POST">
 

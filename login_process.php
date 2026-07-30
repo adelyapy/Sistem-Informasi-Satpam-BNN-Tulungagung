@@ -1,257 +1,111 @@
 <?php
-session_start();
-
+require_once "config/session.php";
 require_once "config/database.php";
-require_once "config/function.php";
 
-if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+function loginFailed(string $message): never
+{
+    $_SESSION['login_error'] = $message;
+    header("Location: login.php");
+    exit;
+}
+
+function createSession(array $user, array $extra = []): void
+{
+    session_regenerate_id(true);
+    $_SESSION = array_merge([
+        'login' => true,
+        'id_user' => (int) $user['id_user'],
+        'nama' => $user['nama'],
+        'role' => $user['role'],
+    ], $extra);
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: login.php");
     exit;
 }
 
 $role = $_POST['role'] ?? '';
+if (!in_array($role, ['admin', 'kepala', 'satpam'], true)) {
+    loginFailed('Peran login tidak valid.');
+}
 
-/*==================================================
-=
-= LOGIN ADMIN / KEPALA
-=
-==================================================*/
-
-if ($role == "admin" || $role == "kepala") {
-
-    $id_user  = (int)$_POST['id_user'];
-    $password = $_POST['password'];
-
-    $query = mysqli_query($conn,"
-SELECT *
-FROM users
-WHERE
-    role='$role'
-    AND status='aktif'
-LIMIT 1
-");
-
-    if(mysqli_num_rows($query)==0){
-        die("<script>
-        alert('User tidak ditemukan');
-        location='login.php';
-        </script>");
+if ($role === 'admin' || $role === 'kepala') {
+    $password = (string) ($_POST['password'] ?? '');
+    if ($password === '') {
+        loginFailed('Password wajib diisi.');
     }
 
-    $user=mysqli_fetch_assoc($query);
+    $stmt = mysqli_prepare($conn, "SELECT id_user, nama, role, password FROM users WHERE role = ? AND status = 'aktif' LIMIT 1");
+    mysqli_stmt_bind_param($stmt, "s", $role);
+    mysqli_stmt_execute($stmt);
+    $user = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 
-    if(!password_verify($password,$user['password'])){
-
-        die("<script>
-        alert('Password salah');
-        location='login.php';
-        </script>");
-
+    if (!$user || empty($user['password']) || !password_verify($password, $user['password'])) {
+        loginFailed('Username atau password tidak valid.');
     }
 
-    $_SESSION['login'] = true;
-$_SESSION['id_user'] = $user['id_user'];
-$_SESSION['nama'] = $user['nama'];
-$_SESSION['role'] = $user['role'];
-
-if ($user['role'] == "admin") {
-    header("Location: admin/dashboard/dashboard.php");
-} elseif ($user['role'] == "kepala") {
-    header("Location: kepala/dashboard.php");
+    createSession($user);
+    header("Location: " . ($role === 'admin' ? 'admin/dashboard/dashboard.php' : 'kepala/dashboard.php'));
+    exit;
 }
 
-exit;
+$idUser = filter_input(INPUT_POST, 'id_user', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$idShift = filter_input(INPUT_POST, 'id_shift', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+if (!$idUser || !$idShift) {
+    loginFailed('Satpam dan shift wajib dipilih.');
 }
 
-/*==================================================
-=
-= LOGIN SATPAM
-=
-==================================================*/
+$tanggal = date('Y-m-d');
 
-$id_user=(int)$_POST['id_user'];
-$id_shift=(int)$_POST['id_shift'];
-$tanggal=date("Y-m-d");
+try {
+    mysqli_begin_transaction($conn);
 
-/*---------------------------------
-cek satpam
----------------------------------*/
+    $userStmt = mysqli_prepare($conn, "SELECT id_user, nama, role FROM users WHERE id_user = ? AND role = 'satpam' AND status = 'aktif' LIMIT 1");
+    mysqli_stmt_bind_param($userStmt, "i", $idUser);
+    mysqli_stmt_execute($userStmt);
+    $user = mysqli_fetch_assoc(mysqli_stmt_get_result($userStmt));
+    if (!$user) {
+        throw new RuntimeException('Satpam tidak ditemukan atau tidak aktif.');
+    }
 
-$qUser = mysqli_query($conn,"
-SELECT *
-FROM users
-WHERE
-    id_user = '$id_user'
-    AND role = 'satpam'
-    AND status = 'aktif'
-LIMIT 1
-");
+    $jadwalStmt = mysqli_prepare($conn, "SELECT id_jadwal FROM jadwal_shift WHERE id_satpam = ? AND id_shift = ? AND tanggal = ? AND status = 'bertugas' LIMIT 1");
+    mysqli_stmt_bind_param($jadwalStmt, "iis", $idUser, $idShift, $tanggal);
+    mysqli_stmt_execute($jadwalStmt);
+    $jadwal = mysqli_fetch_assoc(mysqli_stmt_get_result($jadwalStmt));
+    if (!$jadwal) {
+        throw new RuntimeException('Tidak ada jadwal bertugas pada shift yang dipilih.');
+    }
 
-if(mysqli_num_rows($qUser)==0){
-
-    die("<script>
-    alert('Data satpam tidak ditemukan');
-    location='login.php';
-    </script>");
-
-}
-
-$user=mysqli_fetch_assoc($qUser);
-
-/*---------------------------------
-cek jadwal
----------------------------------*/
-
-$qJadwal=mysqli_query($conn,"
-SELECT *
-FROM jadwal_shift
-WHERE
-id_satpam='$id_user'
-AND id_shift='$id_shift'
-AND tanggal='$tanggal'
-AND status='bertugas'
-LIMIT 1
-");
-
-if(mysqli_num_rows($qJadwal)==0){
-
-    die("<script>
-    alert('Satpam tidak memiliki jadwal pada shift tersebut');
-    location='login.php';
-    </script>");
-
-}
-
-$jadwal=mysqli_fetch_assoc($qJadwal);
-
-$id_jadwal=$jadwal['id_jadwal'];
-
-/*---------------------------------
-cek laporan
----------------------------------*/
-
-$qLaporan=mysqli_query($conn,"
-SELECT *
-FROM laporan
-WHERE id_jadwal='$id_jadwal'
-LIMIT 1
-");
-
-if(mysqli_num_rows($qLaporan)>0){
-
-    $laporan=mysqli_fetch_assoc($qLaporan);
-
-    $id_laporan=$laporan['id_laporan'];
-
-}else{
-
-    mysqli_query($conn,"
-    INSERT INTO laporan
-    (
-
-        id_jadwal,
-        created_by,
-        tanggal_laporan,
-        status,
-        inventaris_selesai,
-        uraian_selesai,
-        created_at,
-        updated_at
-
-    )
-
-    VALUES
-    (
-
-        '$id_jadwal',
-        '$id_user',
-        '$tanggal',
-        'draft',
-        0,
-        0,
-        NOW(),
-        NOW()
-
-    )
+    $idJadwal = (int) $jadwal['id_jadwal'];
+    $laporanStmt = mysqli_prepare($conn, "
+        INSERT INTO laporan (id_jadwal, created_by, tanggal_laporan, status, inventaris_selesai, uraian_selesai)
+        VALUES (?, ?, ?, 'draft', 0, 0)
+        ON DUPLICATE KEY UPDATE id_laporan = LAST_INSERT_ID(id_laporan)
     ");
+    mysqli_stmt_bind_param($laporanStmt, "iis", $idJadwal, $idUser, $tanggal);
+    mysqli_stmt_execute($laporanStmt);
+    $idLaporan = (int) mysqli_insert_id($conn);
 
-    $id_laporan=mysqli_insert_id($conn);
+    $anggotaStmt = mysqli_prepare($conn, "
+        INSERT INTO anggota_shift (id_laporan, id_satpam, status_login, login_at)
+        VALUES (?, ?, 'sudah_login', NOW())
+        ON DUPLICATE KEY UPDATE status_login = 'sudah_login', login_at = NOW()
+    ");
+    mysqli_stmt_bind_param($anggotaStmt, "ii", $idLaporan, $idUser);
+    mysqli_stmt_execute($anggotaStmt);
 
+    mysqli_commit($conn);
+} catch (Throwable $error) {
+    mysqli_rollback($conn);
+    loginFailed($error->getMessage());
 }
 
-/*---------------------------------
-anggota shift
----------------------------------*/
-
-$qAnggota=mysqli_query($conn,"
-SELECT *
-FROM anggota_shift
-WHERE
-id_laporan='$id_laporan'
-AND id_satpam='$id_user'
-LIMIT 1
-");
-
-if(mysqli_num_rows($qAnggota)==0){
-
-    mysqli_query($conn,"
-    INSERT INTO anggota_shift
-    (
-
-        id_laporan,
-        id_satpam,
-        status_login,
-        login_at
-
-    )
-
-    VALUES
-    (
-
-        '$id_laporan',
-        '$id_user',
-        'login',
-        NOW()
-
-    )
-    ");
-
-}else{
-
-    mysqli_query($conn,"
-    UPDATE anggota_shift
-    SET
-
-        status_login='login',
-        login_at=NOW()
-
-    WHERE
-
-        id_laporan='$id_laporan'
-        AND id_satpam='$id_user'
-    ");
-
-}
-
-/*---------------------------------
-session
----------------------------------*/
-
-$_SESSION['login']=true;
-
-$_SESSION['id_user']=$user['id_user'];
-
-$_SESSION['nama']=$user['nama'];
-
-$_SESSION['role']="satpam";
-
-$_SESSION['id_shift']=$id_shift;
-
-$_SESSION['id_jadwal']=$id_jadwal;
-
-$_SESSION['id_laporan']=$id_laporan;
-
-/*---------------------------------*/
+createSession($user, [
+    'id_shift' => $idShift,
+    'id_jadwal' => $idJadwal,
+    'id_laporan' => $idLaporan,
+]);
 
 header("Location: satpam/dashboard.php");
 exit;

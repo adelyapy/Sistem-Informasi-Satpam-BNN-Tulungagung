@@ -1,7 +1,5 @@
 <?php
-session_start();
-if(!isset($_SESSION['login'])||$_SESSION['role']!='kepala'){header("Location:../../login.php");exit;}
-require "../../config/database.php";
+require_once "../../config/kepala_auth.php";
 include "../../includes/header.php";
 ?>
 <div class="container py-4">

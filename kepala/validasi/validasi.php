@@ -1,7 +1,5 @@
 <?php
-session_start();
-if(!isset($_SESSION['login'])||$_SESSION['role']!='kepala'){header("Location:../../login.php");exit;}
-require "../../config/database.php";
+require_once "../../config/kepala_auth.php";
 $id=(int)$_GET['id'];
 $idUser=$_SESSION['id_user'];
 mysqli_query($conn,"

@@ -41,7 +41,7 @@ $appBase = $sectionPos === false ? '' : substr($scriptPath, 0, $sectionPos);
         </li>
 
         <li>
-            <a href="../buku_saku/index.php">
+            <a href="<?= $appBase ?>/admin/buku_saku/index.php">
                 <i class="bi bi-journal-bookmark"></i>
                 <span>Buku Saku</span>
             </a>

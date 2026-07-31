@@ -4,6 +4,33 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
+require_once "../config/database.php";
+
+$namaNavbar = $_SESSION['nama']; // default
+
+if (isset($_SESSION['id_laporan'])) {
+
+    $id_laporan = $_SESSION['id_laporan'];
+
+    $q = mysqli_query($conn, "
+        SELECT u.nama
+        FROM anggota_shift a
+        JOIN users u ON a.id_satpam = u.id_user
+        WHERE a.id_laporan = '$id_laporan'
+        ORDER BY u.nama
+    ");
+
+    $listNama = [];
+
+    while ($row = mysqli_fetch_assoc($q)) {
+        $listNama[] = $row['nama'];
+    }
+
+    if (!empty($listNama)) {
+        $namaNavbar = implode(', ', $listNama);
+    }
+}
+
 ?>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
@@ -36,7 +63,7 @@ if (!isset($_SESSION)) {
 
                     <i class="bi bi-person-circle me-2"></i>
 
-                    <?= $_SESSION['nama']; ?>
+                    <?= $namaNavbar; ?>
 
                 </button>
 

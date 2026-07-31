@@ -49,85 +49,93 @@ ORDER BY u.nama
 $jumlahAnggota=mysqli_num_rows($anggota);
 ?>
 
-<!doctype html>
+<?php
+$title = "Dashboard Satpam";
+$base_url = "../";
 
-<html lang="id">
+include "../includes/header.php"; ?>
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/sidebar.css">
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/dashboard.css">
+<?php
+include "../includes/navbar.php";
+include "../includes/satpam_sidebar.php";
+?>
 
-<!DOCTYPE html>
-<html lang="id">
+<div class="main-content">
 
-<head>
+<div class="row align-items-center mb-5">
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <div class="col-lg-8">
 
-    <title>Dashboard Satpam</title>
+        <h1 class="dashboard-title">
+            DASHBOARD
+        </h1>
 
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/dashboard.css">
+        <p class="dashboard-sub">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+            Selamat Datang,
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+            <strong><?= $nama ?></strong>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-</head>
-
-<body>
-  <nav class="navbar navbar-custom">
-
-    <div class="container">
-
-        <div class="d-flex align-items-center justify-content-between w-100">
-
-            <div class="d-flex align-items-center">
-
-                <i class="bi bi-list menu-btn me-4"></i>
-
-                <img src="../assets/img/logo-bnn.png"
-                     class="logo-bnn me-3"
-                     alt="Logo BNN">
-
-                <div>
-
-                    <div class="title-app">
-                        BUKU MUTASI SATPAM
-                    </div>
-
-                    <div class="subtitle-app">
-                        BNN TULUNGAGUNG
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="d-flex align-items-center">
-
-                <i class="bi bi-person-circle fs-1 me-2"></i>
-
-                <span class="profile">
-                    <?= $nama ?>
-                </span>
-
-            </div>
-
-        </div>
+        </p>
 
     </div>
 
-</nav>
+    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
 
-<div class="col-4 text-end">
+        <button class="btn btn-tambah"
+                data-bs-toggle="modal"
+                data-bs-target="#modalTambahSatpam">
 
-<i class="bi bi-person-circle fs-1"></i>
+            <i class="bi bi-plus-lg"></i>
 
-<span class="profile">
+            Tambah Nama Satpam
 
-<?= $nama ?>
+        </button>
 
-</span>
+    </div>
+
+</div>
+
+
+
+<div class="container">
+  
+
+
+</div>
+
+<div class="row">
+
+<div class="col-lg-6 mb-4">
+
+<div
+
+class="card card-menu"
+
+  onclick="location.href='buku_mutasi/inventaris.php'">
+
+<div class="card-body">
+
+<div class="row align-items-center">
+
+<div class="col-3">
+
+<i class="bi bi-box-seam icon-menu"></i>
+
+</div>
+
+<div class="col-9">
+
+<div class="menu-title">
+
+INPUT INVENTARIS
+
+</div>
+
+<div class="menu-desc">
+
+Catat inventaris yang digunakan
 
 </div>
 
@@ -135,10 +143,59 @@ $jumlahAnggota=mysqli_num_rows($anggota);
 
 </div>
 
-</nav>
+</div>
 
-<div class="container py-5">
-  <div class="row mt-4">
+</div>
+
+</div>
+
+
+
+<div class="col-md-6">
+
+<div
+
+class="card card-menu"
+
+  onclick="location.href='buku_mutasi/uraian.php'">
+
+<div class="card-body">
+
+<div class="row align-items-center">
+
+<div class="col-3">
+
+<i class="bi bi-clipboard2-check icon-menu"></i>
+
+</div>
+
+<div class="col-9">
+
+<div class="menu-title">
+
+INPUT URAIAN KEGIATAN
+
+</div>
+
+<div class="menu-desc">
+
+Catat kegiatan dan lampiran
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+<div class="row mt-4">
 
     <div class="col-12">
 
@@ -184,157 +241,102 @@ $jumlahAnggota=mysqli_num_rows($anggota);
 
 </div>
 
+</div>
 
-<div class="row align-items-center mb-5">
 
-    <div class="col-lg-8">
+<div class="modal fade" id="modalTambahSatpam" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
 
-        <h1 class="dashboard-title">
-            DASHBOARD
-        </h1>
+            <form action="tambah_anggota.php" method="POST">
 
-        <p class="dashboard-sub">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-plus"></i>
+                        Tambah Nama Satpam
+                    </h5>
 
-            Selamat Datang,
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"></button>
+                </div>
 
-            <strong><?= $nama ?></strong>
+                <div class="modal-body">
 
-        </p>
+                    <input type="hidden"
+                           name="id_laporan"
+                           value="<?= $id_laporan ?>">
 
+                    <div class="mb-3">
+                        <label class="form-label">Nama</label>
+
+                        <select class="form-select"
+                                name="id_satpam"
+                                required>
+
+                            <option value="">Pilih Nama</option>
+
+                            <?php
+                            $q = mysqli_query($conn,"
+                                SELECT id_user,nama
+                                FROM users
+                                WHERE role='satpam'
+                                ORDER BY nama
+                            ");
+
+                            while($row = mysqli_fetch_assoc($q)){
+                            ?>
+
+                                <option value="<?= $row['id_user'] ?>">
+                                    <?= $row['nama'] ?>
+                                </option>
+
+                            <?php } ?>
+
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Shift</label>
+
+                        <select class="form-select"
+                                name="id_shift"
+                                required>
+
+                            <option value="">Pilih Shift</option>
+
+                            <?php
+                            $q = mysqli_query($conn,"
+                                SELECT id_shift,nama_shift
+                                FROM shift
+                                ORDER BY id_shift
+                            ");
+
+                            while($row = mysqli_fetch_assoc($q)){
+                            ?>
+
+                                <option value="<?= $row['id_shift'] ?>">
+                                    <?= $row['nama_shift'] ?>
+                                </option>
+
+                            <?php } ?>
+
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary w-100">
+                        Tambah
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
     </div>
-
-    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-
-        <button class="btn btn-tambah"
-                data-bs-toggle="modal"
-                data-bs-target="#modalTambahSatpam">
-
-            <i class="bi bi-plus-lg"></i>
-
-            Tambah Nama Satpam
-
-        </button>
-
-    </div>
-
 </div>
 
-<div class="col-md-4 text-end">
+<?php include "../includes/footer.php"; ?>
 
-<button
-
-class="btn btn-tambah"
-
-data-bs-toggle="modal"
-
-data-bs-target="#modalTambahSatpam">
-
-<i class="bi bi-plus-lg"></i>
-
-Tambah Nama Satpam
-
-</button>
-
-</div>
-
-</div>
-
-<div class="row mt-5">
-
-<div class="col-lg-6 mb-4">
-
-<div
-
-class="card card-menu"
-
-  onclick="location.href='buku_mutasi/inventaris.php'">
-
-<div class="card-body">
-
-<div class="row align-items-center">
-
-<div class="col-3">
-
-<i class="bi bi-box-seam icon-menu"></i>
-
-</div>
-
-<div class="col-9">
-
-<div class="menu-title">
-
-INPUT INVENTARIS
-
-</div>
-
-<div class="menu-desc">
-
-Catat inventaris yang digunakan
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-6">
-
-<div
-
-class="card card-menu"
-
-  onclick="location.href='buku_mutasi/uraian.php'">
-
-<div class="card-body">
-
-<div class="row align-items-center">
-
-<div class="col-3">
-
-<i class="bi bi-clipboard2-check icon-menu"></i>
-
-</div>
-
-<div class="col-9">
-
-<div class="menu-title">
-
-INPUT URAIAN KEGIATAN
-
-</div>
-
-<div class="menu-desc">
-
-Catat kegiatan dan lampiran
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<footer class="text-center py-4 text-muted">
-    © 2026 Sistem Informasi Buku Mutasi Satpam BNN Tulungagung
-</footer>
-
-</body>
-
-</html>

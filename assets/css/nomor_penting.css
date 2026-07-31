@@ -1,0 +1,25 @@
+body{
+    background:#f5f7fb;
+}
+
+.statistik-card{
+
+    border-radius:20px;
+
+}
+
+.nomor-card .btn {
+    height: 48px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.nomor-card .btn i {
+    font-size: 18px;
+}

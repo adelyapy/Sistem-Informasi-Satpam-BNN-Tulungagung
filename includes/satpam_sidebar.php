@@ -4,7 +4,7 @@ $sectionPos = strpos($scriptPath, '/satpam/');
 $appBase = $sectionPos === false ? '' : substr($scriptPath, 0, $sectionPos);
 ?>
 
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
     <div class="sidebar-header text-center">
         <img src="<?= $appBase ?>/assets/img/logo-bnn.png" width="70" alt="Logo BNN">
         <h5 class="mt-3 mb-1">Buku Mutasi Satpam</h5>

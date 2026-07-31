@@ -102,11 +102,28 @@ function confirmDelete(url){
 
 const sidebar = document.querySelector(".sidebar");
 const sidebarToggle = document.getElementById("sidebarToggle");
+const navbar = document.querySelector(".navbar");
+const content = document.querySelector(".main-content");
 
-if (sidebar && sidebarToggle) {
+if (sidebar && sidebarToggle && navbar && content) {
+
+    // Sidebar tampil saat pertama kali
+    sidebar.classList.add("show");
+    navbar.style.marginLeft = "270px";
+    content.style.marginLeft = "270px";
 
     sidebarToggle.addEventListener("click", () => {
+
         sidebar.classList.toggle("show");
+
+        if (sidebar.classList.contains("show")) {
+            navbar.style.marginLeft = "270px";
+            content.style.marginLeft = "270px";
+        } else {
+            navbar.style.marginLeft = "0";
+            content.style.marginLeft = "0";
+        }
+
     });
 
 }

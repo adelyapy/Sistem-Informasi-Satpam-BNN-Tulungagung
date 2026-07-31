@@ -4,17 +4,18 @@
 
 .sidebar{
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 260px;
-    height: 100vh;
-    background: #2563eb;
-    color: #fff;
-    overflow-y: auto;
-    transition: .3s;
-    z-index: 1050;
+    top:0;
+    left:-270px;
+    width:270px;
+    height:100%;
+    background:#2D5BFF;
+    transition:.3s;
+    z-index:1050;
 }
 
+.sidebar.show{
+    left:0;
+}
 .sidebar-header{
     padding: 30px 20px;
     text-align: center;
@@ -79,18 +80,28 @@
 ========================================================== */
 
 .main-content{
-    margin-left: 260px;
-    padding: 25px;
-    min-height: 100vh;
-    background: #f5f7fb;
+    margin-left:0;
+    margin-top:0;
+    padding:25px 30px;
+    min-height:calc(100vh - 70px);
+    transition:.3s;
 }
 
-/* ==========================================================
-   NAVBAR
-========================================================== */
-
 .navbar{
-    margin-left: 260px;
+    margin-left:0;
+    transition:.3s;
+}
+
+.sidebar.show ~ .main-content{
+    margin-left:270px;
+}
+
+body.sidebar-open .navbar{
+    margin-left:270px;
+}
+
+body.sidebar-open .main-content{
+    margin-left:270px;
 }
 
 /* ==========================================================
@@ -100,15 +111,11 @@
 @media (max-width: 992px){
 
     .sidebar{
-        left: -260px;
+        left: -270px;
     }
 
     .sidebar.show{
         left: 0;
-    }
-
-    .navbar{
-        margin-left: 0;
     }
 
     .main-content{

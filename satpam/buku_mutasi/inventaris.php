@@ -1,783 +1,187 @@
 <?php
 require_once "../../config/satpam_auth.php";
 
-$title = "Inventaris";
-$base_url = "../../";
-include "../../includes/header.php";
+$idUser = (int) ($_SESSION['id_user'] ?? 0);
+$idLaporan = (int) ($_GET['id'] ?? $_SESSION['id_laporan'] ?? 0);
 
-$id_user     = (int) $_SESSION['id_user'];
-$id_laporan  = (int) ($_GET['id'] ?? $_SESSION['id_laporan'] ?? 0);
-
-if (empty($id_laporan)) {
-
-    header("Location:index.php");
+if ($idLaporan < 1) {
+    header('Location: index.php');
     exit;
-
 }
 
-/*
-|--------------------------------------------------------------------------
-| Ambil Data Laporan
-|--------------------------------------------------------------------------
-*/
+$laporanStmt = mysqli_prepare($conn, '
+    SELECT l.id_laporan, l.status
+    FROM laporan l
+    INNER JOIN anggota_shift a ON a.id_laporan = l.id_laporan
+    WHERE l.id_laporan = ? AND a.id_satpam = ?
+    LIMIT 1
+');
+mysqli_stmt_bind_param($laporanStmt, 'ii', $idLaporan, $idUser);
+mysqli_stmt_execute($laporanStmt);
+$laporan = mysqli_fetch_assoc(mysqli_stmt_get_result($laporanStmt));
 
-$qLaporan = mysqli_query($conn,"
-SELECT
-    l.*,
-    j.tanggal,
-    s.nama_shift
-FROM laporan l
-
-JOIN jadwal_shift j
-ON l.id_jadwal=j.id_jadwal
-
-JOIN shift s
-ON j.id_shift=s.id_shift
-
-JOIN anggota_shift a
-ON a.id_laporan=l.id_laporan
-
-WHERE
-
-l.id_laporan='$id_laporan'
-AND a.id_satpam='$id_user'
-
-LIMIT 1
-
-");
-
-if(mysqli_num_rows($qLaporan)==0){
-
-    echo "<script>
-
-    alert('Data tidak ditemukan');
-
-    window.location='index.php';
-
-    </script>";
-
+if (!$laporan) {
+    header('Location: index.php');
     exit;
-
 }
 
-$laporan=mysqli_fetch_assoc($qLaporan);
-$kondisiBarang = [
-    'Lengkap berfungsi dengan baik',
-    'Lengkap baik',
-    'Lengkap',
-    'Baik',
-];
+$kondisiBarang = ['Lengkap berfungsi dengan baik', 'Lengkap baik', 'Lengkap', 'Baik'];
 
-/*
-|--------------------------------------------------------------------------
-| Simpan Barang
-|--------------------------------------------------------------------------
-*/
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $laporan['status'] === 'draft') {
+    $action = $_POST['action'] ?? '';
 
-if(isset($_POST['simpan']) && $laporan['status'] === 'draft'){
+    if ($action === 'tambah') {
+        $namaBarang = trim($_POST['nama_barang'] ?? '');
+        $jumlah = filter_input(INPUT_POST, 'jumlah', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $keterangan = trim($_POST['keterangan'] ?? '');
 
-    $nama_barang = mysqli_real_escape_string($conn,$_POST['nama_barang']);
-
-    $jumlah = (int)$_POST['jumlah'];
-
-    $keterangan = trim($_POST['keterangan'] ?? '');
-
-    if (!in_array($keterangan, $kondisiBarang, true)) {
-        header("Location: inventaris.php?id={$id_laporan}&error=kondisi");
-        exit;
+        if ($namaBarang !== '' && $jumlah && in_array($keterangan, $kondisiBarang, true)) {
+            $urutanResult = mysqli_query($conn, "SELECT COALESCE(MAX(urutan), 0) + 1 AS urutan FROM inventaris WHERE id_laporan = {$idLaporan}");
+            $urutan = (int) mysqli_fetch_assoc($urutanResult)['urutan'];
+            $stmt = mysqli_prepare($conn, 'INSERT INTO inventaris (id_laporan, created_by, urutan, nama_barang, jumlah, keterangan) VALUES (?, ?, ?, ?, ?, ?)');
+            mysqli_stmt_bind_param($stmt, 'iiisis', $idLaporan, $idUser, $urutan, $namaBarang, $jumlah, $keterangan);
+            mysqli_stmt_execute($stmt);
+            mysqli_query($conn, "UPDATE laporan SET inventaris_selesai = 1 WHERE id_laporan = {$idLaporan}");
+        }
     }
 
-    $keterangan = mysqli_real_escape_string($conn, $keterangan);
-
-    $urutan = (int)$_POST['urutan'];
-
-    mysqli_query($conn,"
-
-    INSERT INTO inventaris
-    (
-
-        id_laporan,
-        created_by,
-        urutan,
-        nama_barang,
-        jumlah,
-        keterangan,
-        created_at
-
-    )
-
-    VALUES
-    (
-
-        '$id_laporan',
-        '$id_user',
-        '$urutan',
-        '$nama_barang',
-        '$jumlah',
-        '$keterangan',
-        NOW()
-
-    )
-
-    ");
-
-    mysqli_query($conn,"
-    UPDATE laporan
-    SET inventaris_selesai=1
-    WHERE id_laporan='$id_laporan'
-    ");
-
-    header("Location:inventaris.php");
-
-    exit;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Edit Barang
-|--------------------------------------------------------------------------
-*/
-
-if(isset($_POST['edit']) && $laporan['status'] === 'draft'){
-
-    $id_inventaris=(int)$_POST['id_inventaris'];
-
-    $nama_barang=mysqli_real_escape_string($conn,$_POST['nama_barang']);
-
-    $jumlah=(int)$_POST['jumlah'];
-
-    $keterangan = trim($_POST['keterangan'] ?? '');
-
-    if (!in_array($keterangan, $kondisiBarang, true)) {
-        header("Location: inventaris.php?id={$id_laporan}&error=kondisi");
-        exit;
+    if ($action === 'edit') {
+        $idInventaris = (int) ($_POST['id_inventaris'] ?? 0);
+        $namaBarang = trim($_POST['nama_barang'] ?? '');
+        $jumlah = filter_input(INPUT_POST, 'jumlah', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $keterangan = trim($_POST['keterangan'] ?? '');
+        if ($idInventaris > 0 && $namaBarang !== '' && $jumlah && in_array($keterangan, $kondisiBarang, true)) {
+            $stmt = mysqli_prepare($conn, 'UPDATE inventaris SET nama_barang = ?, jumlah = ?, keterangan = ?, updated_at = NOW() WHERE id_inventaris = ? AND id_laporan = ?');
+            mysqli_stmt_bind_param($stmt, 'sisii', $namaBarang, $jumlah, $keterangan, $idInventaris, $idLaporan);
+            mysqli_stmt_execute($stmt);
+        }
     }
 
-    $keterangan = mysqli_real_escape_string($conn, $keterangan);
+    if ($action === 'hapus') {
+        $idInventaris = (int) ($_POST['id_inventaris'] ?? 0);
+        $stmt = mysqli_prepare($conn, 'DELETE FROM inventaris WHERE id_inventaris = ? AND id_laporan = ?');
+        mysqli_stmt_bind_param($stmt, 'ii', $idInventaris, $idLaporan);
+        mysqli_stmt_execute($stmt);
+        $total = (int) mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM inventaris WHERE id_laporan = {$idLaporan}"))['total'];
+        if ($total === 0) {
+            mysqli_query($conn, "UPDATE laporan SET inventaris_selesai = 0 WHERE id_laporan = {$idLaporan}");
+        }
+    }
 
-    $urutan=(int)$_POST['urutan'];
-
-    mysqli_query($conn,"
-
-    UPDATE inventaris
-
-    SET
-
-    urutan='$urutan',
-    nama_barang='$nama_barang',
-    jumlah='$jumlah',
-    keterangan='$keterangan',
-    updated_at=NOW()
-
-    WHERE
-
-    id_inventaris='$id_inventaris'
-    AND id_laporan='$id_laporan'
-
-    ");
-
-    header("Location:inventaris.php");
-
+    header("Location: inventaris.php?id={$idLaporan}");
     exit;
-
 }
 
-/*
-|--------------------------------------------------------------------------
-| Hapus Barang
-|--------------------------------------------------------------------------
-*/
-
-if(isset($_GET['hapus']) && $laporan['status'] === 'draft'){
-
-    $id=(int)$_GET['hapus'];
-
-    mysqli_query($conn, "
-    DELETE FROM inventaris
-    WHERE id_inventaris='$id'
-    AND id_laporan='$id_laporan'
-    ");
-
-    $cek=mysqli_query($conn,"
-    SELECT
-
-    i.*,
-
-    u.nama
-
+$dataStmt = mysqli_prepare($conn, '
+    SELECT i.*, u.nama AS nama_input
     FROM inventaris i
+    LEFT JOIN users u ON u.id_user = i.created_by
+    WHERE i.id_laporan = ?
+    ORDER BY i.urutan ASC, i.id_inventaris ASC
+');
+mysqli_stmt_bind_param($dataStmt, 'i', $idLaporan);
+mysqli_stmt_execute($dataStmt);
+$inventaris = mysqli_fetch_all(mysqli_stmt_get_result($dataStmt), MYSQLI_ASSOC);
 
-    LEFT JOIN users u
-
-    ON i.created_by=u.id_user
-
-    WHERE
-
-    i.id_laporan='$id_laporan'
-
-    ORDER BY i.urutan ASC
-    ");
-
-    if(mysqli_num_rows($cek)==0){
-
-        mysqli_query($conn,"
-        UPDATE laporan
-        SET inventaris_selesai=0
-        WHERE id_laporan='$id_laporan'
-        ");
-
-    }
-
-    header("Location:inventaris.php");
-
-    exit;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Ambil Inventaris
-|--------------------------------------------------------------------------
-*/
-
-$qInventaris=mysqli_query($conn,"
-SELECT *
-FROM inventaris
-WHERE id_laporan='$id_laporan'
-ORDER BY urutan ASC
-");
-
+$title = 'Input Inventaris';
+$pageTitle = 'Input Inventaris';
+$base_url = '../../';
+$activeMenu = 'inventaris';
+include '../../includes/header.php';
 ?>
 
-<div class="wrapper">
-
-<?php include "../../includes/satpam_sidebar.php"; ?>
-
-<div class="main">
-
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-
-    <div>
-
-        <h3 class="fw-bold mb-1">
-
-            Inventaris
-
-        </h3>
-
-        <small class="text-muted">
-
-            Laporan Buku Mutasi
-
-        </small>
-
-    </div>
-
-    <div>
-
-        <a href="detail.php"
-            class="btn btn-secondary">
-
-            <i class="bi bi-arrow-left"></i>
-
-            Kembali
-
-        </a>
-
-        <?php if($laporan['status']=="draft"){ ?>
-
-            <button
-                class="btn btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#modalTambah">
-
-                <i class="bi bi-plus-circle"></i>
-
-                Tambah Barang
-
-            </button>
-
-        <?php } ?>
-
-    </div>
-
-</div>
-
-
-<div class="card shadow-sm border-0">
-
-    <div class="card-header">
-
-        <strong>
-
-            Daftar Inventaris
-
-        </strong>
-
-    </div>
-
-    <div class="card-body p-0">
-
-        <div class="table-responsive">
-
-            <table class="table table-hover align-middle mb-0">
-
-                <thead class="table-light">
-
-                    <tr>
-
-                        <th width="60">
-
-                            No
-
-                        </th>
-
-                        <th>
-
-                            Nama Barang
-
-                        </th>
-
-                        <th width="120">
-
-                            Jumlah
-
-                        </th>
-
-                        <th>
-
-                            Keterangan
-
-                        </th>
-
-                        <th width="170"
-                            class="text-center">
-
-                            Aksi
-
-                        </th>
-
-                        <th width="180">
-                            Input Oleh
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    <?php
-
-                    if(mysqli_num_rows($qInventaris)==0){
-
-                    ?>
-
-                    <tr>
-
-                        <td colspan="5"
-                            class="text-center py-5">
-
-                            <i class="bi bi-box-seam fs-1 text-secondary"></i>
-
-                            <br><br>
-
-                            Belum ada data inventaris.
-
-                        </td>
-
-                    </tr>
-
-                    <?php
-
-                    }else{
-
-                        while($row=mysqli_fetch_assoc($qInventaris)){
-
-                    ?>
-
-                    <tr>
-
-                        <td>
-
-                            <?= $row['urutan']; ?>
-
-                        </td>
-
-                        <td>
-
-                            <strong>
-
-                                <?= htmlspecialchars($row['nama_barang']); ?>
-
-                            </strong>
-
-                        </td>
-
-                        <td>
-
-                            <?= $row['jumlah']; ?>
-
-                        </td>
-
-                        <td>
-
-                            <?= htmlspecialchars($row['nama'] ?? '-') ?>
-
-                        </td>
-
-                        <td>
-
-                            <?= htmlspecialchars($row['keterangan']); ?>
-
-                        </td>
-
-                        <td class="text-center">
-
-                            <?php if($laporan['status']=="draft"){ ?>
-
-                            <button
-
-                                class="btn btn-warning btn-sm"
-
-                                data-bs-toggle="modal"
-
-                                data-bs-target="#edit<?= $row['id_inventaris']; ?>">
-
-                                <i class="bi bi-pencil-square"></i>
-
-                            </button>
-
-                            <a
-
-                                href="?id=<?= $id_laporan; ?>&hapus=<?= $row['id_inventaris']; ?>"
-
-                                onclick="return confirm('Hapus barang ini?')"
-
-                                class="btn btn-danger btn-sm">
-
-                                <i class="bi bi-trash"></i>
-
-                            </a>
-
-                            <?php }else{ ?>
-
-                            <button
-                                class="btn btn-outline-secondary btn-sm"
-                                disabled>
-
-                                <i class="bi bi-eye"></i>
-
-                            </button>
-
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/sidebar.css">
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/dashboard.css">
+
+<?php include '../../includes/satpam_navbar.php'; ?>
+<?php include '../../includes/satpam_sidebar.php'; ?>
+
+<main class="main-content">
+        <div class="inventaris-page">
+            <section class="inventaris-card mb-3">
+                <div class="card-body">
+                    <h2 class="inventaris-heading">Form Input Inventaris</h2>
+
+                    <?php if ($laporan['status'] === 'draft') { ?>
+                        <form method="post" class="row g-3 align-items-end">
+                            <input type="hidden" name="action" value="tambah">
+                            <div class="col-lg-5">
+                                <label class="form-label" for="nama_barang">Nama Barang</label>
+                                <input class="form-control" id="nama_barang" name="nama_barang" placeholder="Masukkan nama barang" required>
+                            </div>
+                            <div class="col-lg-3">
+                                <label class="form-label" for="jumlah">Jumlah</label>
+                                <input class="form-control" id="jumlah" name="jumlah" type="number" min="1" placeholder="Masukkan jumlah" required>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="form-label" for="keterangan">Keterangan</label>
+                                <select class="form-select" id="keterangan" name="keterangan" required>
+                                    <option value="">Pilih keterangan</option>
+                                    <?php foreach ($kondisiBarang as $kondisi) { ?>
+                                        <option value="<?= htmlspecialchars($kondisi) ?>"><?= htmlspecialchars($kondisi) ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                            <div class="col-12 text-end mt-4">
+                                <button class="btn btn-inventaris-primary" type="submit"><i class="bi bi-plus-lg me-2"></i>Tambah Barang</button>
+                            </div>
+                        </form>
+                    <?php } else { ?>
+                        <div class="alert alert-success mb-0">Laporan telah dikirim sehingga data inventaris tidak dapat diubah.</div>
+                    <?php } ?>
+                </div>
+            </section>
+
+            <section class="inventaris-card">
+                <div class="card-body">
+                    <h2 class="inventaris-heading">Daftar Inventaris</h2>
+                    <div class="inventory-table table-responsive">
+                        <table class="table align-middle">
+                            <thead><tr><th>No.</th><th>Nama Barang</th><th>Jumlah</th><th>Keterangan</th><th class="text-center">Aksi</th></tr></thead>
+                            <tbody>
+                            <?php if (!$inventaris) { ?>
+                                <tr><td colspan="5" class="text-center text-muted py-5">Belum ada inventaris yang ditambahkan.</td></tr>
                             <?php } ?>
-
-                        </td>
-
-                    </tr>
-
-                    <?php
-
-                        }
-
-                    }
-
-                    ?>
-
-                </tbody>
-
-            </table>
-
-            <?php if($laporan['status']=="draft"){ ?>
-
-<div class="modal fade"
-    id="modalTambah"
-    tabindex="-1">
-
-    <div class="modal-dialog">
-
-        <div class="modal-content">
-
-            <form method="POST">
-
-                <div class="modal-header">
-
-                    <h5 class="modal-title">
-
-                        Tambah Inventaris
-
-                    </h5>
-
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal">
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Urutan
-
-                        </label>
-
-                        <input
-                            type="number"
-                            name="urutan"
-                            class="form-control"
-                            required>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Nama Barang
-
-                        </label>
-
-                        <input
-                            type="text"
-                            name="nama_barang"
-                            class="form-control"
-                            required>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Jumlah
-
-                        </label>
-
-                        <input
-                            type="number"
-                            name="jumlah"
-                            class="form-control"
-                            min="1"
-                            required>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">Keadaan Barang</label>
-                        <select name="keterangan" class="form-select" required>
-                            <option value="">Pilih keadaan barang</option>
-                            <?php foreach ($kondisiBarang as $kondisi) { ?>
-                                <option value="<?= htmlspecialchars($kondisi) ?>"><?= htmlspecialchars($kondisi) ?></option>
+                            <?php foreach ($inventaris as $index => $row) { ?>
+                                <tr>
+                                    <td><?= $index + 1 ?></td>
+                                    <td class="fw-medium"><?= htmlspecialchars($row['nama_barang']) ?></td>
+                                    <td><?= (int) $row['jumlah'] ?></td>
+                                    <td><span class="inventory-badge"><?= htmlspecialchars($row['keterangan']) ?></span></td>
+                                    <td class="text-center inventory-actions">
+                                    <?php if ($laporan['status'] === 'draft') { ?>
+                                        <button class="btn btn-edit" type="button" data-bs-toggle="modal" data-bs-target="#edit<?= (int) $row['id_inventaris'] ?>" aria-label="Edit <?= htmlspecialchars($row['nama_barang']) ?>"><i class="bi bi-pencil-square"></i></button>
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Hapus barang ini?')">
+                                            <input type="hidden" name="action" value="hapus"><input type="hidden" name="id_inventaris" value="<?= (int) $row['id_inventaris'] ?>">
+                                            <button class="btn btn-delete" type="submit" aria-label="Hapus <?= htmlspecialchars($row['nama_barang']) ?>"><i class="bi bi-trash3"></i></button>
+                                        </form>
+                                    <?php } else { ?><span class="text-muted">-</span><?php } ?>
+                                    </td>
+                                </tr>
                             <?php } ?>
-                        </select>
-
+                            </tbody>
+                        </table>
                     </div>
-
                 </div>
+            </section>
 
-                <div class="modal-footer">
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-
-                        Batal
-
-                    </button>
-
-                    <button
-                        type="submit"
-                        name="simpan"
-                        class="btn btn-primary">
-
-                        <i class="bi bi-save"></i>
-
-                        Simpan
-
-                    </button>
-
-                </div>
-
-            </form>
-
+            <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+                <a class="btn btn-light btn-inventaris-outline" href="../dashboard.php"><i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard</a>
+                <a class="btn btn-inventaris-primary" href="index.php"><i class="bi bi-floppy me-2"></i>Simpan</a>
+                <a class="btn btn-inventaris-primary" href="detail.php?id=<?= $idLaporan ?>"><i class="bi bi-file-earmark-text me-2"></i>Lihat Laporan Inventaris</a>
+            </div>
         </div>
-
-    </div>
-
-</div>
-
-<?php } ?>
-<?php
-
-if ($laporan['status'] == "draft") {
-
-    $qEdit = mysqli_query($conn, "
-    SELECT *
-    FROM inventaris
-    WHERE id_laporan='$id_laporan'
-    ORDER BY urutan ASC
-    ");
-
-    while ($edit = mysqli_fetch_assoc($qEdit)) {
-
-?>
-
-<div class="modal fade"
-    id="edit<?= $edit['id_inventaris']; ?>"
-    tabindex="-1">
-
-    <div class="modal-dialog">
-
-        <div class="modal-content">
-
-            <form method="POST">
-
-                <input
-                    type="hidden"
-                    name="id_inventaris"
-                    value="<?= $edit['id_inventaris']; ?>">
-
-                <div class="modal-header">
-
-                    <h5 class="modal-title">
-
-                        Edit Inventaris
-
-                    </h5>
-
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal">
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Urutan
-
-                        </label>
-
-                        <input
-                            type="number"
-                            name="urutan"
-                            class="form-control"
-                            value="<?= $edit['urutan']; ?>"
-                            required>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Nama Barang
-
-                        </label>
-
-                        <input
-                            type="text"
-                            name="nama_barang"
-                            class="form-control"
-                            value="<?= htmlspecialchars($edit['nama_barang']); ?>"
-                            required>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">
-
-                            Jumlah
-
-                        </label>
-
-                        <input
-                            type="number"
-                            name="jumlah"
-                            class="form-control"
-                            value="<?= $edit['jumlah']; ?>"
-                            required>
-
-                    </div>
-
-                    <div class="mb-3">
-
-                        <label class="form-label">Keadaan Barang</label>
-                        <select name="keterangan" class="form-select" required>
-                            <?php foreach ($kondisiBarang as $kondisi) { ?>
-                                <option value="<?= htmlspecialchars($kondisi) ?>" <?= $edit['keterangan'] === $kondisi ? 'selected' : '' ?>><?= htmlspecialchars($kondisi) ?></option>
-                            <?php } ?>
-                        </select>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-
-                        Batal
-
-                    </button>
-
-                    <button
-                        type="submit"
-                        name="edit"
-                        class="btn btn-warning">
-
-                        <i class="bi bi-save"></i>
-
-                        Update
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-
-<?php
-
-    }
-
-}
-
-?>
-
-        </div>
-
-    </div>
-
-</div>
-
-</div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
-<?php include "../../includes/footer.php"; ?>
-
+</main>
+
+<?php if ($laporan['status'] === 'draft') { foreach ($inventaris as $row) { ?>
+<div class="modal fade" id="edit<?= (int) $row['id_inventaris'] ?>" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content">
+    <form method="post"><div class="modal-header"><h5 class="modal-title">Edit Inventaris</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><input type="hidden" name="action" value="edit"><input type="hidden" name="id_inventaris" value="<?= (int) $row['id_inventaris'] ?>">
+        <label class="form-label">Nama Barang</label><input class="form-control mb-3" name="nama_barang" value="<?= htmlspecialchars($row['nama_barang']) ?>" required>
+        <label class="form-label">Jumlah</label><input class="form-control mb-3" name="jumlah" type="number" min="1" value="<?= (int) $row['jumlah'] ?>" required>
+        <label class="form-label">Keterangan</label><select class="form-select" name="keterangan" required><?php foreach ($kondisiBarang as $kondisi) { ?><option value="<?= htmlspecialchars($kondisi) ?>" <?= $row['keterangan'] === $kondisi ? 'selected' : '' ?>><?= htmlspecialchars($kondisi) ?></option><?php } ?></select>
+    </div><div class="modal-footer"><button class="btn btn-inventaris-primary" type="submit">Simpan Perubahan</button></div></form>
+</div></div></div>
+<?php } } ?>
+
+<?php include '../../includes/footer.php'; ?>

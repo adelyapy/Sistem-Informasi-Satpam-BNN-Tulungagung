@@ -100,30 +100,66 @@ function confirmDelete(url){
 
 }
 
-const sidebar = document.querySelector(".sidebar");
-const sidebarToggle = document.getElementById("sidebarToggle");
-const navbar = document.querySelector(".navbar");
-const content = document.querySelector(".main-content");
+/*
+|--------------------------------------------------------------------------
+| Sidebar Overlay Toggle
+|--------------------------------------------------------------------------
+*/
 
-if (sidebar && sidebarToggle && navbar && content) {
+function initSidebarToggle() {
 
-    // Sidebar tampil saat pertama kali
-    sidebar.classList.add("show");
-    navbar.style.marginLeft = "270px";
-    content.style.marginLeft = "270px";
+    const sidebar = document.querySelector(".sidebar");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    const backdrop = document.getElementById("sidebarBackdrop");
+
+    if (!sidebar || !sidebarToggle) {
+        return;
+    }
+
+    const setToggleState = (isOpen) => {
+        const icon = sidebarToggle.querySelector("i");
+        sidebarToggle.classList.toggle("is-active", isOpen);
+        sidebarToggle.setAttribute("aria-expanded", String(isOpen));
+        sidebarToggle.setAttribute("aria-label", isOpen ? "Tutup menu navigasi" : "Buka menu navigasi");
+        if (icon) {
+            icon.classList.toggle("bi-list", !isOpen);
+            icon.classList.toggle("bi-x-lg", isOpen);
+        }
+    };
+
+    const closeSidebar = () => {
+        sidebar.classList.remove("show");
+        setToggleState(false);
+        if (backdrop) {
+            backdrop.classList.remove("show");
+        }
+    };
+
+    const openSidebar = () => {
+        sidebar.classList.add("show");
+        setToggleState(true);
+        if (backdrop) {
+            backdrop.classList.add("show");
+        }
+    };
 
     sidebarToggle.addEventListener("click", () => {
-
-        sidebar.classList.toggle("show");
-
         if (sidebar.classList.contains("show")) {
-            navbar.style.marginLeft = "270px";
-            content.style.marginLeft = "270px";
+            closeSidebar();
         } else {
-            navbar.style.marginLeft = "0";
-            content.style.marginLeft = "0";
+            openSidebar();
         }
-
     });
 
+    if (backdrop) {
+        backdrop.addEventListener("click", closeSidebar);
+    }
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeSidebar();
+        }
+    });
 }
+
+initSidebarToggle();

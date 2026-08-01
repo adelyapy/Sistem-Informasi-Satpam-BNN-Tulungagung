@@ -1,571 +1,64 @@
 <?php
-require_once "../../config/satpam_auth.php";
+require_once '../../config/satpam_auth.php';
 
-$title = "Detail Buku Mutasi";
-$base_url = "../../";
-include "../../includes/header.php";
+$idLaporan = (int) ($_GET['id'] ?? 0);
+$idSatpam = (int) ($_SESSION['id_user'] ?? 0);
 
-$id_user     = $_SESSION['id_user'];
-$id_laporan  = $_SESSION['id_laporan'];
+$laporanStmt = mysqli_prepare($conn, '
+    SELECT l.*, j.tanggal, s.nama_shift, s.jam_mulai, s.jam_selesai, pembuat.nama AS nama_pembuat
+    FROM laporan l
+    INNER JOIN anggota_shift a ON a.id_laporan = l.id_laporan
+    INNER JOIN jadwal_shift j ON j.id_jadwal = l.id_jadwal
+    INNER JOIN shift s ON s.id_shift = j.id_shift
+    LEFT JOIN users pembuat ON pembuat.id_user = l.created_by
+    WHERE l.id_laporan = ? AND a.id_satpam = ?
+    LIMIT 1
+');
+mysqli_stmt_bind_param($laporanStmt, 'ii', $idLaporan, $idSatpam);
+mysqli_stmt_execute($laporanStmt);
+$laporan = mysqli_fetch_assoc(mysqli_stmt_get_result($laporanStmt));
 
-
-$id_laporan = (int) $_GET['id'];
-
-/*
-|--------------------------------------------------------------------------
-| Ambil Data Laporan
-|--------------------------------------------------------------------------
-*/
-
-$query = mysqli_query($conn,"
-SELECT
-    l.*,
-    j.tanggal,
-    s.nama_shift,
-    s.jam_mulai,
-    s.jam_selesai
-FROM laporan l
-
-JOIN jadwal_shift j
-ON l.id_jadwal=j.id_jadwal
-
-JOIN shift s
-ON j.id_shift=s.id_shift
-
-JOIN anggota_shift a
-ON a.id_laporan=l.id_laporan
-
-WHERE
-
-l.id_laporan='$id_laporan'
-AND a.id_satpam='$id_user'
-
-LIMIT 1
-");
-
-if (mysqli_num_rows($query) == 0) {
-
-    echo "
-    <script>
-
-    alert('Laporan tidak ditemukan');
-
-    window.location='index.php';
-
-    </script>
-    ";
-
+if (!$laporan) {
+    header('Location: index.php');
     exit;
 }
 
-$laporan = mysqli_fetch_assoc($query);
-$qAnggota = mysqli_query($conn,"
-SELECT
-    u.nama
-FROM anggota_shift a
-JOIN users u
-ON a.id_satpam=u.id_user
-WHERE a.id_laporan='$id_laporan'
-ORDER BY u.nama
-");
+$inventarisStmt = mysqli_prepare($conn, 'SELECT nama_barang, jumlah, keterangan FROM inventaris WHERE id_laporan = ? ORDER BY urutan ASC');
+mysqli_stmt_bind_param($inventarisStmt, 'i', $idLaporan);
+mysqli_stmt_execute($inventarisStmt);
+$inventaris = mysqli_fetch_all(mysqli_stmt_get_result($inventarisStmt), MYSQLI_ASSOC);
 
-/*
-|--------------------------------------------------------------------------
-| Hitung Inventaris
-|--------------------------------------------------------------------------
-*/
+$uraianStmt = mysqli_prepare($conn, 'SELECT jam, uraian FROM uraian_kegiatan WHERE id_laporan = ? ORDER BY urutan ASC');
+mysqli_stmt_bind_param($uraianStmt, 'i', $idLaporan);
+mysqli_stmt_execute($uraianStmt);
+$uraian = mysqli_fetch_all(mysqli_stmt_get_result($uraianStmt), MYSQLI_ASSOC);
 
-$qInventaris = mysqli_query($conn, "
-SELECT COUNT(*) jumlah
-FROM inventaris
-WHERE id_laporan='$id_laporan'
-");
-
-$inventaris = mysqli_fetch_assoc($qInventaris);
-
-/*
-|--------------------------------------------------------------------------
-| Hitung Uraian
-|--------------------------------------------------------------------------
-*/
-
-$qUraian = mysqli_query($conn, "
-SELECT COUNT(*) jumlah
-FROM uraian_kegiatan
-WHERE id_laporan='$id_laporan'
-");
-
-$uraian = mysqli_fetch_assoc($qUraian);
-
-/*
-|--------------------------------------------------------------------------
-| Badge Status
-|--------------------------------------------------------------------------
-*/
-
-$statusBadge = "secondary";
-$statusText = "Draft";
-
-switch ($laporan['status']) {
-
-    case "draft":
-
-        $statusBadge = "secondary";
-        $statusText = "Draft";
-
-        break;
-
-    case "menunggu_validasi":
-
-        $statusBadge = "warning";
-        $statusText = "Menunggu Validasi";
-
-        break;
-
-    case "tervalidasi":
-
-        $statusBadge = "success";
-        $statusText = "Tervalidasi";
-
-        break;
-}
-
+$statusTervalidasi = $laporan['status'] === 'tervalidasi';
+$statusMenunggu = $laporan['status'] === 'menunggu_validasi';
+$title = 'Detail Laporan';
+$pageTitle = 'Detail Laporan';
+$base_url = '../../';
+$activeMenu = 'laporan';
+include '../../includes/header.php';
 ?>
-
-<div class="wrapper">
-
-    <?php include "../../includes/satpam_sidebar.php"; ?>
-
-    <div class="main">
-
-        <div class="container-fluid py-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-
-    <div>
-
-        <h3 class="fw-bold mb-1">
-            Detail Buku Mutasi
-        </h3>
-
-        <small class="text-muted">
-            Detail laporan buku mutasi satpam
-        </small>
-
-    </div>
-
-    <a href="index.php" class="btn btn-secondary">
-
-        <i class="bi bi-arrow-left"></i>
-
-        Kembali
-
-    </a>
-
-</div>
-
-
-<div class="card shadow-sm border-0 mb-4">
-
-    <div class="card-header bg-primary text-white">
-
-        <h5 class="mb-0">
-
-            <i class="bi bi-file-earmark-text"></i>
-
-            Informasi Laporan
-
-        </h5>
-
-    </div>
-
-    <div class="card-body">
-
-        <div class="row">
-
-            <div class="col-md-6 mb-3">
-
-                <label class="fw-semibold text-muted">
-                    Tanggal Laporan
-                </label>
-
-                <div class="fs-6">
-
-                    <?= date('d F Y', strtotime($laporan['tanggal_laporan'])); ?>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-6 mb-3">
-
-                <label class="fw-semibold text-muted">
-                    Status
-                </label>
-
-                <div>
-
-                    <span class="badge bg-<?= $statusBadge; ?> fs-6">
-
-                        <?= $statusText; ?>
-
-                    </span>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-6 mb-3">
-
-                <label class="fw-semibold text-muted">
-                    Shift
-                </label>
-
-                <div>
-
-                    <?= htmlspecialchars($laporan['nama_shift']); ?>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-12 mb-3">
-
-              <label class="fw-semibold text-muted">
-                  Anggota Shift
-              </label>
-
-              <div>
-
-                  <?php
-
-                  $nama=[];
-
-                  while($a=mysqli_fetch_assoc($qAnggota)){
-
-                      $nama[]=$a['nama'];
-
-                  }
-
-                  echo implode(", ",$nama);
-
-                  ?>
-
-              </div>
-
-            </div>
-
-            <div class="col-md-6 mb-3">
-
-                <label class="fw-semibold text-muted">
-                    Jam Shift
-                </label>
-
-                <div>
-
-                    <?= substr($laporan['jam_mulai'],0,5); ?>
-
-                    -
-
-                    <?= substr($laporan['jam_selesai'],0,5); ?>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-6">
-
-                <label class="fw-semibold text-muted">
-                    Inventaris
-                </label>
-
-                <div>
-
-                    <?= $inventaris['jumlah']; ?>
-
-                    Barang
-
-                </div>
-
-            </div>
-
-            <div class="col-md-6">
-
-                <label class="fw-semibold text-muted">
-                    Uraian Kegiatan
-                </label>
-
-                <div>
-
-                    <?= $uraian['jumlah']; ?>
-
-                    Kegiatan
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<div class="row">
-
-    <!-- CARD INVENTARIS -->
-
-    <div class="col-lg-6 mb-4">
-
-        <div class="card border-0 shadow-sm h-100">
-
-            <div class="card-body text-center">
-
-                <div class="mb-3">
-
-                    <i class="bi bi-box-seam text-primary"
-                        style="font-size:60px;"></i>
-
-                </div>
-
-                <h4 class="fw-bold">
-
-                    Inventaris
-
-                </h4>
-
-                <p class="text-muted mb-3">
-
-                    Jumlah Inventaris
-
-                </p>
-
-                <h2 class="fw-bold text-primary">
-
-                    <?= $inventaris['jumlah']; ?>
-
-                </h2>
-
-                <p class="text-muted">
-
-                    Barang
-
-                </p>
-
-                <hr>
-
-                <?php if ($laporan['status'] == 'draft') { ?>
-
-                    <a href="inventaris.php"
-                        class="btn btn-primary">
-
-                        <i class="bi bi-pencil-square"></i>
-
-                        Kelola Inventaris
-
-                    </a>
-
-                <?php } else { ?>
-
-                    <a href="inventaris.php?id=<?= $id_laporan; ?>"
-                        class="btn btn-outline-primary">
-
-                        <i class="bi bi-eye"></i>
-
-                        Lihat Inventaris
-
-                    </a>
-
-                <?php } ?>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- CARD URAIAN -->
-
-    <div class="col-lg-6 mb-4">
-
-        <div class="card border-0 shadow-sm h-100">
-
-            <div class="card-body text-center">
-
-                <div class="mb-3">
-
-                    <i class="bi bi-journal-text text-success"
-                        style="font-size:60px;"></i>
-
-                </div>
-
-                <h4 class="fw-bold">
-
-                    Uraian Kegiatan
-
-                </h4>
-
-                <p class="text-muted mb-3">
-
-                    Jumlah Kegiatan
-
-                </p>
-
-                <h2 class="fw-bold text-success">
-
-                    <?= $uraian['jumlah']; ?>
-
-                </h2>
-
-                <p class="text-muted">
-
-                    Kegiatan
-
-                </p>
-
-                <hr>
-
-                <?php if ($laporan['status'] == 'draft') { ?>
-
-                    <a href="uraian.php"
-                        class="btn btn-success">
-
-                        <i class="bi bi-pencil-square"></i>
-
-                        Kelola Uraian
-
-                    </a>
-
-                <?php } else { ?>
-
-                    <a href="uraian.php?id=<?= $id_laporan; ?>"
-                        class="btn btn-outline-success">
-
-                        <i class="bi bi-eye"></i>
-
-                        Lihat Uraian
-
-                    </a>
-
-                <?php } ?>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<?php if ($laporan['status'] == 'draft') { ?>
-
-    <div class="card border-0 shadow-sm">
-
-        <div class="card-body text-center">
-
-            <h5 class="fw-bold mb-3">
-
-                Laporan Siap Dikirim
-
-            </h5>
-
-            <p class="text-muted mb-4">
-
-                Pastikan seluruh data inventaris dan uraian kegiatan telah diisi
-                sebelum mengirim laporan kepada Kepala BNN.
-
-            </p>
-
-            <a href="kirim.php>"
-                class="btn btn-warning btn-lg">
-
-                <i class="bi bi-send-fill"></i>
-
-                Kirim Laporan
-
-            </a>
-
-        </div>
-
-    </div>
-
-<?php } elseif ($laporan['status'] == 'menunggu_validasi') { ?>
-
-    <div class="alert alert-warning shadow-sm">
-
-        <div class="d-flex align-items-center">
-
-            <i class="bi bi-hourglass-split fs-3 me-3"></i>
-
-            <div>
-
-                <strong>
-
-                    Menunggu Validasi
-
-                </strong>
-
-                <br>
-
-                Laporan sudah dikirim dan sedang menunggu validasi Kepala BNN.
-
-            </div>
-
-        </div>
-
-    </div>
-
-<?php } elseif ($laporan['status'] == 'tervalidasi') { ?>
-
-    <div class="alert alert-success shadow-sm">
-
-        <div class="d-flex align-items-center">
-
-            <i class="bi bi-patch-check-fill fs-3 me-3"></i>
-
-            <div>
-
-                <strong>
-
-                    Laporan Tervalidasi
-
-                </strong>
-
-                <br>
-
-                Laporan telah divalidasi oleh Kepala BNN.
-
-            </div>
-
-        </div>
-
-    </div>
-
-<?php } ?>
-
-
-<div class="text-end mt-4">
-
-    <a href="index.php"
-        class="btn btn-secondary">
-
-        <i class="bi bi-arrow-left-circle"></i>
-
-        Kembali
-
-    </a>
-
-</div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-
-</html>
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/sidebar.css">
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/dashboard.css">
+
+<?php include '../../includes/satpam_navbar.php'; ?>
+<?php include '../../includes/satpam_sidebar.php'; ?>
+
+<main class="main-content"><div class="inventaris-page">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3"><div><h2 class="detail-title">Detail Laporan</h2><p class="text-muted mb-0">Rincian laporan buku mutasi satpam.</p></div><a class="btn btn-light btn-inventaris-outline" href="index.php"><i class="bi bi-arrow-left me-2"></i>Kembali ke Daftar Laporan</a></div>
+    <section class="inventaris-card mb-3"><div class="card-body"><h2 class="inventaris-heading">Informasi Laporan</h2><div class="row g-4">
+        <div class="col-md-4"><div class="detail-label">Tanggal Laporan</div><div class="detail-value"><?= htmlspecialchars($laporan['tanggal_laporan']) ?></div></div>
+        <div class="col-md-4"><div class="detail-label">Shift</div><div class="detail-value"><?= htmlspecialchars($laporan['nama_shift']) ?> <span class="text-muted fw-normal">(<?= substr($laporan['jam_mulai'], 0, 5) ?>–<?= substr($laporan['jam_selesai'], 0, 5) ?>)</span></div></div>
+        <div class="col-md-4"><div class="detail-label">Dibuat Oleh</div><div class="detail-value"><?= htmlspecialchars($laporan['nama_pembuat'] ?: 'Satpam') ?></div></div>
+        <?php if ($statusTervalidasi || $statusMenunggu) { ?>
+            <div class="col-12"><span class="report-status <?= $statusTervalidasi ? 'report-status-valid' : 'report-status-pending' ?>"><i class="bi <?= $statusTervalidasi ? 'bi-check-circle-fill' : 'bi-clock-history' ?> me-1"></i><?= $statusTervalidasi ? 'Sudah divalidasi Kepala BNN' : 'Menunggu validasi Kepala BNN' ?></span></div>
+        <?php } ?>
+    </div></div></section>
+
+    <section class="inventaris-card mb-3"><div class="card-body"><h2 class="inventaris-heading">Inventaris</h2><div class="inventory-table table-responsive"><table class="table align-middle"><thead><tr><th>No.</th><th>Nama Barang</th><th>Jumlah</th><th>Keterangan</th></tr></thead><tbody><?php if (!$inventaris) { ?><tr><td colspan="4" class="text-center text-muted py-4">Belum ada data inventaris.</td></tr><?php } ?><?php foreach ($inventaris as $nomor => $row) { ?><tr><td><?= $nomor + 1 ?></td><td><?= htmlspecialchars($row['nama_barang']) ?></td><td><?= (int) $row['jumlah'] ?></td><td><?= htmlspecialchars($row['keterangan']) ?></td></tr><?php } ?></tbody></table></div></div></section>
+    <section class="inventaris-card"><div class="card-body"><h2 class="inventaris-heading">Uraian Kegiatan</h2><div class="inventory-table table-responsive"><table class="table align-middle"><thead><tr><th>No.</th><th>Waktu</th><th>Uraian Kegiatan</th></tr></thead><tbody><?php if (!$uraian) { ?><tr><td colspan="3" class="text-center text-muted py-4">Belum ada uraian kegiatan.</td></tr><?php } ?><?php foreach ($uraian as $nomor => $row) { ?><tr><td><?= $nomor + 1 ?></td><td><?= htmlspecialchars(substr($row['jam'], 0, 5)) ?> WIB</td><td class="activity-description"><?= nl2br(htmlspecialchars($row['uraian'])) ?></td></tr><?php } ?></tbody></table></div></div></section>
+</div></main>
+<?php include '../../includes/footer.php'; ?>

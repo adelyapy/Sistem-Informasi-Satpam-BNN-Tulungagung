@@ -77,7 +77,7 @@ include "../../includes/admin_sidebar.php";
                                 <td class="fw-semibold"><?= date('d/m/Y', strtotime($row['tanggal'])) ?></td>
                                 <td><div class="fw-semibold"><?= htmlspecialchars($row['nama']) ?></div><small class="text-muted"><?= htmlspecialchars($row['kode_satpam']) ?></small></td>
                                 <td><div class="fw-semibold"><?= htmlspecialchars($row['nama_shift']) ?></div><small class="text-muted"><?= substr($row['jam_mulai'],0,5) ?> - <?= substr($row['jam_selesai'],0,5) ?></small></td>
-                                <td><span class="badge <?= $row['status']==='aktif' ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= htmlspecialchars(ucfirst($row['status'])) ?></span></td>
+                                <td><span class="badge <?= $row['status']==='bertugas' ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= htmlspecialchars(ucfirst($row['status'])) ?></span></td>
                                 <td class="text-center"><a href="edit.php?id=<?= $row['id_jadwal'] ?>" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i></a> <a href="hapus.php?id=<?= $row['id_jadwal'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus jadwal ini?')"><i class="bi bi-trash"></i></a></td>
                             </tr>
                         <?php endwhile; else: ?>

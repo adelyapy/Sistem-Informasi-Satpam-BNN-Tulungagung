@@ -11,22 +11,19 @@ if(isset($_POST['simpan'])){
     $instansi       = e($_POST['instansi']);
     $nomor_telepon  = e($_POST['nomor_telepon']);
     $keterangan     = e($_POST['keterangan']);
-    $urutan         = (int)$_POST['urutan'];
 
     $query = mysqli_query($conn,"
         INSERT INTO nomor_penting
         (
             instansi,
             nomor_telepon,
-            keterangan,
-            urutan
+            keterangan
         )
         VALUES
         (
             '$instansi',
             '$nomor_telepon',
-            '$keterangan',
-            '$urutan'
+            '$keterangan'
         )
     ");
 
@@ -176,22 +173,6 @@ required>
 
 </div>
 
-<div class="col-lg-6 mb-3">
-
-<label class="form-label">
-
-Urutan
-
-</label>
-
-<input
-type="number"
-name="urutan"
-class="form-control"
-min="1"
-required>
-
-</div>
 
 <div class="col-12">
 

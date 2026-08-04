@@ -9,7 +9,7 @@ $base_url = "../../";
 $query = mysqli_query($conn, "
     SELECT *
     FROM nomor_penting
-    ORDER BY urutan ASC
+    ORDER BY id_nomor ASC
 ");
 
 include "../../includes/header.php";
@@ -63,7 +63,6 @@ include "../../includes/header.php";
                             <tr>
 
                                 <th width="60">No</th>
-                                <th width="90">Urutan</th>
                                 <th>Instansi</th>
                                 <th width="180">Nomor</th>
                                 <th>Keterangan</th>
@@ -85,15 +84,6 @@ include "../../includes/header.php";
 
                                 <td><?= $no++; ?></td>
 
-                                <td>
-
-                                    <span class="badge bg-primary">
-
-                                        <?= $data['urutan']; ?>
-
-                                    </span>
-
-                                </td>
 
                                 <td>
 
@@ -149,7 +139,7 @@ include "../../includes/header.php";
 
                             <tr>
 
-                                <td colspan="6" class="text-center py-5">
+                                <td colspan="5" class="text-center py-5">
 
                                     <i class="bi bi-telephone-x fs-1 text-secondary"></i>
 

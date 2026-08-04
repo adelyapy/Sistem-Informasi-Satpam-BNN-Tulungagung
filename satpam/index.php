@@ -10,7 +10,7 @@ $activeMenu = "data_satpam";
 $query = mysqli_query($conn, "
     SELECT *
     FROM users
-    WHERE role='satpam'
+    WHERE role='satpam' AND status='aktif'
     ORDER BY nama ASC
 ");
 

@@ -40,23 +40,8 @@ if(isset($_POST['simpan'])){
 
     if($query){
 
-        echo "
-        <script>
-
-        Swal.fire({
-
-            icon:'success',
-            title:'Berhasil',
-
-            text:'Data Satpam berhasil ditambahkan'
-
-        }).then(()=>{
-
-            window.location='index.php';
-
-        });
-
-        </script>";
+        header('Location: index.php?success=tambah');
+        exit;
 
     }else{
 

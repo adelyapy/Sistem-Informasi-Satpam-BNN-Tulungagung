@@ -1,162 +1,24 @@
 <?php
+require_once '../config/admin_auth.php';
 
-require_once "../config/admin_auth.php";
-require_once "../config/function.php";
+$id = (int) ($_GET['id'] ?? 0);
+$stmt = mysqli_prepare($conn, "SELECT id_user, kode_satpam, nama, status FROM users WHERE id_user = ? AND role = 'satpam' LIMIT 1");
+mysqli_stmt_bind_param($stmt, 'i', $id); mysqli_stmt_execute($stmt);
+$satpam = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+if (!$satpam) { header('Location: index.php'); exit; }
 
-$title = "Detail Satpam";
-$base_url = "../";
-$activeMenu = "data_satpam";
-
-if (!isset($_GET['id'])) {
-    header("Location: index.php");
-    exit;
+$error = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $kode = trim($_POST['kode_satpam'] ?? ''); $nama = trim($_POST['nama'] ?? ''); $status = $_POST['status'] ?? 'aktif';
+    if ($kode === '' || $nama === '' || !in_array($status, ['aktif', 'nonaktif'], true)) $error = 'Lengkapi data satpam dengan benar.';
+    else {
+        $update = mysqli_prepare($conn, "UPDATE users SET kode_satpam = ?, nama = ?, status = ? WHERE id_user = ? AND role = 'satpam'");
+        mysqli_stmt_bind_param($update, 'sssi', $kode, $nama, $status, $id);
+        if (mysqli_stmt_execute($update)) { header('Location: index.php'); exit; }
+        $error = 'Data tidak dapat diperbarui. Kode Satpam mungkin sudah digunakan.';
+    }
 }
-
-$id = intval($_GET['id']);
-
-$query = mysqli_query($conn, "
-    SELECT *
-    FROM users
-    WHERE id_user='$id'
-    AND role='satpam'
-");
-
-if (mysqli_num_rows($query) == 0) {
-    header("Location: index.php");
-    exit;
-}
-
-$satpam = mysqli_fetch_assoc($query);
-
-include "../includes/header.php";
-?>
-
-<?php include "../includes/navbar.php"; ?>
-<?php include "../includes/admin_sidebar.php"; ?>
-
-<div class="main-content">
-
-    <div class="container-fluid">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-
-            <div>
-
-                <h3 class="fw-bold">
-                    Detail Satpam
-                </h3>
-
-                <p class="text-muted mb-0">
-                    Informasi data anggota satpam.
-                </p>
-
-            </div>
-
-            <a href="index.php" class="btn btn-secondary">
-
-                <i class="bi bi-arrow-left"></i>
-
-                Kembali
-
-            </a>
-
-        </div>
-
-        <div class="card shadow-sm">
-
-            <div class="card-body">
-
-                <div class="row">
-
-                    <div class="col-lg-4 text-center">
-
-                        <?php if(!empty($satpam['foto'])): ?>
-
-                            <img
-                                src="../../uploads/foto/<?= $satpam['foto']; ?>"
-                                class="img-thumbnail rounded-circle mb-3"
-                                style="width:220px;height:220px;object-fit:cover;">
-
-                        <?php else: ?>
-
-                            <img
-                                src="../../assets/img/default-user.png"
-                                class="img-thumbnail rounded-circle mb-3"
-                                style="width:220px;height:220px;object-fit:cover;">
-
-                        <?php endif; ?>
-
-                    </div>
-
-                    <div class="col-lg-8">
-
-                        <table class="table table-borderless">
-
-                            <tr>
-                                <th width="180">Kode Satpam</th>
-                                <td>: <?= $satpam['kode_satpam']; ?></td>
-                            </tr>
-
-                            <tr>
-                                <th>Nama Satpam</th>
-                                <td>: <?= htmlspecialchars($satpam['nama']); ?></td>
-                            </tr>
-
-                            <tr>
-                                <th>Tanda Tangan</th>
-                                <td>
-
-                                    <?php if(!empty($satpam['ttd'])): ?>
-
-                                        <img
-                                            src="../../uploads/ttd/<?= $satpam['ttd']; ?>"
-                                            class="img-thumbnail p-2"
-                                            style="height:120px;">
-
-                                    <?php else: ?>
-
-                                        -
-
-                                    <?php endif; ?>
-
-                                </td>
-
-                            </tr>
-
-                        </table>
-
-                        <div class="mt-4">
-
-                            <a
-                                href="edit.php?id=<?= $satpam['id_user']; ?>"
-                                class="btn btn-warning">
-
-                                <i class="bi bi-pencil-square me-2"></i>
-
-                                Edit
-
-                            </a>
-
-                            <a
-                                href="index.php"
-                                class="btn btn-secondary">
-
-                                Kembali
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<?php include "../includes/footer.php"; ?>
+$title='Edit Satpam'; $pageTitle='Edit Satpam'; $base_url='../'; $activeMenu='data_satpam'; include '../includes/header.php'; ?>
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/sidebar.css"><link rel="stylesheet" href="<?= $base_url ?>assets/css/dashboard.css">
+<?php include '../includes/admin_navbar.php'; include '../includes/admin_sidebar.php'; ?>
+<main class="main-content"><div class="container-fluid"><div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold mb-1">Edit Satpam</h2><p class="text-muted mb-0">Perbarui data anggota satpam.</p></div><a href="index.php" class="btn btn-outline-secondary">Kembali</a></div><div class="card shadow-sm border-0"><div class="card-body p-4"><form method="post" class="row g-3"><?php if($error): ?><div class="col-12"><div class="alert alert-danger mb-0"><?= htmlspecialchars($error) ?></div></div><?php endif; ?><div class="col-md-6"><label class="form-label">Kode Satpam</label><input class="form-control" name="kode_satpam" value="<?= htmlspecialchars($satpam['kode_satpam']) ?>" required></div><div class="col-md-6"><label class="form-label">Nama Satpam</label><input class="form-control" name="nama" value="<?= htmlspecialchars($satpam['nama']) ?>" required></div><div class="col-md-6"><label class="form-label">Status</label><select class="form-select" name="status"><option value="aktif" <?= $satpam['status']==='aktif'?'selected':'' ?>>Aktif</option><option value="nonaktif" <?= $satpam['status']==='nonaktif'?'selected':'' ?>>Nonaktif</option></select></div><div class="col-12"><button class="btn btn-primary">Simpan Perubahan</button></div></form></div></div></div></main><?php include '../includes/footer.php'; ?>

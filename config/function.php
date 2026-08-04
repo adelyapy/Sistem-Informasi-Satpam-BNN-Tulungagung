@@ -25,6 +25,36 @@ function formatJam($jam){
     return date("H:i",strtotime($jam));
 }
 
+function generateKodeSatpam(mysqli $conn): string {
+    $result = mysqli_query($conn, "SELECT MAX(CAST(SUBSTRING(kode_satpam, 4) AS UNSIGNED)) AS nomor FROM users WHERE kode_satpam LIKE 'STP%'");
+    $nomor = (int) (mysqli_fetch_assoc($result)['nomor'] ?? 0) + 1;
+    return 'STP' . str_pad((string) $nomor, 3, '0', STR_PAD_LEFT);
+}
+
+function uploadFoto(array $file): ?string {
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) return null;
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK || ($file['size'] ?? 0) > 2 * 1024 * 1024) return null;
+    $allowed = ['jpg', 'jpeg', 'png'];
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($ext, $allowed, true)) return null;
+    $folder = dirname(__DIR__) . '/uploads/foto';
+    if (!is_dir($folder)) mkdir($folder, 0755, true);
+    $name = bin2hex(random_bytes(8)) . '.' . $ext;
+    return move_uploaded_file($file['tmp_name'], $folder . '/' . $name) ? $name : null;
+}
+
+function uploadTTD(array $file): ?string {
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) return null;
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK || ($file['size'] ?? 0) > 2 * 1024 * 1024) return null;
+    $allowed = ['jpg', 'jpeg', 'png'];
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($ext, $allowed, true)) return null;
+    $folder = dirname(__DIR__) . '/uploads/ttd';
+    if (!is_dir($folder)) mkdir($folder, 0755, true);
+    $name = bin2hex(random_bytes(8)) . '.' . $ext;
+    return move_uploaded_file($file['tmp_name'], $folder . '/' . $name) ? $name : null;
+}
+
 /* =========================
    HELPER SHIFT
 ========================= */

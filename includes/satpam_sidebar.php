@@ -9,7 +9,6 @@ $activeMenu = $activeMenu ?? '';
     <div class="sidebar-header text-center">
         <div class="sidebar-logo" aria-label="Logo BNN">
             <img src="<?= $appBase ?>/assets/img/logo-bnn.png" alt="Logo BNN" onerror="this.remove()">
-            <i class="bi bi-shield-fill-check" aria-hidden="true"></i>
         </div>
         <h5 class="mt-3 mb-1">Buku Mutasi Satpam</h5>
         <small>BNN TULUNGAGUNG</small>

@@ -9,8 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $idSatpam = (int) ($_POST['id_satpam'] ?? 0);
     $idShift = (int) ($_POST['id_shift'] ?? 0);
     $tanggal = $_POST['tanggal'] ?? '';
-    $status = $_POST['status'] ?? 'aktif';
-    if ($idSatpam <= 0 || $idShift <= 0 || !$tanggal || !in_array($status, ['aktif', 'nonaktif'], true)) {
+    $status = $_POST['status'] ?? 'bertugas';
+    if ($idSatpam <= 0 || $idShift <= 0 || !$tanggal || !in_array($status, ['bertugas', 'libur'], true)) {
         $error = 'Lengkapi data jadwal dengan benar.';
     } else {
         $check = mysqli_prepare($conn, 'SELECT id_jadwal FROM jadwal_shift WHERE id_satpam=? AND id_shift=? AND tanggal=?');
@@ -36,6 +36,6 @@ include "../../includes/header.php"; include "../../includes/admin_navbar.php"; 
 <div class="col-md-6"><label class="form-label">Nama Satpam</label><select name="id_satpam" class="form-select" required><option value="">Pilih satpam</option><?php while($u=mysqli_fetch_assoc($satpam)): ?><option value="<?= $u['id_user'] ?>" <?= ((int)($_POST['id_satpam']??0)===(int)$u['id_user'])?'selected':'' ?>><?= htmlspecialchars($u['nama'].' — '.$u['kode_satpam']) ?></option><?php endwhile; ?></select></div>
 <div class="col-md-6"><label class="form-label">Shift</label><select name="id_shift" class="form-select" required><option value="">Pilih shift</option><?php while($s=mysqli_fetch_assoc($shift)): ?><option value="<?= $s['id_shift'] ?>" <?= ((int)($_POST['id_shift']??0)===(int)$s['id_shift'])?'selected':'' ?>><?= htmlspecialchars($s['nama_shift']) ?> (<?= substr($s['jam_mulai'],0,5) ?> - <?= substr($s['jam_selesai'],0,5) ?>)</option><?php endwhile; ?></select></div>
 <div class="col-md-6"><label class="form-label">Tanggal Tugas</label><input type="date" name="tanggal" value="<?= htmlspecialchars($_POST['tanggal'] ?? date('Y-m-d')) ?>" class="form-control" required></div>
-<div class="col-md-6"><label class="form-label">Status</label><select name="status" class="form-select"><option value="aktif">Aktif</option><option value="nonaktif">Nonaktif</option></select></div>
+<div class="col-md-6"><label class="form-label">Status</label><select name="status" class="form-select"><option value="bertugas">Bertugas</option><option value="libur">Libur</option></select></div>
 <div class="col-12"><button class="btn btn-primary"><i class="bi bi-save me-2"></i>Simpan Jadwal</button></div></form></div></div></div></main>
 <?php include "../../includes/footer.php"; ?>

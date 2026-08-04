@@ -31,7 +31,6 @@ if (isset($_POST['simpan'])) {
     $instansi      = e($_POST['instansi']);
     $nomorTelepon  = e($_POST['nomor_telepon']);
     $keterangan    = e($_POST['keterangan']);
-    $urutan        = (int) $_POST['urutan'];
 
     $update = mysqli_query($conn, "
         UPDATE nomor_penting
@@ -39,7 +38,6 @@ if (isset($_POST['simpan'])) {
             instansi='$instansi',
             nomor_telepon='$nomorTelepon',
             keterangan='$keterangan',
-            urutan='$urutan',
             updated_at=NOW()
         WHERE id_nomor='$id'
     ");
@@ -193,23 +191,6 @@ required>
 
 </div>
 
-<div class="col-lg-6 mb-3">
-
-<label class="form-label">
-
-Urutan
-
-</label>
-
-<input
-type="number"
-name="urutan"
-class="form-control"
-min="1"
-value="<?= $data['urutan']; ?>"
-required>
-
-</div>
 
 <div class="col-12">
 

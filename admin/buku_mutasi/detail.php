@@ -1,6 +1,11 @@
 <?php
 require_once "../../config/admin_auth.php";
 
+$title = 'Detail Laporan';
+$pageTitle = 'Detail Laporan';
+$base_url = '../../';
+$activeMenu = 'monitoring_laporan';
+
 if (!isset($_GET['id'])) {
     header("Location:index.php");
     exit;
@@ -63,6 +68,11 @@ ORDER BY urutan ASC
 ");
 
 include "../../includes/header.php";
+?>
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/sidebar.css">
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/dashboard.css">
+<?php
+include "../../includes/admin_navbar.php";
 include "../../includes/admin_sidebar.php";
 ?>
 

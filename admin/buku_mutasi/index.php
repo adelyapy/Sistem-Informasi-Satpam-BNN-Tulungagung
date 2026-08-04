@@ -1,7 +1,18 @@
 <?php
 require_once "../../config/admin_auth.php";
 
+$title = 'Monitoring Laporan';
+$pageTitle = 'Monitoring Laporan';
+$base_url = '../../';
+$activeMenu = 'monitoring_laporan';
+
 include "../../includes/header.php";
+?>
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/sidebar.css">
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/dashboard.css">
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/dashboard-admin.css">
+<?php
+include "../../includes/admin_navbar.php";
 include "../../includes/admin_sidebar.php";
 
 /*
@@ -131,9 +142,9 @@ laporan.id_laporan DESC
 
 ?>
 
-<div class="main bg-light">
+<main class="main-content">
 
-    <div class="container-fluid py-4">
+    <div class="container-fluid">
 
         <!-- Header -->
 
@@ -550,7 +561,7 @@ Reset
 </div>
 
     </div>
-</div>
+</main>
 
 <style>
 
@@ -589,6 +600,11 @@ Reset
     align-items:center;
     background:rgba(255,255,255,.18);
     font-size:24px;
+}
+
+.dashboard-card small,
+.dashboard-card h2 {
+    color:#fff !important;
 }
 
 .dashboard-box{

@@ -24,7 +24,6 @@ $appBase = $sectionPos === false ? '..' : substr($scriptPath, 0, $sectionPos);
                 <div class="d-flex align-items-center justify-content-center gap-2">
                     <div class="brand-logo" aria-label="Logo BNN">
                         <img src="<?= $appBase ?>/assets/img/logo-bnn.png" class="logo-bnn" alt="Logo BNN" onerror="this.remove()">
-                        <i class="bi bi-shield-fill-check" aria-hidden="true"></i>
                     </div>
                     <div class="text-start">
                         <div class="title-app">BUKU MUTASI SATPAM</div>

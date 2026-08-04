@@ -90,12 +90,12 @@ $chartData  = [];
 
 $sqlChart = mysqli_query($conn,"
 SELECT
-DATE(tanggal_laporan) AS tgl,
+DATE(created_at) AS tgl,
 COUNT(*) AS total
 FROM laporan
-WHERE tanggal_laporan >= DATE_SUB(CURDATE(),INTERVAL 6 DAY)
-GROUP BY DATE(tanggal_laporan)
-ORDER BY DATE(tanggal_laporan)
+GROUP BY DATE(created_at)
+ORDER BY DATE(created_at) DESC
+LIMIT 7
 ");
 
 $dataChart = [];
@@ -104,14 +104,15 @@ while($r=mysqli_fetch_assoc($sqlChart)){
     $dataChart[$r['tgl']] = $r['total'];
 }
 
-for($i=6;$i>=0;$i--){
-
-    $tgl = date("Y-m-d",strtotime("-".$i." day"));
-
-    $chartLabel[] = date("d M",strtotime($tgl));
-
-    $chartData[] = $dataChart[$tgl] ?? 0;
-
+if ($dataChart) {
+    ksort($dataChart);
+    foreach ($dataChart as $tgl => $total) {
+        $chartLabel[] = date('d M', strtotime($tgl));
+        $chartData[] = (int) $total;
+    }
+} else {
+    $chartLabel = ['Belum ada data'];
+    $chartData = [0];
 }
 
 /* ==========================
@@ -280,9 +281,9 @@ $namaAdmin = $_SESSION['nama'] ?? 'Administrator';
 
     </div>
 
-  <div class="row g-4">
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-3">
 
-    <div class="col-lg-3 col-md-6">
+    <div class="col">
 
       <a href="../buku_mutasi/index.php" class="quick-menu">
 
@@ -296,7 +297,21 @@ $namaAdmin = $_SESSION['nama'] ?? 'Administrator';
 
     </div>
 
-    <div class="col-lg-3 col-md-6">
+    <div class="col">
+
+      <a href="../shift/index.php" class="quick-menu">
+
+        <i class="bi bi-calendar-week-fill"></i>
+
+        <h5>Jadwal Satpam</h5>
+
+        <p>Atur jadwal tugas dan shift satpam.</p>
+
+      </a>
+
+    </div>
+
+    <div class="col">
 
       <a href="../../satpam/index.php" class="quick-menu">
 
@@ -310,7 +325,7 @@ $namaAdmin = $_SESSION['nama'] ?? 'Administrator';
 
     </div>
 
-    <div class="col-lg-3 col-md-6">
+    <div class="col">
 
       <a href="../buku_saku/index.php" class="quick-menu">
 
@@ -324,7 +339,7 @@ $namaAdmin = $_SESSION['nama'] ?? 'Administrator';
 
     </div>
 
-    <div class="col-lg-3 col-md-6">
+    <div class="col">
 
       <a href="../nomor_penting/index.php" class="quick-menu">
 
@@ -333,20 +348,6 @@ $namaAdmin = $_SESSION['nama'] ?? 'Administrator';
         <h5>Nomor Penting</h5>
 
         <p>Kelola daftar nomor penting.</p>
-
-      </a>
-
-    </div>
-
-    <div class="col-lg-3 col-md-6">
-
-      <a href="../shift/index.php" class="quick-menu">
-
-        <i class="bi bi-calendar-week-fill"></i>
-
-        <h5>Jadwal Satpam</h5>
-
-        <p>Atur jadwal tugas dan shift satpam.</p>
 
       </a>
 

@@ -6,9 +6,13 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 270px;
+    width: 300px;
     height: 100%;
-    background: #004aad;
+    background:linear-gradient(
+      180deg,
+      #0058FF,
+      #003CB3
+    );
     transform: translateX(-100%);
     transition: transform 0.28s cubic-bezier(.2, .8, .2, 1), box-shadow 0.28s ease;
     z-index: 1055;
@@ -22,14 +26,17 @@
 }
 
 .sidebar-header {
-    padding: 28px 20px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding:35px 20px 30px;
     text-align: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .sidebar-logo {
-    width: 72px;
-    height: 72px;
+    width: 90px;
+    height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -50,21 +57,30 @@
 
 .sidebar-logo i { position: absolute; }
 
-.sidebar-header h5 {
-    margin-bottom: 5px;
-    font-weight: 600;
+.sidebar-brand-name {
+    display: block;
+    max-width: 100%;
     color: #fff;
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
 }
 
-.sidebar-header small {
-    color: rgba(255, 255, 255, 0.8);
-    letter-spacing: 1px;
+.sidebar-brand-unit {
+    display: block;
+    margin-top: 6px;
+    color: rgba(255, 255, 255, .82);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .8px;
+    text-align: center;
 }
 
 .sidebar-menu {
     list-style: none;
     margin: 0;
-    padding: 20px 14px;
+    padding:16px 18px;
 }
 
 .sidebar-menu li {
@@ -92,7 +108,7 @@
     padding: 14px 16px;
     color: #fff !important;
     text-decoration: none;
-    border-radius: 10px;
+    border-radius: 15px;
     transition: background .2s ease, color .2s ease, transform .2s ease;
     font-weight: 600;
 }
@@ -107,6 +123,7 @@
     background: #ffffff;
     color: #004aad !important;
     box-shadow: 0 5px 15px rgba(2, 35, 90, .18);
+    font-weight:700;
 }
 
 .sidebar-menu i {

@@ -1,14 +1,24 @@
 <?php
 require_once "../../config/admin_auth.php";
 
+$title = "Dashboard Admin";
+$pageTitle = "";
+$base_url = "../../";
+$activeMenu = "dashboard";
+
 include "../../includes/header.php";
 ?>
 
-<link rel="stylesheet" href="../../assets/css/dashboard-admin.css">
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/sidebar.css">
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/dashboard.css">
+<link rel="stylesheet" href="<?= $base_url ?>assets/css/dashboard-admin.css">
 
 <?php
-
+include "../../includes/admin_navbar.php";
 include "../../includes/admin_sidebar.php";
+?>
+
+<?php
 function total($conn,$table,$where=''){
     $q=mysqli_query($conn,"SELECT COUNT(*) jml FROM $table $where");
     return mysqli_fetch_assoc($q)['jml'];
@@ -123,315 +133,337 @@ LIMIT 5
 $namaAdmin = $_SESSION['nama'] ?? 'Administrator';
 ?>
 
-<div class="main bg-light">
+<main class="main-content">
 
-<div class="container-fluid py-4">
+  <div class="admin-dashboard">
 
-<div class="dashboard-header mb-4">
+  <div class="dashboard-header">
 
-    <h2 class="fw-bold mb-1">
-        DASHBOARD
-    </h2>
+    <h1 class="dashboard-title">
 
-    <h5 class="text-secondary">
-        Selamat Datang,
-        <b><?= $namaAdmin ?></b>
-    </h5>
+      DASHBOARD
 
-</div>
+    </h1>
 
-<div class="row g-4">
+    <p class="dashboard-subtitle">
 
-    <!-- CARD 1 -->
+      Selamat Datang,
 
-    <div class="col-lg-3 col-md-6">
+      <strong><?= $namaAdmin ?></strong>
 
-        <div class="dashboard-card card-blue">
+      👋
 
-            <div class="icon blue">
+    </p>
 
-                <i class="bi bi-file-earmark-text"></i>
+  </div>
 
-            </div>
+  <div class="row g-4">
 
-            <div>
+      <!-- CARD 1 -->
 
-                <small>Total Laporan</small>
+      <div class="col-lg-3 col-md-6">
 
-                <h2><?= $totalLaporan ?></h2>
+          <div class="dashboard-card card-blue h-100">
 
-                <span>Laporan</span>
+              <div class="icon blue">
 
-            </div>
+                  <i class="bi bi-file-earmark-text"></i>
 
-        </div>
+              </div>
+
+              <div>
+
+                  <small>Total Laporan</small>
+
+                  <h2><?= $totalLaporan ?></h2>
+
+                  <span>Laporan</span>
+
+              </div>
+
+          </div>
+
+      </div>
+
+      <!-- CARD 2 -->
+
+      <div class="col-lg-3 col-md-6">
+
+          <div class="dashboard-card card-green h-100">
+
+              <div class="icon green">
+
+                  <i class="bi bi-check-circle-fill"></i>
+
+              </div>
+
+              <div>
+
+                  <small>Sudah Validasi</small>
+
+                  <h2><?= $validasi ?></h2>
+
+                  <span>Laporan</span>
+
+              </div>
+
+          </div>
+
+      </div>
+
+      <!-- CARD 3 -->
+
+      <div class="col-lg-3 col-md-6">
+
+          <div class="dashboard-card card-red h-100">
+
+              <div class="icon red">
+
+                  <i class="bi bi-x-circle-fill"></i>
+
+              </div>
+
+              <div>
+
+                  <small>Belum Validasi</small>
+
+                  <h2><?= $belum ?></h2>
+
+                  <span>Laporan</span>
+
+              </div>
+
+          </div>
+
+      </div>
+
+      <!-- CARD 4 -->
+
+      <div class="col-lg-3 col-md-6">
+
+          <div class="dashboard-card card-orange h-100">
+
+              <div class="icon orange">
+
+                  <i class="bi bi-people-fill"></i>
+
+              </div>
+
+              <div>
+
+                  <small>Total Satpam</small>
+
+                  <h2><?= $totalSatpam ?></h2>
+
+                  <span>Personel</span>
+
+              </div>
+
+          </div>
+
+      </div>
+
+  </div>
+
+
+  <!-- QUICK MENU -->
+
+  <div class="mt-5">
+
+    <div class="section-title">
+
+      <h4 class="fw-bold m-0">
+
+      Menu Cepat Administrator
+
+      </h4>
 
     </div>
 
-    <!-- CARD 2 -->
+  <div class="row g-4">
 
     <div class="col-lg-3 col-md-6">
 
-        <div class="dashboard-card card-green">
+      <a href="../buku_mutasi/index.php" class="quick-menu">
 
-            <div class="icon green">
+        <i class="bi bi-clipboard2-check"></i>
 
-                <i class="bi bi-check-circle-fill"></i>
+        <h5>Monitoring Laporan</h5>
 
-            </div>
+        <p>Lihat laporan satpam serta cetak laporan.</p>
 
-            <div>
-
-                <small>Sudah Validasi</small>
-
-                <h2><?= $validasi ?></h2>
-
-                <span>Laporan</span>
-
-            </div>
-
-        </div>
+      </a>
 
     </div>
-
-    <!-- CARD 3 -->
 
     <div class="col-lg-3 col-md-6">
 
-        <div class="dashboard-card card-red">
+      <a href="../../satpam/index.php" class="quick-menu">
 
-            <div class="icon red">
+        <i class="bi bi-people-fill"></i>
 
-                <i class="bi bi-x-circle-fill"></i>
+        <h5>Data Satpam</h5>
 
-            </div>
+        <p>Kelola data seluruh anggota satpam.</p>
 
-            <div>
-
-                <small>Belum Validasi</small>
-
-                <h2><?= $belum ?></h2>
-
-                <span>Laporan</span>
-
-            </div>
-
-        </div>
+      </a>
 
     </div>
-
-    <!-- CARD 4 -->
 
     <div class="col-lg-3 col-md-6">
 
-        <div class="dashboard-card card-orange">
+      <a href="../buku_saku/index.php" class="quick-menu">
 
-            <div class="icon orange">
+        <i class="bi bi-book"></i>
 
-                <i class="bi bi-people-fill"></i>
+        <h5>Buku Saku</h5>
 
-            </div>
+        <p>Tambah dan perbarui buku saku.</p>
 
-            <div>
-
-                <small>Total Satpam</small>
-
-                <h2><?= $totalSatpam ?></h2>
-
-                <span>Personel</span>
-
-            </div>
-
-        </div>
+      </a>
 
     </div>
 
-</div>
+    <div class="col-lg-3 col-md-6">
 
-<!-- QUICK MENU -->
+      <a href="../nomor_penting/index.php" class="quick-menu">
 
-<div class="mt-5">
+        <i class="bi bi-telephone-fill"></i>
 
-<div class="section-title">
+        <h5>Nomor Penting</h5>
 
-<h4 class="fw-bold m-0">
+        <p>Kelola daftar nomor penting.</p>
 
-Menu Cepat Administrator
+      </a>
 
-</h4>
+    </div>
 
-</div>
+    <div class="col-lg-3 col-md-6">
 
-<div class="row g-4">
+      <a href="../shift/index.php" class="quick-menu">
 
-<div class="col-lg-3 col-md-6">
+        <i class="bi bi-calendar-week-fill"></i>
 
-<a href="../buku_mutasi/index.php" class="quick-menu">
+        <h5>Jadwal Satpam</h5>
 
-<i class="bi bi-clipboard2-check"></i>
+        <p>Atur jadwal tugas dan shift satpam.</p>
 
-<h5>Monitoring Laporan</h5>
+      </a>
 
-<p>Lihat laporan satpam serta cetak laporan.</p>
+    </div>
 
-</a>
+  </div>
 
-</div>
+  </div>
 
-<div class="col-lg-3 col-md-6">
+  <!-- CHART + ACTIVITY -->
+  <hr class="my-5">
 
-<a href="../../satpam/index.php" class="quick-menu">
+  <div class="row g-4 mt-4">
 
-<i class="bi bi-calendar-week"></i>
+  <div class="col-lg-8">
 
-<h5>Jadwal Shift</h5>
+  <div class="dashboard-box">
 
-<p>Kelola satpam serta jadwal kerja.</p>
+  <div class="section-title">
 
-</a>
+  <h4 class="fw-bold m-0">
 
-</div>
+    <i class="bi bi-calendar-check"></i>
 
-<div class="col-lg-3 col-md-6">
+  Jadwal Shift Hari Ini
 
-<a href="../buku_saku/index.php" class="quick-menu">
+  </h4>
 
-<i class="bi bi-book"></i>
+  </div>
 
-<h5>Buku Saku</h5>
+  <table class="table table-hover">
 
-<p>Tambah dan perbarui buku saku.</p>
+  <thead>
 
-</a>
+  <tr>
 
-</div>
+  <th>Shift</th>
 
-<div class="col-lg-3 col-md-6">
+  <th>Satpam</th>
 
-<a href="../nomor_penting/index.php" class="quick-menu">
+  </tr>
 
-<i class="bi bi-telephone-fill"></i>
+  </thead>
 
-<h5>Nomor Penting</h5>
+  <tbody>
 
-<p>Kelola daftar nomor penting.</p>
+  <?php while($s=mysqli_fetch_assoc($qShiftHariIni)){ ?>
 
-</a>
+  <tr>
 
-</div>
+  <td>
 
-</div>
+  <?= htmlspecialchars($s['nama_shift']) ?>
 
-</div>
+  </td>
 
-<!-- CHART + ACTIVITY -->
- <hr class="my-5">
+  <td>
 
-<div class="row g-4 mt-4">
+  <?= htmlspecialchars($s['nama']) ?>
 
-<div class="col-lg-8">
+  </td>
 
-<div class="dashboard-box">
+  </tr>
 
-<div class="section-title">
+  <?php } ?>
 
-<h4 class="fw-bold m-0">
+  </tbody>
 
-  <i class="bi bi-calendar-check"></i>
+  </table>
 
-Jadwal Shift Hari Ini
+  </div>
 
-</h4>
+  </div>
 
-</div>
+  <div class="col-lg-4">
 
-<table class="table table-hover">
+  <div class="dashboard-box">
 
-<thead>
+  <div class="section-title">
 
-<tr>
+  <h4 class="fw-bold m-0">
 
-<th>Shift</th>
+  Ringkasan Hari Ini
 
-<th>Satpam</th>
+  </h4>
 
-</tr>
+  </div>
 
-</thead>
+  <div class="summary-item">
 
-<tbody>
+  <span>Laporan Masuk</span>
 
-<?php while($s=mysqli_fetch_assoc($qShiftHariIni)){ ?>
+  <b><?= $laporanHariIni ?></b>
 
-<tr>
+  </div>
 
-<td>
+  <div class="summary-item">
 
-<?= htmlspecialchars($s['nama_shift']) ?>
+  <span>Draft</span>
 
-</td>
+  <b><?= $draftHariIni ?></b>
 
-<td>
+  </div>
 
-<?= htmlspecialchars($s['nama']) ?>
+  <div class="summary-item">
 
-</td>
+  <span>Tervalidasi</span>
 
-</tr>
+  <b><?= $validHariIni ?></b>
 
-<?php } ?>
+  </div>
 
-</tbody>
+  </div>
 
-</table>
+  </div>
 
-</div>
-
-</div>
-
-<div class="col-lg-4">
-
-<div class="dashboard-box">
-
-<div class="section-title">
-
-<h4 class="fw-bold m-0">
-
-Ringkasan Hari Ini
-
-</h4>
-
-</div>
-
-<div class="summary-item">
-
-<span>Laporan Masuk</span>
-
-<b><?= $laporanHariIni ?></b>
-
-</div>
-
-<div class="summary-item">
-
-<span>Draft</span>
-
-<b><?= $draftHariIni ?></b>
-
-</div>
-
-<div class="summary-item">
-
-<span>Tervalidasi</span>
-
-<b><?= $validHariIni ?></b>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
+  </div>
 
 
 <div class="row g-4 mt-4">
@@ -451,9 +483,7 @@ Ringkasan Hari Ini
           </div>
 
           <div class="chart-container">
-
               <canvas id="laporanChart"></canvas>
-
           </div>
 
         </div>
@@ -478,57 +508,38 @@ Ringkasan Hari Ini
 
           </div>
 
-          <ul class="activity-list">
+          <div class="activity-wrapper">
 
             <?php while($a=mysqli_fetch_assoc($aktivitas)){ ?>
 
-            <li>
+              <div class="activity-item">
 
-              <i class="bi bi-dot"></i>
+                <div class="activity-icon">
+                    <i class="bi bi-person-fill"></i>
+                </div>
 
-              <b><?= htmlspecialchars($a['nama'] ?? 'Satpam'); ?></b>
+                <div class="activity-content">
+                    <h6><?= htmlspecialchars($a['nama'] ?? 'Satpam') ?></h6>
 
-              <br>
+                    <small>
+                        Mengirim laporan
+                        <?= date('d M Y',strtotime($a['tanggal_laporan'])) ?>
+                    </small>
+                </div>
 
-              <small>
+                <span class="badge bg-primary">
+                    <?= ucfirst($a['status']) ?>
+                </span>
 
-                Mengirim laporan
-
-                <?= date('d M Y',strtotime($a['tanggal_laporan'])) ?>
-
-              </small>
-
-            </li>
+              </div>
 
             <?php } ?>
 
-          </ul>
+          </div>
 
-<ul class="activity-list">
+        </div>
 
-<?php while($a=mysqli_fetch_assoc($aktivitas)){ ?>
-
-<li>
-
-<i class="bi bi-dot"></i>
-
-<b><?= htmlspecialchars($a['nama'] ?? 'Satpam'); ?></b>
-
-<br>
-
-<small>
-
-Mengirim laporan
-
-<?= date('d M Y',strtotime($a['tanggal_laporan'])) ?>
-
-</small>
-
-</li>
-
-<?php } ?>
-
-</ul>
+    </div>
 
 </div>
 
@@ -536,10 +547,9 @@ Mengirim laporan
 
 </div>
 
-</div>
+</main>
 
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 
 const ctx=document.getElementById('laporanChart');
@@ -577,35 +587,32 @@ pointRadius:5
 options:{
     responsive:true,
     maintainAspectRatio:false,
-
+    interaction:{
+        intersect:false,
+        mode:'index'
+    },
     plugins:{
         legend:{
             display:false
         }
     },
-
     scales:{
         y:{
             beginAtZero:true,
             ticks:{
+                precision:0,
                 stepSize:1
             }
         }
     }
-}
-
 });
 
 </script>
 
-<div class="dashboard-footer text-center mt-5">
-
-<small>
-
-© 2026 BNN Tulungagung — Sistem Informasi Buku Mutasi Satpam
-
-</small>
-
-</div>
+<footer class="dashboard-footer">
+    © 2026 BNN Tulungagung
+    <span>|</span>
+    Sistem Informasi Buku Mutasi Satpam
+</footer>
 
 <?php include "../../includes/footer.php"; ?>

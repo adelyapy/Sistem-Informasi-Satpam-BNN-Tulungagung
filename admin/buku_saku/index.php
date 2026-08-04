@@ -1,10 +1,11 @@
 <?php
 
-require_once "../config/admin_auth.php";
-require_once "../config/function.php";
+require_once "../../config/admin_auth.php";
+require_once "../../config/function.php";
 
 $title = "Buku Saku";
 $base_url = "../../";
+$activeMenu = "buku_saku";
 
 $keyword = isset($_GET['keyword']) ? mysqli_real_escape_string($conn,$_GET['keyword']) : '';
 
@@ -25,14 +26,11 @@ $sql .= " ORDER BY created_at DESC";
 
 $query = mysqli_query($conn,$sql);
 
-include "../includes/header.php";
+include "../../includes/header.php";
 ?>
 
-<link rel="stylesheet" href="../../assets/css/sidebar.css">
-<link rel="stylesheet" href="../../assets/css/dashboard.css">
-
-<?php include "../includes/navbar.php"; ?>
-<?php include "../includes/admin_sidebar.php"; ?>
+<?php include "../../includes/navbar.php"; ?>
+<?php include "../../includes/admin_sidebar.php"; ?>
 
 <div class="main-content">
 
@@ -303,4 +301,4 @@ window.location='hapus.php?id='+id;
 
 </script>
 
-<?php include "../includes/footer.php"; ?>
+<?php include "../../includes/footer.php"; ?>

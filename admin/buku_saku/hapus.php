@@ -1,7 +1,7 @@
 <?php
 
-require_once "../config/admin_auth.php";
-require_once "../config/function.php";
+require_once "../../config/admin_auth.php";
+require_once "../../config/function.php";
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 

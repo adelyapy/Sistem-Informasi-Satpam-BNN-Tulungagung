@@ -4,7 +4,8 @@ require_once "../config/admin_auth.php";
 require_once "../config/function.php";
 
 $title = "Data Satpam";
-$base_url = "../../";
+$base_url = "../";
+$activeMenu = "data_satpam";
 
 $query = mysqli_query($conn, "
     SELECT *
@@ -15,9 +16,6 @@ $query = mysqli_query($conn, "
 
 include "../includes/header.php";
 ?>
-
-<link rel="stylesheet" href="../../assets/css/sidebar.css">
-<link rel="stylesheet" href="../../assets/css/dashboard.css">
 
 <?php include "../includes/navbar.php"; ?>
 <?php include "../includes/admin_sidebar.php"; ?>
@@ -89,7 +87,7 @@ include "../includes/header.php";
                                     <?php if(!empty($data['foto'])): ?>
 
                                         <img
-                                            src="../../uploads/foto/<?= $data['foto']; ?>"
+                                            src="<?= $base_url ?>uploads/foto/<?= $data['foto']; ?>"
                                             width="50"
                                             height="50"
                                             class="rounded-circle border"
@@ -97,12 +95,9 @@ include "../includes/header.php";
 
                                     <?php else: ?>
 
-                                        <img
-                                            src="../../assets/img/default-user.png"
-                                            width="50"
-                                            height="50"
-                                            class="rounded-circle border"
-                                            style="object-fit:cover;">
+                                        <span class="table-avatar">
+                                            <i class="bi bi-person-fill"></i>
+                                        </span>
 
                                     <?php endif; ?>
 
@@ -162,10 +157,7 @@ include "../includes/header.php";
 
                                 <td colspan="5" class="text-center py-5">
 
-                                    <img
-                                        src="../../assets/img/empty-data.png"
-                                        width="120"
-                                        class="mb-3">
+                                    <i class="bi bi-people fs-1 text-primary d-block mb-3"></i>
 
                                     <h6 class="fw-semibold">
 

@@ -1,10 +1,11 @@
 <?php
 
-require_once "../config/admin_auth.php";
-require_once "../config/function.php";
+require_once "../../config/admin_auth.php";
+require_once "../../config/function.php";
 
 $title = "Tambah Buku Saku";
 $base_url = "../../";
+$activeMenu = "buku_saku";
 
 if(isset($_POST['simpan'])){
 
@@ -135,15 +136,12 @@ if(isset($_POST['simpan'])){
 
 }
 
-include "../includes/header.php";
+include "../../includes/header.php";
 
 ?>
 
-<link rel="stylesheet" href="../../assets/css/sidebar.css">
-<link rel="stylesheet" href="../../assets/css/dashboard.css">
-
-<?php include "../includes/navbar.php"; ?>
-<?php include "../includes/admin_sidebar.php"; ?>
+<?php include "../../includes/navbar.php"; ?>
+<?php include "../../includes/admin_sidebar.php"; ?>
 
 <div class="main-content">
 
@@ -245,4 +243,4 @@ Kembali
 
 </div>
 
-<?php include "../includes/footer.php"; ?>
+<?php include "../../includes/footer.php"; ?>

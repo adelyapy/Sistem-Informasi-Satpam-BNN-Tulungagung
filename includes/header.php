@@ -1,58 +1,40 @@
 <?php
 if (!isset($title)) {
-    $title = "Buku Mutasi Satpam";
+    $title = 'Buku Mutasi Satpam';
 }
 
 if (!isset($base_url)) {
-    $base_url = "./";
+    $scriptPath = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+    $base_url = '/';
+    foreach (['/admin/', '/kepala/', '/satpam/'] as $section) {
+        $position = strpos($scriptPath, $section);
+        if ($position !== false) {
+            $base_url = substr($scriptPath, 0, $position) . '/';
+            break;
+        }
+    }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistem Informasi Buku Mutasi Satpam BNN Kabupaten Tulungagung">
+    <meta name="author" content="PKL Universitas Nusantara PGRI Kediri 2026">
+    <title><?= htmlspecialchars($title) ?></title>
 
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <title><?= $title; ?></title>
-
-    <meta name="description"
-        content="Sistem Informasi Satpam BNN Kabupaten Tulungagung">
-
-    <meta name="author"
-        content="PKL Universitas Nusantara PGRI Kediri 2026">
-
-    <!-- Bootstrap -->
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-        rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
-
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-
-    <!-- Google Font -->
-
-    <link rel="preconnect"
-        href="https://fonts.googleapis.com">
-
-    <link rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-
-    <!-- Global CSS -->
-
-    <link rel="stylesheet"
-        href="<?= $base_url ?>assets/css/style.css">
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="<?= $base_url ?>assets/css/style.css">
+    <link rel="stylesheet" href="<?= $base_url ?>assets/css/sidebar.css">
+    <link rel="stylesheet" href="<?= $base_url ?>assets/css/dashboard.css">
+    <?php if (($_SESSION['role'] ?? '') === 'admin') { ?>
+        <link rel="stylesheet" href="<?= $base_url ?>assets/css/dashboard-admin.css">
+    <?php } ?>
 </head>
-
 <body>
+<div class="page-wrapper">

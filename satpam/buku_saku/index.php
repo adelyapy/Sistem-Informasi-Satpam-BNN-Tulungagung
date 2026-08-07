@@ -1,119 +1,74 @@
 <?php
-require_once "../../config/database.php";
-
-
-$title = "Buku Saku";
-$base_url = "../../";
-
-include "../../includes/header.php";
+require_once '../../config/database.php';
+$title = 'Buku Saku Satpam';
+$base_url = '../../';
+include '../../includes/header.php';
 ?>
+<main class="public-page">
+  <div class="container public-shell">
+    <div class="public-heading text-center">
+      <h1>
+        <i class="bi bi-bookshelf text-primary me-2">
 
-<div class="container py-5">
+        </i>Buku Saku Satpam
+      </h1>
+      <p>Silakan pilih jenis buku saku yang ingin dipelajari.</p>
+    </div>
+    <div class="row justify-content-center g-4">
+      <div class="col-lg-5">
+        <article class="public-card public-choice-card h-100 text-center">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <div class="public-icon pdf">
+              <i class="bi bi-file-earmark-pdf-fill">
 
-<div class="text-center mb-5">
+              </i>
+            </div>
+            <h2 class="public-title">
+              Buku PDF
+            </h2>
+            <p class="public-description">
+              Berisi SOP, buku pedoman, panduan kerja, serta dokumen resmi Satpam.
+            </p>
+            <a href="pdf.php" class="public-primary public-danger mt-3">
+              <i class="bi bi-arrow-right-circle me-1">
 
-<h2 class="fw-bold">
+              </i>
+              Lihat
+            </a>
+          </div>
+        </article>
+      </div>
+      <div class="col-lg-5">
+        <article class="public-card public-choice-card h-100 text-center">
+          <div class="card-body d-flex flex-column align-items-center justify-content-center">
+            <div class="public-icon"><i class="bi bi-journal-bookmark">
 
-📚 Buku Saku Satpam
+              </i>
+            </div>
+            <h2 class="public-title">
+              Materi Buku Saku
+            </h2>
+            <p class="public-description">
+              Berisi materi pengetahuan dasar, SOP, tugas satpam, sandi komunikasi, dan referensi.
+            </p>
+            <a href="materi.php" class="public-primary mt-3">
+              <i class="bi bi-arrow-right-circle me-1">
 
-</h2>
+              </i>
+              Lihat
+            </a>
+          </div>
+        </article>
+      </div>
+    </div>
+    <div class="text-center mt-4"><a href="../../index.php" class="public-back">
+        <i class="bi bi-arrow-left me-1">
 
-<p class="text-muted">
+        </i>
+        Kembali ke Beranda
+      </a>
+    </div>
+  </div>
+</main>
 
-Silakan pilih jenis Buku Saku yang ingin dipelajari.
-
-</p>
-
-</div>
-
-<div class="row justify-content-center">
-
-<div class="col-lg-5 col-md-6 mb-4">
-
-<div class="card shadow border-0 h-100">
-
-<div class="card-body text-center p-5">
-
-<div class="mb-4">
-
-<i class="bi bi-file-earmark-pdf-fill text-danger"
-style="font-size:80px;"></i>
-
-</div>
-
-<h3 class="fw-bold">
-
-Buku PDF
-
-</h3>
-
-<p class="text-muted">
-
-Berisi SOP, Buku Pedoman, Panduan Kerja, serta dokumen resmi Satpam.
-
-</p>
-
-<a
-href="pdf.php"
-class="btn btn-danger mt-3">
-
-<i class="bi bi-arrow-right-circle"></i>
-
-Masuk
-
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-lg-5 col-md-6 mb-4">
-
-<div class="card shadow border-0 h-100">
-
-<div class="card-body text-center p-5">
-
-<div class="mb-4">
-
-<i class="bi bi-journal-bookmark-fill text-primary"
-style="font-size:80px;"></i>
-
-</div>
-
-<h3 class="fw-bold">
-
-Materi Buku Saku
-
-</h3>
-
-<p class="text-muted">
-
-Berisi materi pengetahuan dasar, SOP, tugas satpam, sandi komunikasi dan referensi.
-
-</p>
-
-<a
-href="materi.php"
-class="btn btn-primary mt-3">
-
-<i class="bi bi-arrow-right-circle"></i>
-
-Masuk
-
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<?php include "../../includes/footer.php"; ?>
+<?php include '../../includes/footer.php'; ?>

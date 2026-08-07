@@ -4,8 +4,8 @@ require_once "../../config/database.php";
 require_once "../../config/function.php";
 
 if (!isset($_GET['id'])) {
-    header("Location: index.php");
-    exit;
+  header("Location: index.php");
+  exit;
 }
 
 $id = (int)$_GET['id'];
@@ -17,51 +17,49 @@ WHERE id_kategori='$id'
 ");
 
 if (mysqli_num_rows($query) == 0) {
-    echo "
+  echo "
     <script>
         alert('Data tidak ditemukan');
         window.location='index.php';
     </script>";
-    exit;
+  exit;
 }
 
 $data = mysqli_fetch_assoc($query);
 
 if (isset($_POST['update'])) {
 
-    $nama = mysqli_real_escape_string(
-        $conn,
-        trim($_POST['nama_kategori'])
-    );
+  $nama = mysqli_real_escape_string(
+    $conn,
+    trim($_POST['nama_kategori'])
+  );
 
-    if ($nama == "") {
+  if ($nama == "") {
 
-        echo "
+    echo "
         <script>
             alert('Nama kategori wajib diisi');
         </script>";
+  } else {
 
-    } else {
-
-        $cek = mysqli_query($conn,"
+    $cek = mysqli_query($conn, "
         SELECT *
         FROM kategori_buku_saku
         WHERE nama_kategori='$nama'
         AND id_kategori != '$id'
         ");
 
-        if(mysqli_num_rows($cek)>0){
+    if (mysqli_num_rows($cek) > 0) {
 
-            echo "
+      echo "
             <script>
 
                 alert('Nama kategori sudah digunakan');
 
             </script>";
+    } else {
 
-        }else{
-
-            $update = mysqli_query($conn,"
+      $update = mysqli_query($conn, "
             UPDATE kategori_buku_saku
             SET
                 nama_kategori='$nama'
@@ -69,9 +67,9 @@ if (isset($_POST['update'])) {
                 id_kategori='$id'
             ");
 
-            if($update){
+      if ($update) {
 
-                echo "
+        echo "
                 <script>
 
                     alert('Kategori berhasil diperbarui');
@@ -80,23 +78,18 @@ if (isset($_POST['update'])) {
 
                 </script>";
 
-                exit;
+        exit;
+      } else {
 
-            }else{
-
-                echo "
+        echo "
                 <script>
 
                     alert('Gagal memperbarui kategori');
 
                 </script>";
-
-            }
-
-        }
-
+      }
     }
-
+  }
 }
 ?>
 
@@ -107,87 +100,87 @@ if (isset($_POST['update'])) {
 
 <body>
 
-<?php include '../../includes/navbar.php'; ?>
+  <?php include '../../includes/navbar.php'; ?>
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="row">
+    <div class="row">
 
-<?php include '../../includes/admin_sidebar.php'; ?>
+      <?php include '../../includes/admin_sidebar.php'; ?>
 
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
-<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
 
-<h3>
+          <h3>
 
-<i class="bi bi-pencil-square"></i>
+            <i class="bi bi-pencil-square"></i>
 
-Edit Kategori Buku Saku
+            Edit Kategori Buku Saku
 
-</h3>
+          </h3>
 
-</div>
+        </div>
 
-<div class="card shadow">
+        <div class="card shadow">
 
-<div class="card-body">
+          <div class="card-body">
 
-<form method="POST">
+            <form method="POST">
 
-<div class="mb-3">
+              <div class="mb-3">
 
-<label class="form-label">
+                <label class="form-label">
 
-Nama Kategori
+                  Nama Kategori
 
-</label>
+                </label>
 
-<input
-type="text"
-class="form-control"
-name="nama_kategori"
-value="<?= htmlspecialchars($data['nama_kategori']); ?>"
-required>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="nama_kategori"
+                  value="<?= htmlspecialchars($data['nama_kategori']); ?>"
+                  required>
 
-</div>
+              </div>
 
-<div class="mt-4">
+              <div class="mt-4">
 
-<button
-type="submit"
-name="update"
-class="btn btn-success">
+                <button
+                  type="submit"
+                  name="update"
+                  class="btn btn-success">
 
-<i class="bi bi-check-circle"></i>
+                  <i class="bi bi-check-circle"></i>
 
-Update
+                  Update
 
-</button>
+                </button>
 
-<a
-href="index.php"
-class="btn btn-secondary">
+                <a
+                  href="index.php"
+                  class="btn btn-secondary">
 
-Kembali
+                  Kembali
 
-</a>
+                </a>
 
-</div>
+              </div>
 
-</form>
+            </form>
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-</main>
+      </main>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
-<?php include '../../includes/footer.php'; ?>
+  <?php include '../../includes/footer.php'; ?>
 
 </body>
 

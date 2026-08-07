@@ -3,15 +3,15 @@ require_once "../../config/admin_auth.php";
 require_once "../../config/database.php";
 require_once "../../config/function.php";
 
-if(isset($_POST['simpan'])){
+if (isset($_POST['simpan'])) {
 
-    $judul = mysqli_real_escape_string($conn,$_POST['judul']);
-    $kategori = (int)$_POST['kategori'];
-    $isi = mysqli_real_escape_string($conn,$_POST['isi']);
+  $judul = mysqli_real_escape_string($conn, $_POST['judul']);
+  $kategori = (int)$_POST['kategori'];
+  $isi = mysqli_real_escape_string($conn, $_POST['isi']);
 
-    if($judul=="" || $kategori==0 || $isi==""){
+  if ($judul == "" || $kategori == 0 || $isi == "") {
 
-        echo "
+    echo "
         <script>
 
         alert('Semua data wajib diisi');
@@ -20,20 +20,19 @@ if(isset($_POST['simpan'])){
 
         </script>";
 
-        exit;
+    exit;
+  }
 
-    }
-
-    $q = mysqli_query($conn,"
+  $q = mysqli_query($conn, "
     SELECT MAX(id_materi) id
     FROM materi_buku_saku
     ");
 
-    $d = mysqli_fetch_assoc($q);
+  $d = mysqli_fetch_assoc($q);
 
-    $id = $d['id'] + 1;
+  $id = $d['id'] + 1;
 
-    $insert = mysqli_query($conn,"
+  $insert = mysqli_query($conn, "
     INSERT INTO materi_buku_saku
     (
         id_materi,
@@ -50,9 +49,9 @@ if(isset($_POST['simpan'])){
     )
     ");
 
-    if($insert){
+  if ($insert) {
 
-        echo "
+    echo "
 
         <script>
 
@@ -61,10 +60,9 @@ if(isset($_POST['simpan'])){
         location='index.php';
 
         </script>";
+  } else {
 
-    }else{
-
-        echo "
+    echo "
 
         <script>
 
@@ -73,12 +71,10 @@ if(isset($_POST['simpan'])){
         history.back();
 
         </script>";
-
-    }
-
+  }
 }
 
-$kategori = mysqli_query($conn,"
+$kategori = mysqli_query($conn, "
 SELECT *
 FROM kategori_buku_saku
 ORDER BY nama_kategori ASC
@@ -92,144 +88,142 @@ ORDER BY nama_kategori ASC
 
 <body>
 
-<?php include "../../includes/navbar.php"; ?>
+  <?php include "../../includes/navbar.php"; ?>
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="row">
+    <div class="row">
 
-<?php include "../../includes/admin_sidebar.php"; ?>
+      <?php include "../../includes/admin_sidebar.php"; ?>
 
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
-<div class="d-flex justify-content-between pt-3 pb-3">
+        <div class="d-flex justify-content-between pt-3 pb-3">
 
-<h3>
+          <h3>
 
-<i class="bi bi-plus-circle-fill"></i>
+            <i class="bi bi-plus-circle-fill"></i>
 
-Tambah Materi Buku Saku
+            Tambah Materi Buku Saku
 
-</h3>
+          </h3>
 
-</div>
+        </div>
 
-<div class="card shadow">
+        <div class="card shadow">
 
-<div class="card-body">
+          <div class="card-body">
 
-<form method="POST">
+            <form method="POST">
 
-<div class="mb-3">
+              <div class="mb-3">
 
-<label>
+                <label>
 
-Judul
+                  Judul
 
-</label>
+                </label>
 
-<input
-type="text"
-name="judul"
-class="form-control"
-required>
+                <input
+                  type="text"
+                  name="judul"
+                  class="form-control"
+                  required>
 
-</div>
+              </div>
 
-<div class="mb-3">
+              <div class="mb-3">
 
-<label>
+                <label>
 
-Kategori
+                  Kategori
 
-</label>
+                </label>
 
-<select
-name="kategori"
-class="form-select"
-required>
+                <select
+                  name="kategori"
+                  class="form-select"
+                  required>
 
-<option value="">
+                  <option value="">
 
-Pilih Kategori
+                    Pilih Kategori
 
-</option>
+                  </option>
 
-<?php while($k=mysqli_fetch_assoc($kategori)): ?>
+                  <?php while ($k = mysqli_fetch_assoc($kategori)): ?>
 
-<option value="<?= $k['id_kategori']; ?>">
+                    <option value="<?= $k['id_kategori']; ?>">
 
-<?= $k['nama_kategori']; ?>
+                      <?= $k['nama_kategori']; ?>
 
-</option>
+                    </option>
 
-<?php endwhile; ?>
+                  <?php endwhile; ?>
 
-</select>
+                </select>
 
-</div>
+              </div>
 
-<div class="mb-3">
+              <div class="mb-3">
 
-<label>
+                <label>
 
-Isi Materi
+                  Isi Materi
 
-</label>
+                </label>
 
-<textarea
-id="editor"
-name="isi"></textarea>
+                <textarea
+                  id="editor"
+                  name="isi"></textarea>
 
-</div>
+              </div>
 
-<div class="mt-4">
+              <div class="mt-4">
 
-<button
-class="btn btn-primary"
-name="simpan">
+                <button
+                  class="btn btn-primary"
+                  name="simpan">
 
-<i class="bi bi-save"></i>
+                  <i class="bi bi-save"></i>
 
-Simpan
+                  Simpan
 
-</button>
+                </button>
 
-<a
-href="index.php"
-class="btn btn-secondary">
+                <a
+                  href="index.php"
+                  class="btn btn-secondary">
 
-Kembali
+                  Kembali
 
-</a>
+                </a>
 
-</div>
+              </div>
 
-</form>
+            </form>
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-</main>
+      </main>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
-<?php include "../../includes/footer.php"; ?>
+  <?php include "../../includes/footer.php"; ?>
 
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+  <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 
-<script>
-
-ClassicEditor
-.create(document.querySelector('#editor'))
-.catch(error=>{
-console.error(error);
-});
-
-</script>
+  <script>
+    ClassicEditor
+      .create(document.querySelector('#editor'))
+      .catch(error => {
+        console.error(error);
+      });
+  </script>
 
 </body>
 

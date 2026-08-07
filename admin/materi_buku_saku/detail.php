@@ -4,13 +4,13 @@ require_once "../../config/database.php";
 require_once "../../config/function.php";
 
 if (!isset($_GET['id'])) {
-    header("Location:index.php");
-    exit;
+  header("Location:index.php");
+  exit;
 }
 
 $id = (int) $_GET['id'];
 
-$query = mysqli_query($conn,"
+$query = mysqli_query($conn, "
 SELECT
     m.*,
     k.nama_kategori
@@ -20,18 +20,17 @@ ON m.id_kategori = k.id_kategori
 WHERE m.id_materi='$id'
 ");
 
-if(mysqli_num_rows($query)==0){
+if (mysqli_num_rows($query) == 0) {
 
-    echo "
+  echo "
     <script>
         alert('Data tidak ditemukan');
         location='index.php';
     </script>";
-    exit;
-
+  exit;
 }
 
-$data=mysqli_fetch_assoc($query);
+$data = mysqli_fetch_assoc($query);
 
 ?>
 
@@ -42,132 +41,132 @@ $data=mysqli_fetch_assoc($query);
 
 <body>
 
-<?php include "../../includes/navbar.php"; ?>
+  <?php include "../../includes/navbar.php"; ?>
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="row">
+    <div class="row">
 
-<?php include "../../includes/admin_sidebar.php"; ?>
+      <?php include "../../includes/admin_sidebar.php"; ?>
 
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
-<div class="d-flex justify-content-between align-items-center pt-3 pb-3">
+        <div class="d-flex justify-content-between align-items-center pt-3 pb-3">
 
-<h3>
+          <h3>
 
-<i class="bi bi-book-half"></i>
+            <i class="bi bi-book-half"></i>
 
-Detail Materi Buku Saku
+            Detail Materi Buku Saku
 
-</h3>
+          </h3>
 
-<a href="index.php"
-class="btn btn-secondary">
+          <a href="index.php"
+            class="btn btn-secondary">
 
-<i class="bi bi-arrow-left"></i>
+            <i class="bi bi-arrow-left"></i>
 
-Kembali
+            Kembali
 
-</a>
+          </a>
 
-</div>
+        </div>
 
-<div class="card shadow">
+        <div class="card shadow">
 
-<div class="card-body">
+          <div class="card-body">
 
-<div class="mb-3">
+            <div class="mb-3">
 
-<h2>
+              <h2>
 
-<?= htmlspecialchars($data['judul']); ?>
+                <?= htmlspecialchars($data['judul']); ?>
 
-</h2>
+              </h2>
 
-</div>
+            </div>
 
-<table class="table table-bordered">
+            <table class="table table-bordered">
 
-<tr>
+              <tr>
 
-<th width="180">
+                <th width="180">
 
-Kategori
+                  Kategori
 
-</th>
+                </th>
 
-<td>
+                <td>
 
-<span class="badge bg-primary">
+                  <span class="badge bg-primary">
 
-<?= htmlspecialchars($data['nama_kategori']); ?>
+                    <?= htmlspecialchars($data['nama_kategori']); ?>
 
-</span>
+                  </span>
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-<tr>
+              <tr>
 
-<th>
+                <th>
 
-Tanggal Dibuat
+                  Tanggal Dibuat
 
-</th>
+                </th>
 
-<td>
+                <td>
 
-<?= date('d F Y H:i',strtotime($data['created_at'])); ?>
+                  <?= date('d F Y H:i', strtotime($data['created_at'])); ?>
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-<?php if(!empty($data['icon'])): ?>
+              <?php if (!empty($data['icon'])): ?>
 
-<tr>
+                <tr>
 
-<th>
+                  <th>
 
-Icon
+                    Icon
 
-</th>
+                  </th>
 
-<td>
+                  <td>
 
-<img
-src="../../uploads/icon_buku_saku/<?= htmlspecialchars($data['icon']); ?>"
-style="height:80px;">
+                    <img
+                      src="../../uploads/icon_buku_saku/<?= htmlspecialchars($data['icon']); ?>"
+                      style="height:80px;">
 
-</td>
+                  </td>
 
-</tr>
+                </tr>
 
-<?php endif; ?>
+              <?php endif; ?>
 
-</table>
+            </table>
 
-<hr>
+            <hr>
 
-<div class="isi-materi">
+            <div class="isi-materi">
 
-<?= $data['isi']; ?>
+              <?= $data['isi']; ?>
 
-</div>
+            </div>
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-</main>
+      </main>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
-<?php include "../../includes/footer.php"; ?>
+  <?php include "../../includes/footer.php"; ?>
 
 </body>
 

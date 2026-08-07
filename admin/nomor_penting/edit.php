@@ -7,8 +7,8 @@ $title = "Edit Nomor Penting";
 $base_url = "../../";
 
 if (!isset($_GET['id'])) {
-    header("Location: index.php");
-    exit;
+  header("Location: index.php");
+  exit;
 }
 
 $id = (int) $_GET['id'];
@@ -20,19 +20,19 @@ $query = mysqli_query($conn, "
 ");
 
 if (mysqli_num_rows($query) == 0) {
-    header("Location: index.php");
-    exit;
+  header("Location: index.php");
+  exit;
 }
 
 $data = mysqli_fetch_assoc($query);
 
 if (isset($_POST['simpan'])) {
 
-    $instansi      = e($_POST['instansi']);
-    $nomorTelepon  = e($_POST['nomor_telepon']);
-    $keterangan    = e($_POST['keterangan']);
+  $instansi      = e($_POST['instansi']);
+  $nomorTelepon  = e($_POST['nomor_telepon']);
+  $keterangan    = e($_POST['keterangan']);
 
-    $update = mysqli_query($conn, "
+  $update = mysqli_query($conn, "
         UPDATE nomor_penting
         SET
             instansi='$instansi',
@@ -42,9 +42,9 @@ if (isset($_POST['simpan'])) {
         WHERE id_nomor='$id'
     ");
 
-    if ($update) {
+  if ($update) {
 
-        echo "
+    echo "
 
         <script>
 
@@ -65,10 +65,9 @@ if (isset($_POST['simpan'])) {
         </script>
 
         ";
+  } else {
 
-    } else {
-
-        echo "
+    echo "
 
         <script>
 
@@ -85,9 +84,7 @@ if (isset($_POST['simpan'])) {
         </script>
 
         ";
-
-    }
-
+  }
 }
 
 include "../../includes/header.php";
@@ -102,128 +99,128 @@ include "../../includes/header.php";
 
 <div class="main-content">
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-<div>
+      <div>
 
-<h3 class="fw-bold">
+        <h3 class="fw-bold">
 
-Edit Nomor Penting
+          Edit Nomor Penting
 
-</h3>
+        </h3>
 
-<p class="text-muted mb-0">
+        <p class="text-muted mb-0">
 
-Perbarui data nomor penting.
+          Perbarui data nomor penting.
 
-</p>
+        </p>
 
-</div>
+      </div>
 
-<a href="index.php" class="btn btn-secondary">
+      <a href="index.php" class="btn btn-secondary">
 
-<i class="bi bi-arrow-left"></i>
+        <i class="bi bi-arrow-left"></i>
 
-Kembali
+        Kembali
 
-</a>
+      </a>
 
-</div>
+    </div>
 
-<div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0">
 
-<div class="card-body">
+      <div class="card-body">
 
-<form method="POST">
+        <form method="POST">
 
-<div class="row">
+          <div class="row">
 
-<div class="col-lg-6 mb-3">
+            <div class="col-lg-6 mb-3">
 
-<label class="form-label">
+              <label class="form-label">
 
-Instansi
+                Instansi
 
-</label>
+              </label>
 
-<input
-type="text"
-name="instansi"
-class="form-control"
-value="<?= htmlspecialchars($data['instansi']); ?>"
-required>
+              <input
+                type="text"
+                name="instansi"
+                class="form-control"
+                value="<?= htmlspecialchars($data['instansi']); ?>"
+                required>
 
-</div>
+            </div>
 
-<div class="col-lg-6 mb-3">
+            <div class="col-lg-6 mb-3">
 
-<label class="form-label">
+              <label class="form-label">
 
-Nomor Telepon
+                Nomor Telepon
 
-</label>
+              </label>
 
-<input
-type="text"
-name="nomor_telepon"
-class="form-control"
-value="<?= htmlspecialchars($data['nomor_telepon']); ?>"
-required>
+              <input
+                type="text"
+                name="nomor_telepon"
+                class="form-control"
+                value="<?= htmlspecialchars($data['nomor_telepon']); ?>"
+                required>
 
-</div>
+            </div>
 
-<div class="col-lg-6 mb-3">
+            <div class="col-lg-6 mb-3">
 
-<label class="form-label">
+              <label class="form-label">
 
-Keterangan
+                Keterangan
 
-</label>
+              </label>
 
-<input
-type="text"
-name="keterangan"
-class="form-control"
-value="<?= htmlspecialchars($data['keterangan']); ?>"
-required>
+              <input
+                type="text"
+                name="keterangan"
+                class="form-control"
+                value="<?= htmlspecialchars($data['keterangan']); ?>"
+                required>
 
-</div>
+            </div>
 
 
-<div class="col-12">
+            <div class="col-12">
 
-<button
-type="submit"
-name="simpan"
-class="btn btn-primary">
+              <button
+                type="submit"
+                name="simpan"
+                class="btn btn-primary">
 
-<i class="bi bi-check-circle me-2"></i>
+                <i class="bi bi-check-circle me-2"></i>
 
-Simpan Perubahan
+                Simpan Perubahan
 
-</button>
+              </button>
 
-<a
-href="index.php"
-class="btn btn-secondary">
+              <a
+                href="index.php"
+                class="btn btn-secondary">
 
-Batal
+                Batal
 
-</a>
+              </a>
 
-</div>
+            </div>
 
-</div>
+          </div>
 
-</form>
+        </form>
 
-</div>
+      </div>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
 </div>
 

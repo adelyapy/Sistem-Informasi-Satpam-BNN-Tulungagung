@@ -7,59 +7,56 @@ $title = "Tambah Buku Saku";
 $base_url = "../../";
 $activeMenu = "buku_saku";
 
-if(isset($_POST['simpan'])){
+if (isset($_POST['simpan'])) {
 
-    $judul = trim($_POST['judul']);
+  $judul = trim($_POST['judul']);
 
-    if(empty($judul)){
-        echo "<script>
+  if (empty($judul)) {
+    echo "<script>
         Swal.fire('Gagal','Judul buku tidak boleh kosong','error');
         </script>";
-    }else{
+  } else {
 
-        if($_FILES['file']['error']==4){
+    if ($_FILES['file']['error'] == 4) {
 
-            echo "<script>
+      echo "<script>
             Swal.fire('Gagal','Silakan pilih file PDF','error');
             </script>";
+    } else {
 
-        }else{
+      $namaFile = $_FILES['file']['name'];
+      $tmpFile  = $_FILES['file']['tmp_name'];
+      $ukuran   = $_FILES['file']['size'];
 
-            $namaFile = $_FILES['file']['name'];
-            $tmpFile  = $_FILES['file']['tmp_name'];
-            $ukuran   = $_FILES['file']['size'];
+      $ext = strtolower(pathinfo($namaFile, PATHINFO_EXTENSION));
 
-            $ext = strtolower(pathinfo($namaFile,PATHINFO_EXTENSION));
+      if ($ext != 'pdf') {
 
-            if($ext!='pdf'){
-
-                echo "<script>
+        echo "<script>
                 Swal.fire('Gagal','File harus PDF','error');
                 </script>";
+      } elseif ($ukuran > 10 * 1024 * 1024) {
 
-            }elseif($ukuran > 10*1024*1024){
-
-                echo "<script>
+        echo "<script>
                 Swal.fire('Gagal','Ukuran maksimal 10 MB','error');
                 </script>";
+      } else {
 
-            }else{
+        $namaBaru = time() . '_' . rand(1000, 9999) . '.pdf';
 
-                $namaBaru = time().'_'.rand(1000,9999).'.pdf';
+        $folder = "../../uploads/buku_saku/";
 
-                $folder = "../../uploads/buku_saku/";
+        if (!is_dir($folder)) {
+          mkdir($folder, 0777, true);
+        }
 
-                if(!is_dir($folder)){
-                    mkdir($folder,0777,true);
-                }
+        if (move_uploaded_file($tmpFile, $folder . $namaBaru)) {
 
-                if(move_uploaded_file($tmpFile,$folder.$namaBaru)){
+          $path = "uploads/buku_saku/" . $namaBaru;
 
-                    $path = "uploads/buku_saku/".$namaBaru;
+          $uploaded_by = $_SESSION['id_user'];
 
-                    $uploaded_by = $_SESSION['id_user'];
-
-                    $insert = mysqli_query($conn,"
+          $insert = mysqli_query($conn, "
                     INSERT INTO buku_saku
                     (
                         judul,
@@ -78,9 +75,9 @@ if(isset($_POST['simpan'])){
                     )
                     ");
 
-                    if($insert){
+          if ($insert) {
 
-                        echo "
+            echo "
                         <script>
 
                         Swal.fire({
@@ -93,12 +90,11 @@ if(isset($_POST['simpan'])){
 
                         </script>
                         ";
+          } else {
 
-                    }else{
+            unlink($folder . $namaBaru);
 
-                        unlink($folder.$namaBaru);
-
-                        echo "
+            echo "
                         <script>
 
                         Swal.fire(
@@ -109,12 +105,10 @@ if(isset($_POST['simpan'])){
 
                         </script>
                         ";
+          }
+        } else {
 
-                    }
-
-                }else{
-
-                    echo "
+          echo "
                     <script>
 
                     Swal.fire(
@@ -125,15 +119,10 @@ if(isset($_POST['simpan'])){
 
                     </script>
                     ";
-
-                }
-
-            }
-
         }
-
+      }
     }
-
+  }
 }
 
 include "../../includes/header.php";
@@ -145,101 +134,101 @@ include "../../includes/header.php";
 
 <div class="main-content">
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="row justify-content-center">
+    <div class="row justify-content-center">
 
-<div class="col-lg-8">
+      <div class="col-lg-8">
 
-<div class="card shadow-sm border-0">
+        <div class="card shadow-sm border-0">
 
-<div class="card-header">
+          <div class="card-header">
 
-<h4 class="mb-0">
+            <h4 class="mb-0">
 
-Tambah Buku Saku
+              Tambah Buku Saku
 
-</h4>
+            </h4>
 
-</div>
+          </div>
 
-<div class="card-body">
+          <div class="card-body">
 
-<form method="POST" enctype="multipart/form-data">
+            <form method="POST" enctype="multipart/form-data">
 
-<div class="mb-3">
+              <div class="mb-3">
 
-<label class="form-label">
+                <label class="form-label">
 
-Judul Buku
+                  Judul Buku
 
-</label>
+                </label>
 
-<input
-type="text"
-name="judul"
-class="form-control"
-required>
+                <input
+                  type="text"
+                  name="judul"
+                  class="form-control"
+                  required>
 
-</div>
+              </div>
 
-<div class="mb-3">
+              <div class="mb-3">
 
-<label class="form-label">
+                <label class="form-label">
 
-Upload File PDF
+                  Upload File PDF
 
-</label>
+                </label>
 
-<input
-type="file"
-name="file"
-class="form-control"
-accept=".pdf"
-required>
+                <input
+                  type="file"
+                  name="file"
+                  class="form-control"
+                  accept=".pdf"
+                  required>
 
-<small class="text-muted">
+                <small class="text-muted">
 
-Format PDF maksimal 10 MB
+                  Format PDF maksimal 10 MB
 
-</small>
+                </small>
 
-</div>
+              </div>
 
-<div class="d-flex gap-2">
+              <div class="d-flex gap-2">
 
-<button
-type="submit"
-name="simpan"
-class="btn btn-primary">
+                <button
+                  type="submit"
+                  name="simpan"
+                  class="btn btn-primary">
 
-<i class="bi bi-save"></i>
+                  <i class="bi bi-save"></i>
 
-Simpan
+                  Simpan
 
-</button>
+                </button>
 
-<a
-href="index.php"
-class="btn btn-secondary">
+                <a
+                  href="index.php"
+                  class="btn btn-secondary">
 
-Kembali
+                  Kembali
 
-</a>
+                </a>
 
-</div>
+              </div>
 
-</form>
+            </form>
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-</div>
+      </div>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
 </div>
 

@@ -1,119 +1,90 @@
-/* ==========================================================
-   LOGIN PAGE
-========================================================== */
-
-body{
-    background:#f4f7fc;
+/* Halaman Login */
+body {
+  background: url('../img/bg-app.png') center / cover fixed no-repeat;
 }
 
-.container-app{
-    padding:30px 15px;
+.login-page {
+  padding: 34px 16px;
 }
 
-.card-app{
-    border:none;
-    border-radius:20px;
-    background:#fff;
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
+.login-card {
+  border: 1px solid rgba(226, 232, 240, .9);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, .15);
 }
 
-.card-body{
-    padding:35px;
+.login-card .card-body {
+  padding: 42px 30px 30px;
 }
 
-.card-body img{
-    width:90px;
+.login-logo {
+  display: block;
+  width: 96px;
+  margin-right: auto;
+  margin-left: auto;
+  object-fit: contain;
 }
 
-h3{
-    font-weight:700;
-    color:#1e293b;
+.login-card h3 {
+  color: #102a5c;
+  font-size: 30px;
+  font-weight: 800;
 }
 
-.text-muted{
-    font-size:.95rem;
+.login-card .text-muted {
+  color: #64748b !important;
 }
 
-/* ==========================================================
-   FORM
-========================================================== */
-
-.form-label{
-    font-weight:600;
-    color:#334155;
+.login-card .form-label {
+  color: #1e293b;
+  font-weight: 700;
 }
 
-.form-control,
-.form-select{
-    height:48px;
-    border-radius:12px;
-    border:1px solid #dbe2ea;
-    box-shadow:none;
-    transition:.3s;
+.login-card .form-control,
+.login-card .form-select {
+  min-height: 58px;
+  border: 1px solid #d7dfeb;
+  border-radius: 14px;
+  padding: 0 18px;
+  box-shadow: none;
 }
 
-.form-control:focus,
-.form-select:focus{
-    border-color:#2563eb;
-    box-shadow:0 0 0 .2rem rgba(37,99,235,.15);
+.login-card .form-control:focus,
+.login-card .form-select:focus {
+  border-color: #2467e9;
+  box-shadow: 0 0 0 .2rem rgba(36, 103, 233, .13);
 }
 
-.btn-primary-app{
-    background:#2563eb;
-    color:#fff;
-    border:none;
-    border-radius:12px;
-    height:48px;
-    font-weight:600;
-    transition:.3s;
+.login-card .btn-primary-app {
+  min-height: 58px;
+  border-radius: 14px;
+  background: #2467e9;
+  font-weight: 700;
 }
 
-.btn-primary-app:hover{
-    background:#1d4ed8;
-    color:#fff;
+.login-card .btn-primary-app:hover {
+  background: #0c55d5;
 }
 
-.btn-outline-secondary{
-    height:48px;
-    border-radius:12px;
-    font-weight:600;
+.login-card .btn-outline-secondary {
+  min-height: 58px;
+  border-radius: 14px;
+  border-color: #94a3b8;
+  color: #64748b;
+  font-weight: 700;
 }
 
-/* ==========================================================
-   RESPONSIVE
-========================================================== */
+@media (max-width: 576px) {
+  .login-card .card-body {
+    padding: 32px 22px 24px;
+  }
 
-@media(max-width:768px){
+  .login-logo {
+    width: 82px;
+  }
 
-    .container-app{
-        padding:20px 10px;
-    }
-
-    .card-body{
-        padding:25px;
-    }
-
-    .card-body img{
-        width:75px;
-    }
-
-    h3{
-        font-size:1.5rem;
-    }
-
-}
-
-@media(max-width:576px){
-
-    .card-body{
-        padding:20px;
-    }
-
-    .form-control,
-    .form-select,
-    .btn{
-        height:45px;
-        font-size:.95rem;
-    }
-
+  .login-card h3 {
+    font-size: 26px;
+  }
 }

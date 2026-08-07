@@ -7,17 +7,17 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    console.log("Buku Mutasi Satpam Ready");
+  console.log("Buku Mutasi Satpam Ready");
 
-    // Auto close alert Bootstrap
-    const alerts = document.querySelectorAll(".alert");
+  // Auto close alert Bootstrap
+  const alerts = document.querySelectorAll(".alert");
 
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
-            bsAlert.close();
-        }, 4000);
-    });
+  alerts.forEach(alert => {
+    setTimeout(() => {
+      const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+      bsAlert.close();
+    }, 4000);
+  });
 
 });
 
@@ -28,36 +28,36 @@ document.addEventListener("DOMContentLoaded", () => {
 |--------------------------------------------------------------------------
 */
 
-function showSuccess(message){
+function showSuccess(message) {
 
-    Swal.fire({
-        icon:'success',
-        title:'Berhasil',
-        text:message,
-        confirmButtonColor:'#2D5BFF'
-    });
-
-}
-
-function showError(message){
-
-    Swal.fire({
-        icon:'error',
-        title:'Oops...',
-        text:message,
-        confirmButtonColor:'#2D5BFF'
-    });
+  Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: message,
+    confirmButtonColor: '#2D5BFF'
+  });
 
 }
 
-function showWarning(message){
+function showError(message) {
 
-    Swal.fire({
-        icon:'warning',
-        title:'Peringatan',
-        text:message,
-        confirmButtonColor:'#2D5BFF'
-    });
+  Swal.fire({
+    icon: 'error',
+    title: 'Oops...',
+    text: message,
+    confirmButtonColor: '#2D5BFF'
+  });
+
+}
+
+function showWarning(message) {
+
+  Swal.fire({
+    icon: 'warning',
+    title: 'Peringatan',
+    text: message,
+    confirmButtonColor: '#2D5BFF'
+  });
 
 }
 
@@ -68,35 +68,35 @@ function showWarning(message){
 |--------------------------------------------------------------------------
 */
 
-function confirmDelete(url){
+function confirmDelete(url) {
 
-    Swal.fire({
+  Swal.fire({
 
-        title:'Hapus Data?',
+    title: 'Hapus Data?',
 
-        text:'Data yang dihapus tidak dapat dikembalikan.',
+    text: 'Data yang dihapus tidak dapat dikembalikan.',
 
-        icon:'warning',
+    icon: 'warning',
 
-        showCancelButton:true,
+    showCancelButton: true,
 
-        confirmButtonColor:'#dc3545',
+    confirmButtonColor: '#dc3545',
 
-        cancelButtonColor:'#6c757d',
+    cancelButtonColor: '#6c757d',
 
-        confirmButtonText:'Ya, Hapus',
+    confirmButtonText: 'Ya, Hapus',
 
-        cancelButtonText:'Batal'
+    cancelButtonText: 'Batal'
 
-    }).then((result)=>{
+  }).then((result) => {
 
-        if(result.isConfirmed){
+    if (result.isConfirmed) {
 
-            window.location.href=url;
+      window.location.href = url;
 
-        }
+    }
 
-    });
+  });
 
 }
 
@@ -108,58 +108,58 @@ function confirmDelete(url){
 
 function initSidebarToggle() {
 
-    const sidebar = document.querySelector(".sidebar");
-    const sidebarToggle = document.getElementById("sidebarToggle");
-    const backdrop = document.getElementById("sidebarBackdrop");
+  const sidebar = document.querySelector(".sidebar");
+  const sidebarToggle = document.getElementById("sidebarToggle");
+  const backdrop = document.getElementById("sidebarBackdrop");
 
-    if (!sidebar || !sidebarToggle) {
-        return;
+  if (!sidebar || !sidebarToggle) {
+    return;
+  }
+
+  const setToggleState = (isOpen) => {
+    const icon = sidebarToggle.querySelector("i");
+    sidebarToggle.classList.toggle("is-active", isOpen);
+    sidebarToggle.setAttribute("aria-expanded", String(isOpen));
+    sidebarToggle.setAttribute("aria-label", isOpen ? "Tutup menu navigasi" : "Buka menu navigasi");
+    if (icon) {
+      icon.classList.toggle("bi-list", !isOpen);
+      icon.classList.toggle("bi-x-lg", isOpen);
     }
+  };
 
-    const setToggleState = (isOpen) => {
-        const icon = sidebarToggle.querySelector("i");
-        sidebarToggle.classList.toggle("is-active", isOpen);
-        sidebarToggle.setAttribute("aria-expanded", String(isOpen));
-        sidebarToggle.setAttribute("aria-label", isOpen ? "Tutup menu navigasi" : "Buka menu navigasi");
-        if (icon) {
-            icon.classList.toggle("bi-list", !isOpen);
-            icon.classList.toggle("bi-x-lg", isOpen);
-        }
-    };
-
-    const closeSidebar = () => {
-        sidebar.classList.remove("show");
-        setToggleState(false);
-        if (backdrop) {
-            backdrop.classList.remove("show");
-        }
-    };
-
-    const openSidebar = () => {
-        sidebar.classList.add("show");
-        setToggleState(true);
-        if (backdrop) {
-            backdrop.classList.add("show");
-        }
-    };
-
-    sidebarToggle.addEventListener("click", () => {
-        if (sidebar.classList.contains("show")) {
-            closeSidebar();
-        } else {
-            openSidebar();
-        }
-    });
-
+  const closeSidebar = () => {
+    sidebar.classList.remove("show");
+    setToggleState(false);
     if (backdrop) {
-        backdrop.addEventListener("click", closeSidebar);
+      backdrop.classList.remove("show");
     }
+  };
 
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-            closeSidebar();
-        }
-    });
+  const openSidebar = () => {
+    sidebar.classList.add("show");
+    setToggleState(true);
+    if (backdrop) {
+      backdrop.classList.add("show");
+    }
+  };
+
+  sidebarToggle.addEventListener("click", () => {
+    if (sidebar.classList.contains("show")) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  });
+
+  if (backdrop) {
+    backdrop.addEventListener("click", closeSidebar);
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeSidebar();
+    }
+  });
 }
 
 initSidebarToggle();

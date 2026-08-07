@@ -1,14 +1,18 @@
 <?php
 require_once "../../config/admin_auth.php";
+require_once "../../config/report_signature.php";
 
-if(!isset($_GET['id'])){
-    header("Location:index.php");
-    exit;
+ensureLaporanTtdKepalaColumn($conn);
+ensureLaporanTtdSatpamColumn($conn);
+
+if (!isset($_GET['id'])) {
+  header("Location:index.php");
+  exit;
 }
 
 $id = (int) $_GET['id'];
 
-$query = mysqli_query($conn,"
+$query = mysqli_query($conn, "
 
 SELECT
 
@@ -23,6 +27,10 @@ shift.nama_shift,
 shift.jam_mulai,
 shift.jam_selesai
 
+,validator.nama AS nama_kepala
+,laporan.ttd_kepala
+,laporan.ttd_satpam
+
 FROM laporan
 
 LEFT JOIN users
@@ -34,22 +42,24 @@ ON jadwal_shift.id_jadwal = laporan.id_jadwal
 LEFT JOIN shift
 ON shift.id_shift = jadwal_shift.id_shift
 
+LEFT JOIN users validator
+ON validator.id_user = laporan.validated_by
+
 WHERE laporan.id_laporan='$id'
 
 LIMIT 1
 
 ");
 
-if(mysqli_num_rows($query)==0){
+if (mysqli_num_rows($query) == 0) {
 
-    header("Location:index.php");
-    exit;
-
+  header("Location:index.php");
+  exit;
 }
 
 $data = mysqli_fetch_assoc($query);
 
-$inventaris = mysqli_query($conn,"
+$inventaris = mysqli_query($conn, "
 
 SELECT *
 
@@ -61,7 +71,7 @@ ORDER BY urutan ASC
 
 ");
 
-$uraian = mysqli_query($conn,"
+$uraian = mysqli_query($conn, "
 
 SELECT *
 
@@ -78,410 +88,364 @@ ORDER BY urutan ASC
 <html lang="id">
 
 <head>
+  <meta charset="UTF-8">
 
-<meta charset="UTF-8">
+  <title>
+    Cetak Laporan
+  </title>
 
-<title>
+  <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
-Cetak Laporan
+  <style>
+    body {
 
-</title>
+      font-size: 13px;
 
-<link
-href="../../assets/vendor/bootstrap/css/bootstrap.min.css"
-rel="stylesheet">
+    }
 
-<style>
+    .header {
 
-body{
+      text-align: center;
 
-font-size:13px;
+      margin-bottom: 20px;
 
-}
+    }
 
-.header{
+    .header h4 {
 
-text-align:center;
+      margin: 0;
 
-margin-bottom:20px;
+      font-weight: bold;
 
-}
+    }
 
-.header h4{
+    .header p {
 
-margin:0;
+      margin: 0;
 
-font-weight:bold;
+    }
 
-}
+    .info {
 
-.header p{
+      margin-top: 20px;
 
-margin:0;
+      margin-bottom: 20px;
 
-}
+    }
 
-.info{
+    .table {
 
-margin-top:20px;
+      font-size: 13px;
 
-margin-bottom:20px;
+    }
 
-}
+    .table th {
 
-.table{
+      background: #f2f2f2;
 
-font-size:13px;
+    }
 
-}
+    @media print {
 
-.table th{
+      button {
 
-background:#f2f2f2;
+        display: none;
 
-}
+      }
 
-@media print{
-
-button{
-
-display:none;
-
-}
-
-}
-
-</style>
+    }
+  </style>
 
 </head>
 
 <body>
+  <div class="container mt-4">
+    <div class="text-end mb-3">
+      <button onclick="window.print()" class="btn btn-success">
+        Cetak
+      </button>
+
+      <button onclick="window.history.back()" class="btn btn-secondary">
+        Kembali
+      </button>
+    </div>
+
+    <div class="header">
+      <h4>
+        BUKU MUTASI SATPAM
+      </h4>
 
-<div class="container mt-4">
+      <p>
+        Laporan Kegiatan Satpam
+      </p>
 
-<div class="text-end mb-3">
+      <hr>
+    </div>
 
-<button
-onclick="window.print()"
-class="btn btn-success">
+    <table class="table table-borderless info">
+      <tr>
+        <td width="180">
+          Tanggal
+        </td>
 
-Cetak
+        <td>
+          :
+          <?= date('d F Y', strtotime($data['tanggal_laporan'])) ?>
+        </td>
+      </tr>
 
-</button>
+      <tr>
+        <td>
+          Kode Satpam
+        </td>
 
-<button
-onclick="window.history.back()"
-class="btn btn-secondary">
+        <td>
+          :
+          <?= htmlspecialchars($data['kode_satpam']) ?>
+        </td>
+      </tr>
 
-Kembali
+      <tr>
+        <td>
+          Nama Satpam
+        </td>
 
-</button>
+        <td>
+          :
+          <?= htmlspecialchars($data['nama']) ?>
+        </td>
+      </tr>
 
-</div>
+      <tr>
+        <td>
+          Shift
+        </td>
 
-<div class="header">
+        <td>
+          :
+          <?= htmlspecialchars($data['nama_shift']) ?>
+          (
+          <?= substr($data['jam_mulai'], 0, 5) ?>
+          -
+          <?= substr($data['jam_selesai'], 0, 5) ?>
+          )
+        </td>
+      </tr>
+    </table>
 
-<h4>
+    <h5 class="mt-4 mb-3">
+      Uraian Kegiatan
+    </h5>
 
-BUKU MUTASI SATPAM
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th width="60">No</th>
 
-</h4>
+            <th width="120">Jam</th>
 
-<p>
+            <th>Uraian</th>
 
-Laporan Kegiatan Satpam
+          </tr>
 
-</p>
+        </thead>
 
-<hr>
+        <tbody>
 
-</div>
+          <?php
 
-<table class="table table-borderless info">
+          $no = 1;
 
-<tr>
+          if (mysqli_num_rows($uraian) > 0) {
 
-<td width="180">
+            while ($u = mysqli_fetch_assoc($uraian)) {
 
-Tanggal
+          ?>
 
-</td>
+              <tr>
 
-<td>
+                <td class="text-center">
 
-:
+                  <?= $no++ ?>
+                </td>
 
-<?= date('d F Y',strtotime($data['tanggal_laporan'])) ?>
+                <td class="text-center">
+                  <?= substr($u['jam'], 0, 5) ?>
+                </td>
 
-</td>
+                <td>
+                  <?= nl2br(htmlspecialchars($u['uraian'])) ?>
+                </td>
 
-</tr>
+              </tr>
 
-<tr>
+            <?php
 
-<td>
+            }
+          } else {
 
-Kode Satpam
+            ?>
 
-</td>
+            <tr>
 
-<td>
+              <td colspan="3" class="text-center">
 
-:
+                Belum ada uraian kegiatan.
 
-<?= htmlspecialchars($data['kode_satpam']) ?>
+              </td>
 
-</td>
+            </tr>
 
-</tr>
+          <?php } ?>
 
-<tr>
+        </tbody>
 
-<td>
+      </table>
 
-Nama Satpam
+    </div>
 
-</td>
+    <h5 class="mt-4 mb-3">
+      Inventaris
+    </h5>
 
-<td>
+    <div class="table-responsive">
 
-:
+      <table class="table table-bordered">
 
-<?= htmlspecialchars($data['nama']) ?>
+        <thead>
 
-</td>
+          <tr>
 
-</tr>
+            <th width="60">No</th>
+            <th>Nama Barang</th>
+            <th width="100">Jumlah</th>
+            <th>Keterangan</th>
 
-<tr>
+          </tr>
 
-<td>
+        </thead>
 
-Shift
+        <tbody>
 
-</td>
+          <?php
 
-<td>
+          $no = 1;
 
-:
+          if (mysqli_num_rows($inventaris) > 0) {
 
-<?= htmlspecialchars($data['nama_shift']) ?>
+            while ($i = mysqli_fetch_assoc($inventaris)) {
 
-(
+          ?>
 
-<?= substr($data['jam_mulai'],0,5) ?>
+              <tr>
 
--
+                <td class="text-center">
+                  <?= $no++ ?>
+                </td>
 
-<?= substr($data['jam_selesai'],0,5) ?>
+                <td>
+                  <?= htmlspecialchars($i['nama_barang']) ?>
+                </td>
 
-)
+                <td class="text-center">
+                  <?= $i['jumlah'] ?>
+                </td>
 
-</td>
+                <td>
+                  <?= htmlspecialchars($i['keterangan']) ?>
+                </td>
 
-</tr>
+              </tr>
 
-</table>
+            <?php
 
-<h5 class="mt-4 mb-3">
-Uraian Kegiatan
-</h5>
+            }
+          } else {
 
-<div class="table-responsive">
+            ?>
 
-<table class="table table-bordered">
+            <tr>
 
-<thead>
+              <td colspan="4" class="text-center">
 
-<tr>
+                Belum ada data inventaris.
 
-<th width="60">No</th>
-<th width="120">Jam</th>
-<th>Uraian</th>
+              </td>
 
-</tr>
+            </tr>
 
-</thead>
+          <?php } ?>
 
-<tbody>
+        </tbody>
 
-<?php
+      </table>
 
-$no = 1;
+    </div>
 
-if(mysqli_num_rows($uraian)>0){
+    <br><br>
+    <div class="row">
+      <div class="col-6 text-center">
+        Mengetahui,
 
-    while($u=mysqli_fetch_assoc($uraian)){
+        <br>
 
-?>
 
-<tr>
+        <?php if ($data['status'] === 'tervalidasi' && !empty($data['ttd_kepala'])): ?>
 
-<td class="text-center">
-<?= $no++ ?>
-</td>
+          <img src="../../uploads/ttd/<?= rawurlencode($data['ttd_kepala']) ?>" alt="Tanda tangan Kepala BNN" style="max-width:150px;max-height:75px;object-fit:contain;margin:10px 0;">
 
-<td class="text-center">
-<?= substr($u['jam'],0,5) ?>
-</td>
+        <?php else: ?>
 
-<td>
-<?= nl2br(htmlspecialchars($u['uraian'])) ?>
-</td>
+          <br><br><br>
 
-</tr>
+        <?php endif;
 
-<?php
+        ?>
 
-    }
+        <br>
+        _________________________
 
-}else{
+        <br>
 
-?>
+        <?= htmlspecialchars($data['nama_kepala'] ?: 'Kepala BNN') ?>
 
-<tr>
+      </div>
 
-<td colspan="3" class="text-center">
+      <div class="col-6 text-center">
 
-Belum ada uraian kegiatan.
+        Malang,
+        <?= date('d F Y') ?>
 
-</td>
+        <br>
 
-</tr>
+        <?php if (!empty($data['ttd_satpam'])): ?>
+          <img src="../../uploads/ttd/<?= rawurlencode($data['ttd_satpam']) ?>" alt="Tanda tangan Satpam" style="max-width:150px;max-height:75px;object-fit:contain;margin:10px 0;">
+        <?php else: ?>
+          <br><br><br>
+        <?php endif; ?>
 
-<?php } ?>
+        <br>
 
-</tbody>
+        _________________________
 
-</table>
+        <br>
 
-</div>
+        Petugas Satpam
 
-<h5 class="mt-4 mb-3">
-Inventaris
-</h5>
+      </div>
 
-<div class="table-responsive">
+    </div>
 
-<table class="table table-bordered">
+  </div>
+  
+  <script>
+    window.onload = function() {
 
-<thead>
+      window.print();
 
-<tr>
-
-<th width="60">No</th>
-<th>Nama Barang</th>
-<th width="100">Jumlah</th>
-<th>Keterangan</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<?php
-
-$no = 1;
-
-if(mysqli_num_rows($inventaris)>0){
-
-    while($i=mysqli_fetch_assoc($inventaris)){
-
-?>
-
-<tr>
-
-<td class="text-center">
-<?= $no++ ?>
-</td>
-
-<td>
-<?= htmlspecialchars($i['nama_barang']) ?>
-</td>
-
-<td class="text-center">
-<?= $i['jumlah'] ?>
-</td>
-
-<td>
-<?= htmlspecialchars($i['keterangan']) ?>
-</td>
-
-</tr>
-
-<?php
-
-    }
-
-}else{
-
-?>
-
-<tr>
-
-<td colspan="4" class="text-center">
-
-Belum ada data inventaris.
-
-</td>
-
-</tr>
-
-<?php } ?>
-
-</tbody>
-
-</table>
-
-</div>
-
-<br><br>
-
-<div class="row">
-
-<div class="col-6 text-center">
-
-Mengetahui,
-
-<br><br><br><br><br>
-
-_________________________
-
-<br>
-
-Kepala Satpam
-
-</div>
-
-<div class="col-6 text-center">
-
-Malang,
-<?= date('d F Y') ?>
-
-<br><br><br><br><br>
-
-_________________________
-
-<br>
-
-Petugas Satpam
-
-</div>
-
-</div>
-
-</div>
-
-<script>
-
-window.onload = function(){
-
-    window.print();
-
-};
-
-</script>
+    };
+  </script>
 
 </body>
 

@@ -9,7 +9,7 @@ $activeMenu = "buku_saku";
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-$query = mysqli_query($conn,"
+$query = mysqli_query($conn, "
 SELECT
     buku_saku.*,
     users.nama
@@ -19,17 +19,16 @@ ON users.id_user = buku_saku.uploaded_by
 WHERE id_buku='$id'
 ");
 
-if(mysqli_num_rows($query)==0){
+if (mysqli_num_rows($query) == 0) {
 
-    echo "
+  echo "
     <script>
     alert('Data tidak ditemukan');
     window.location='index.php';
     </script>
     ";
 
-    exit;
-
+  exit;
 }
 
 $data = mysqli_fetch_assoc($query);
@@ -43,184 +42,184 @@ include "../../includes/header.php";
 
 <div class="main-content">
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-<div>
+      <div>
 
-<h3 class="fw-bold mb-1">
+        <h3 class="fw-bold mb-1">
 
-Detail Buku Saku
+          Detail Buku Saku
 
-</h3>
+        </h3>
 
-<p class="text-muted">
+        <p class="text-muted">
 
-Informasi lengkap buku saku.
+          Informasi lengkap buku saku.
 
-</p>
+        </p>
 
-</div>
+      </div>
 
-<a
-href="index.php"
-class="btn btn-secondary">
+      <a
+        href="index.php"
+        class="btn btn-secondary">
 
-<i class="bi bi-arrow-left"></i>
+        <i class="bi bi-arrow-left"></i>
 
-Kembali
+        Kembali
 
-</a>
+      </a>
 
-</div>
+    </div>
 
-<div class="row">
+    <div class="row">
 
-<div class="col-lg-4">
+      <div class="col-lg-4">
 
-<div class="card shadow-sm border-0">
+        <div class="card shadow-sm border-0">
 
-<div class="card-body">
+          <div class="card-body">
 
-<table class="table">
+            <table class="table">
 
-<tr>
+              <tr>
 
-<th width="130">
+                <th width="130">
 
-Judul
+                  Judul
 
-</th>
+                </th>
 
-<td>
+                <td>
 
-<?= htmlspecialchars($data['judul']); ?>
+                  <?= htmlspecialchars($data['judul']); ?>
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-<tr>
+              <tr>
 
-<th>
+                <th>
 
-Nama File
+                  Nama File
 
-</th>
+                </th>
 
-<td>
+                <td>
 
-<?= htmlspecialchars($data['nama_file']); ?>
+                  <?= htmlspecialchars($data['nama_file']); ?>
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-<tr>
+              <tr>
 
-<th>
+                <th>
 
-Ukuran
+                  Ukuran
 
-</th>
+                </th>
 
-<td>
+                <td>
 
-<?= round($data['ukuran_file']/1024,2); ?>
+                  <?= round($data['ukuran_file'] / 1024, 2); ?>
 
-KB
+                  KB
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-<tr>
+              <tr>
 
-<th>
+                <th>
 
-Uploader
+                  Uploader
 
-</th>
+                </th>
 
-<td>
+                <td>
 
-<?= htmlspecialchars($data['nama']); ?>
+                  <?= htmlspecialchars($data['nama']); ?>
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-<tr>
+              <tr>
 
-<th>
+                <th>
 
-Tanggal Upload
+                  Tanggal Upload
 
-</th>
+                </th>
 
-<td>
+                <td>
 
-<?= date('d-m-Y H:i',strtotime($data['created_at'])); ?>
+                  <?= date('d-m-Y H:i', strtotime($data['created_at'])); ?>
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-</table>
+            </table>
 
-<hr>
+            <hr>
 
-<a
-href="../../<?= $data['path_file']; ?>"
-target="_blank"
-class="btn btn-success w-100">
+            <a
+              href="../../<?= $data['path_file']; ?>"
+              target="_blank"
+              class="btn btn-success w-100">
 
-<i class="bi bi-download me-2"></i>
+              <i class="bi bi-download me-2"></i>
 
-Download PDF
+              Download PDF
 
-</a>
+            </a>
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-</div>
+      </div>
 
-<div class="col-lg-8">
+      <div class="col-lg-8">
 
-<div class="card shadow-sm border-0">
+        <div class="card shadow-sm border-0">
 
-<div class="card-header">
+          <div class="card-header">
 
-Preview PDF
+            Preview PDF
 
-</div>
+          </div>
 
-<div class="card-body p-0">
+          <div class="card-body p-0">
 
-<iframe
+            <iframe
 
-src="../../<?= $data['path_file']; ?>"
+              src="../../<?= $data['path_file']; ?>"
 
-width="100%"
+              width="100%"
 
-height="850"
+              height="850"
 
-style="border:none;">
+              style="border:none;">
 
-</iframe>
+            </iframe>
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-</div>
+      </div>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
 </div>
 

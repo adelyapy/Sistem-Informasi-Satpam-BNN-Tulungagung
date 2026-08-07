@@ -7,15 +7,15 @@ $title = "Tambah Satpam";
 $base_url = "../";
 $activeMenu = "data_satpam";
 
-if(isset($_POST['simpan'])){
+if (isset($_POST['simpan'])) {
 
-    $kode_satpam = generateKodeSatpam($conn);
-    $nama = e($_POST['nama']);
+  $kode_satpam = generateKodeSatpam($conn);
+  $nama = e($_POST['nama']);
 
-    $foto = uploadFoto($_FILES['foto']);
-    $ttd  = uploadTTD($_FILES['ttd']);
+  $foto = uploadFoto($_FILES['foto']);
+  $ttd  = uploadTTD($_FILES['ttd']);
 
-    $query = mysqli_query($conn,"
+  $query = mysqli_query($conn, "
         INSERT INTO users
         (
             kode_satpam,
@@ -38,14 +38,13 @@ if(isset($_POST['simpan'])){
         )
     ");
 
-    if($query){
+  if ($query) {
 
-        header('Location: index.php?success=tambah');
-        exit;
+    header('Location: index.php?success=tambah');
+    exit;
+  } else {
 
-    }else{
-
-        echo "
+    echo "
         <script>
 
         Swal.fire({
@@ -58,9 +57,7 @@ if(isset($_POST['simpan'])){
         });
 
         </script>";
-
-    }
-
+  }
 }
 
 include "../includes/header.php";
@@ -72,148 +69,148 @@ include "../includes/header.php";
 
 <div class="main-content">
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-<div>
+      <div>
 
-<h3 class="fw-bold">
-Tambah Satpam
-</h3>
+        <h3 class="fw-bold">
+          Tambah Satpam
+        </h3>
 
-<p class="text-muted mb-0">
-Tambahkan anggota satpam baru.
-</p>
+        <p class="text-muted mb-0">
+          Tambahkan anggota satpam baru.
+        </p>
 
-</div>
+      </div>
 
-<a href="index.php" class="btn btn-secondary">
+      <a href="index.php" class="btn btn-secondary">
 
-<i class="bi bi-arrow-left"></i>
+        <i class="bi bi-arrow-left"></i>
 
-Kembali
+        Kembali
 
-</a>
+      </a>
 
-</div>
+    </div>
 
-<div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0">
 
-<div class="card-body">
+      <div class="card-body">
 
-<form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data">
 
-<div class="row">
+          <div class="row">
 
-<div class="col-lg-6 mb-3">
+            <div class="col-lg-6 mb-3">
 
-<label class="form-label">
+              <label class="form-label">
 
-Kode Satpam
+                Kode Satpam
 
-</label>
+              </label>
 
-<input
-type="text"
-class="form-control"
-value="<?= generateKodeSatpam($conn); ?>"
-readonly>
+              <input
+                type="text"
+                class="form-control"
+                value="<?= generateKodeSatpam($conn); ?>"
+                readonly>
 
-</div>
+            </div>
 
-<div class="col-lg-6 mb-3">
+            <div class="col-lg-6 mb-3">
 
-<label class="form-label">
+              <label class="form-label">
 
-Nama Satpam
+                Nama Satpam
 
-</label>
+              </label>
 
-<input
-type="text"
-name="nama"
-class="form-control"
-required>
+              <input
+                type="text"
+                name="nama"
+                class="form-control"
+                required>
 
-</div>
+            </div>
 
-<div class="col-lg-6 mb-3">
+            <div class="col-lg-6 mb-3">
 
-<label class="form-label">
+              <label class="form-label">
 
-Foto
+                Foto
 
-</label>
+              </label>
 
-<input
-type="file"
-name="foto"
-class="form-control"
-accept=".jpg,.jpeg,.png">
+              <input
+                type="file"
+                name="foto"
+                class="form-control"
+                accept=".jpg,.jpeg,.png">
 
-<div class="form-text">
+              <div class="form-text">
 
-Format: JPG / JPEG / PNG
+                Format: JPG / JPEG / PNG
 
-</div>
+              </div>
 
-</div>
+            </div>
 
-<div class="col-lg-6 mb-3">
+            <div class="col-lg-6 mb-3">
 
-<label class="form-label">
+              <label class="form-label">
 
-Tanda Tangan
+                Tanda Tangan
 
-</label>
+              </label>
 
-<input
-type="file"
-name="ttd"
-class="form-control"
-accept=".jpg,.jpeg,.png">
+              <input
+                type="file"
+                name="ttd"
+                class="form-control"
+                accept=".jpg,.jpeg,.png">
 
-<div class="form-text">
+              <div class="form-text">
 
-Format: JPG / JPEG / PNG
+                Format: JPG / JPEG / PNG
 
-</div>
+              </div>
 
-</div>
+            </div>
 
-<div class="col-12">
+            <div class="col-12">
 
-<button
-type="submit"
-name="simpan"
-class="btn btn-primary">
+              <button
+                type="submit"
+                name="simpan"
+                class="btn btn-primary">
 
-<i class="bi bi-check-circle me-2"></i>
+                <i class="bi bi-check-circle me-2"></i>
 
-Simpan
+                Simpan
 
-</button>
+              </button>
 
-<a
-href="index.php"
-class="btn btn-secondary">
+              <a
+                href="index.php"
+                class="btn btn-secondary">
 
-Batal
+                Batal
 
-</a>
+              </a>
 
-</div>
+            </div>
 
-</div>
+          </div>
 
-</form>
+        </form>
 
-</div>
+      </div>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
 </div>
 

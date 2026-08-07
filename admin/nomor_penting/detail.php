@@ -7,8 +7,8 @@ $title = "Detail Nomor Penting";
 $base_url = "../../";
 
 if (!isset($_GET['id'])) {
-    header("Location: index.php");
-    exit;
+  header("Location: index.php");
+  exit;
 }
 
 $id = (int) $_GET['id'];
@@ -20,8 +20,8 @@ $query = mysqli_query($conn, "
 ");
 
 if (mysqli_num_rows($query) == 0) {
-    header("Location: index.php");
-    exit;
+  header("Location: index.php");
+  exit;
 }
 
 $data = mysqli_fetch_assoc($query);
@@ -38,165 +38,165 @@ include "../../includes/header.php";
 
 <div class="main-content">
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-<div>
+      <div>
 
-<h3 class="fw-bold">
-Detail Nomor Penting
-</h3>
+        <h3 class="fw-bold">
+          Detail Nomor Penting
+        </h3>
 
-<p class="text-muted mb-0">
-Informasi lengkap nomor penting.
-</p>
+        <p class="text-muted mb-0">
+          Informasi lengkap nomor penting.
+        </p>
 
-</div>
+      </div>
 
-<a href="index.php" class="btn btn-secondary">
+      <a href="index.php" class="btn btn-secondary">
 
-<i class="bi bi-arrow-left"></i>
+        <i class="bi bi-arrow-left"></i>
 
-Kembali
+        Kembali
 
-</a>
+      </a>
 
-</div>
+    </div>
 
-<div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0">
 
-<div class="card-body">
+      <div class="card-body">
 
-<div class="row justify-content-center">
+        <div class="row justify-content-center">
 
-<div class="col-lg-8">
+          <div class="col-lg-8">
 
-<table class="table table-borderless">
+            <table class="table table-borderless">
 
-<tr>
+              <tr>
 
-<th width="220">
-Instansi
-</th>
+                <th width="220">
+                  Instansi
+                </th>
 
-<td>
+                <td>
 
-: <?= htmlspecialchars($data['instansi']); ?>
+                  : <?= htmlspecialchars($data['instansi']); ?>
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-<tr>
+              <tr>
 
-<th>
-Nomor Telepon
-</th>
+                <th>
+                  Nomor Telepon
+                </th>
 
-<td>
+                <td>
 
-: <span class="fw-bold text-primary">
+                  : <span class="fw-bold text-primary">
 
-<?= htmlspecialchars($data['nomor_telepon']); ?>
+                    <?= htmlspecialchars($data['nomor_telepon']); ?>
 
-</span>
+                  </span>
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-<tr>
+              <tr>
 
-<th>
-Keterangan
-</th>
+                <th>
+                  Keterangan
+                </th>
 
-<td>
+                <td>
 
-: <?= htmlspecialchars($data['keterangan']); ?>
+                  : <?= htmlspecialchars($data['keterangan']); ?>
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-<tr>
+              <tr>
 
-<th>
-Urutan
-</th>
+                <th>
+                  Urutan
+                </th>
 
-<td>
+                <td>
 
-: <?= $data['urutan']; ?>
+                  : <?= $data['urutan']; ?>
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-<tr>
+              <tr>
 
-<th>
-Dibuat
-</th>
+                <th>
+                  Dibuat
+                </th>
 
-<td>
+                <td>
 
-: <?= formatTanggal(date('Y-m-d', strtotime($data['created_at']))); ?>
+                  : <?= formatTanggal(date('Y-m-d', strtotime($data['created_at']))); ?>
 
-</td>
+                </td>
 
-</tr>
+              </tr>
 
-<?php if(!empty($data['updated_at'])): ?>
+              <?php if (!empty($data['updated_at'])): ?>
 
-<tr>
+                <tr>
 
-<th>
-Terakhir Diubah
-</th>
+                  <th>
+                    Terakhir Diubah
+                  </th>
 
-<td>
+                  <td>
 
-: <?= formatTanggal(date('Y-m-d', strtotime($data['updated_at']))); ?>
+                    : <?= formatTanggal(date('Y-m-d', strtotime($data['updated_at']))); ?>
 
-</td>
+                  </td>
 
-</tr>
+                </tr>
 
-<?php endif; ?>
+              <?php endif; ?>
 
-</table>
+            </table>
 
-<hr>
+            <hr>
 
-<a
-href="edit.php?id=<?= $data['id_nomor']; ?>"
-class="btn btn-warning">
+            <a
+              href="edit.php?id=<?= $data['id_nomor']; ?>"
+              class="btn btn-warning">
 
-<i class="bi bi-pencil-square me-2"></i>
+              <i class="bi bi-pencil-square me-2"></i>
 
-Edit
+              Edit
 
-</a>
+            </a>
 
-<a
-href="index.php"
-class="btn btn-secondary">
+            <a
+              href="index.php"
+              class="btn btn-secondary">
 
-Kembali
+              Kembali
 
-</a>
+            </a>
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-</div>
+      </div>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
 </div>
 

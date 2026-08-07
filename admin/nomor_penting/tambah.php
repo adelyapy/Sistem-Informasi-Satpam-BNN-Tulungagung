@@ -6,13 +6,13 @@ require_once "../../config/function.php";
 $title = "Tambah Nomor Penting";
 $base_url = "../../";
 
-if(isset($_POST['simpan'])){
+if (isset($_POST['simpan'])) {
 
-    $instansi       = e($_POST['instansi']);
-    $nomor_telepon  = e($_POST['nomor_telepon']);
-    $keterangan     = e($_POST['keterangan']);
+  $instansi       = e($_POST['instansi']);
+  $nomor_telepon  = e($_POST['nomor_telepon']);
+  $keterangan     = e($_POST['keterangan']);
 
-    $query = mysqli_query($conn,"
+  $query = mysqli_query($conn, "
         INSERT INTO nomor_penting
         (
             instansi,
@@ -27,9 +27,9 @@ if(isset($_POST['simpan'])){
         )
     ");
 
-    if($query){
+  if ($query) {
 
-        echo "
+    echo "
 
         <script>
 
@@ -50,10 +50,9 @@ if(isset($_POST['simpan'])){
         </script>
 
         ";
+  } else {
 
-    }else{
-
-        echo "
+    echo "
 
         <script>
 
@@ -70,9 +69,7 @@ if(isset($_POST['simpan'])){
         </script>
 
         ";
-
-    }
-
+  }
 }
 
 include "../../includes/header.php";
@@ -87,125 +84,125 @@ include "../../includes/header.php";
 
 <div class="main-content">
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-<div>
+      <div>
 
-<h3 class="fw-bold">
+        <h3 class="fw-bold">
 
-Tambah Nomor Penting
+          Tambah Nomor Penting
 
-</h3>
+        </h3>
 
-<p class="text-muted mb-0">
+        <p class="text-muted mb-0">
 
-Tambahkan data nomor penting.
+          Tambahkan data nomor penting.
 
-</p>
+        </p>
 
-</div>
+      </div>
 
-<a href="index.php" class="btn btn-secondary">
+      <a href="index.php" class="btn btn-secondary">
 
-<i class="bi bi-arrow-left"></i>
+        <i class="bi bi-arrow-left"></i>
 
-Kembali
+        Kembali
 
-</a>
+      </a>
 
-</div>
+    </div>
 
-<div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0">
 
-<div class="card-body">
+      <div class="card-body">
 
-<form method="POST">
+        <form method="POST">
 
-<div class="row">
+          <div class="row">
 
-<div class="col-lg-6 mb-3">
+            <div class="col-lg-6 mb-3">
 
-<label class="form-label">
+              <label class="form-label">
 
-Instansi
+                Instansi
 
-</label>
+              </label>
 
-<input
-type="text"
-name="instansi"
-class="form-control"
-required>
+              <input
+                type="text"
+                name="instansi"
+                class="form-control"
+                required>
 
-</div>
+            </div>
 
-<div class="col-lg-6 mb-3">
+            <div class="col-lg-6 mb-3">
 
-<label class="form-label">
+              <label class="form-label">
 
-Nomor Telepon
+                Nomor Telepon
 
-</label>
+              </label>
 
-<input
-type="text"
-name="nomor_telepon"
-class="form-control"
-required>
+              <input
+                type="text"
+                name="nomor_telepon"
+                class="form-control"
+                required>
 
-</div>
+            </div>
 
-<div class="col-lg-6 mb-3">
+            <div class="col-lg-6 mb-3">
 
-<label class="form-label">
+              <label class="form-label">
 
-Keterangan
+                Keterangan
 
-</label>
+              </label>
 
-<input
-type="text"
-name="keterangan"
-class="form-control"
-required>
+              <input
+                type="text"
+                name="keterangan"
+                class="form-control"
+                required>
 
-</div>
+            </div>
 
 
-<div class="col-12">
+            <div class="col-12">
 
-<button
-type="submit"
-name="simpan"
-class="btn btn-primary">
+              <button
+                type="submit"
+                name="simpan"
+                class="btn btn-primary">
 
-<i class="bi bi-check-circle me-2"></i>
+                <i class="bi bi-check-circle me-2"></i>
 
-Simpan
+                Simpan
 
-</button>
+              </button>
 
-<a
-href="index.php"
-class="btn btn-secondary">
+              <a
+                href="index.php"
+                class="btn btn-secondary">
 
-Batal
+                Batal
 
-</a>
+              </a>
 
-</div>
+            </div>
 
-</div>
+          </div>
 
-</form>
+        </form>
 
-</div>
+      </div>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
 </div>
 

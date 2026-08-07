@@ -7,13 +7,13 @@ $base_url = '../../';
 $activeMenu = 'monitoring_laporan';
 
 if (!isset($_GET['id'])) {
-    header("Location:index.php");
-    exit;
+  header("Location:index.php");
+  exit;
 }
 
 $id = (int)$_GET['id'];
 
-$query = mysqli_query($conn,"
+$query = mysqli_query($conn, "
 SELECT
 
 laporan.*,
@@ -44,23 +44,22 @@ ON shift.id_shift = jadwal_shift.id_shift
 WHERE laporan.id_laporan = '$id'
 ");
 
-if(mysqli_num_rows($query)==0){
+if (mysqli_num_rows($query) == 0) {
 
-    header("Location:index.php");
-    exit;
-
+  header("Location:index.php");
+  exit;
 }
 
-$data=mysqli_fetch_assoc($query);
+$data = mysqli_fetch_assoc($query);
 
-$inventaris=mysqli_query($conn,"
+$inventaris = mysqli_query($conn, "
 SELECT *
 FROM inventaris
 WHERE id_laporan='$id'
 ORDER BY urutan ASC
 ");
 
-$uraian=mysqli_query($conn,"
+$uraian = mysqli_query($conn, "
 SELECT *
 FROM uraian_kegiatan
 WHERE id_laporan='$id'
@@ -78,355 +77,352 @@ include "../../includes/admin_sidebar.php";
 
 <div class="main bg-light">
 
-<div class="container-fluid py-4">
+  <div class="container-fluid py-4">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-<div>
+      <div>
 
-<h2 class="fw-bold">
+        <h2 class="fw-bold">
 
-Detail Laporan
+          Detail Laporan
 
-</h2>
+        </h2>
 
-<p class="text-secondary mb-0">
+        <p class="text-secondary mb-0">
 
-Buku Mutasi Satpam
+          Buku Mutasi Satpam
 
-</p>
+        </p>
 
-</div>
+      </div>
 
-<div>
+      <div>
 
-<a
-href="index.php"
-class="btn btn-secondary">
+        <a
+          href="index.php"
+          class="btn btn-secondary">
 
-<i class="bi bi-arrow-left"></i>
+          <i class="bi bi-arrow-left"></i>
 
-Kembali
+          Kembali
 
-</a>
+        </a>
 
-<?php if($data['status']=="tervalidasi"){ ?>
+        <?php if ($data['status'] == "tervalidasi") { ?>
 
-<a href="cetak.php?id=<?= $data['id_laporan'] ?>"
-class="btn btn-success">
+          <a href="cetak.php?id=<?= $data['id_laporan'] ?>"
+            class="btn btn-success">
 
-<i class="bi bi-printer"></i>
+            <i class="bi bi-printer"></i>
 
-Cetak
+            Cetak
 
-</a>
+          </a>
 
-<?php } ?>
+        <?php } ?>
 
-</div>
+      </div>
 
-</div>
+    </div>
 
-<div class="card shadow-sm border-0 mb-4">
+    <div class="card shadow-sm border-0 mb-4">
 
-<div class="card-header bg-primary text-white">
+      <div class="card-header bg-primary text-white">
 
-Informasi Laporan
+        Informasi Laporan
 
-</div>
+      </div>
 
-<div class="card-body">
+      <div class="card-body">
 
-<div class="row">
+        <div class="row">
 
-<div class="col-md-6 mb-3">
+          <div class="col-md-6 mb-3">
 
-<label class="fw-bold">
+            <label class="fw-bold">
 
-Tanggal
+              Tanggal
 
-</label>
+            </label>
 
-<div>
+            <div>
 
-<?= date('d F Y',strtotime($data['tanggal_laporan'])) ?>
+              <?= date('d F Y', strtotime($data['tanggal_laporan'])) ?>
 
-</div>
+            </div>
 
-</div>
+          </div>
 
-<div class="col-md-6 mb-3">
+          <div class="col-md-6 mb-3">
 
-<label class="fw-bold">
+            <label class="fw-bold">
 
-Kode Satpam
+              Kode Satpam
 
-</label>
+            </label>
 
-<div>
+            <div>
 
-<?= htmlspecialchars($data['kode_satpam']) ?>
+              <?= htmlspecialchars($data['kode_satpam']) ?>
 
-</div>
+            </div>
 
-</div>
+          </div>
 
-<div class="col-md-6 mb-3">
+          <div class="col-md-6 mb-3">
 
-<label class="fw-bold">
+            <label class="fw-bold">
 
-Nama Satpam
+              Nama Satpam
 
-</label>
+            </label>
 
-<div>
+            <div>
 
-<?= htmlspecialchars($data['nama']) ?>
+              <?= htmlspecialchars($data['nama']) ?>
 
-</div>
+            </div>
 
-</div>
+          </div>
 
-<div class="col-md-6 mb-3">
+          <div class="col-md-6 mb-3">
 
-<label class="fw-bold">
+            <label class="fw-bold">
 
-Shift
+              Shift
 
-</label>
+            </label>
 
-<div>
+            <div>
 
-<?= htmlspecialchars($data['nama_shift']) ?>
+              <?= htmlspecialchars($data['nama_shift']) ?>
 
-(
-<?= substr($data['jam_mulai'],0,5) ?>
+              (
+              <?= substr($data['jam_mulai'], 0, 5) ?>
 
--
+              -
 
-<?= substr($data['jam_selesai'],0,5) ?>
+              <?= substr($data['jam_selesai'], 0, 5) ?>
 
-)
+              )
 
-</div>
+            </div>
 
-</div>
+          </div>
 
-<div class="col-md-6">
+          <div class="col-md-6">
 
-<label class="fw-bold">
+            <label class="fw-bold">
 
-Status
+              Status
 
-</label>
+            </label>
 
-<div>
+            <div>
 
-<?php
+              <?php
 
-switch($data['status']){
+              switch ($data['status']) {
 
-case 'draft':
+                case 'draft':
 
-echo "<span class='badge bg-secondary'>Draft</span>";
+                  echo "<span class='badge bg-secondary'>Draft</span>";
 
-break;
+                  break;
 
-case 'menunggu_validasi':
+                case 'menunggu_validasi':
 
-echo "<span class='badge bg-warning text-dark'>Menunggu Validasi</span>";
+                  echo "<span class='badge bg-warning text-dark'>Menunggu Validasi</span>";
 
-break;
+                  break;
 
-case 'tervalidasi':
+                case 'tervalidasi':
 
-echo "<span class='badge bg-success'>Tervalidasi</span>";
+                  echo "<span class='badge bg-success'>Tervalidasi</span>";
 
-break;
+                  break;
+              }
 
-}
+              ?>
 
-?>
+            </div>
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-</div>
+      </div>
 
-</div>
+    </div>
 
-</div>
+    <div class="card shadow-sm border-0 mb-4">
 
-<div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-primary text-white">
 
-<div class="card-header bg-primary text-white">
+        Uraian Kegiatan
 
-Uraian Kegiatan
+      </div>
 
-</div>
+      <div class="table-responsive">
 
-<div class="table-responsive">
+        <table class="table table-bordered mb-0">
 
-<table class="table table-bordered mb-0">
+          <thead>
 
-<thead>
+            <tr>
 
-<tr>
+              <th width="60">No</th>
+              <th width="100">Jam</th>
+              <th>Uraian</th>
 
-<th width="60">No</th>
-<th width="100">Jam</th>
-<th>Uraian</th>
+            </tr>
 
-</tr>
+          </thead>
 
-</thead>
+          <tbody>
 
-<tbody>
+            <?php
 
-<?php
+            if (mysqli_num_rows($uraian) > 0) {
 
-if(mysqli_num_rows($uraian) > 0){
+              $no = 1;
 
-    $no = 1;
+              while ($u = mysqli_fetch_assoc($uraian)) {
 
-    while($u = mysqli_fetch_assoc($uraian)){
+            ?>
 
-?>
+                <tr>
 
-<tr>
+                  <td><?= $no++ ?></td>
 
-    <td><?= $no++ ?></td>
+                  <td><?= substr($u['jam'], 0, 5) ?></td>
 
-    <td><?= substr($u['jam'],0,5) ?></td>
+                  <td><?= nl2br(htmlspecialchars($u['uraian'])) ?></td>
 
-    <td><?= nl2br(htmlspecialchars($u['uraian'])) ?></td>
+                </tr>
 
-</tr>
+              <?php
 
-<?php
+              }
+            } else {
 
-    }
+              ?>
 
-}else{
+              <tr>
 
-?>
+                <td colspan="3" class="text-center">
 
-<tr>
+                  Belum ada uraian kegiatan.
 
-    <td colspan="3" class="text-center">
+                </td>
 
-        Belum ada uraian kegiatan.
+              </tr>
 
-    </td>
+            <?php } ?>
 
-</tr>
+          </tbody>
 
-<?php } ?>
+        </table>
 
-</tbody>
+      </div>
 
-</table>
+    </div>
 
-</div>      
+    <div class="card shadow-sm border-0">
 
-</div>      
+      <div class="card-header bg-primary text-white">
 
-<div class="card shadow-sm border-0">
+        Inventaris
 
-<div class="card-header bg-primary text-white">
+      </div>
 
-Inventaris
+      <div class="table-responsive">
 
-</div>
+        <table class="table table-bordered mb-0">
 
-<div class="table-responsive">
+          <thead>
 
-<table class="table table-bordered mb-0">
+            <tr>
 
-<thead>
+              <th width="60">
 
-<tr>
+                No
 
-<th width="60">
+              </th>
 
-No
+              <th>
 
-</th>
+                Nama Barang
 
-<th>
+              </th>
 
-Nama Barang
+              <th width="100">
 
-</th>
+                Jumlah
 
-<th width="100">
+              </th>
 
-Jumlah
+              <th>
 
-</th>
+                Keterangan
 
-<th>
+              </th>
 
-Keterangan
+            </tr>
 
-</th>
+          </thead>
 
-</tr>
+          <tbody>
 
-</thead>
+            <?php
 
-<tbody>
+            $no = 1;
 
-<?php
+            if (mysqli_num_rows($inventaris) > 0) {
 
-$no=1;
+              while ($i = mysqli_fetch_assoc($inventaris)) {
 
-if(mysqli_num_rows($inventaris)>0){
+            ?>
 
-while($i=mysqli_fetch_assoc($inventaris)){
+                <tr>
 
-?>
+                  <td><?= $no++ ?></td>
 
-<tr>
+                  <td><?= htmlspecialchars($i['nama_barang']) ?></td>
 
-<td><?= $no++ ?></td>
+                  <td><?= $i['jumlah'] ?></td>
 
-<td><?= htmlspecialchars($i['nama_barang']) ?></td>
+                  <td><?= htmlspecialchars($i['keterangan']) ?></td>
 
-<td><?= $i['jumlah'] ?></td>
+                </tr>
 
-<td><?= htmlspecialchars($i['keterangan']) ?></td>
+              <?php }
+            } else {
 
-</tr>
+              ?>
 
-<?php }
+              <tr>
 
-}else{
+                <td colspan="4" class="text-center">
 
-?>
+                  Belum ada data inventaris.
 
-<tr>
+                </td>
 
-<td colspan="4" class="text-center">
+              </tr>
 
-Belum ada data inventaris.
+            <?php } ?>
 
-</td>
+          </tbody>
 
-</tr>
+        </table>
 
-<?php } ?>
+      </div>
 
-</tbody>
+    </div>
 
-</table>
-
-</div>
-
-</div>
-
-</div>
+  </div>
 
 </div>
 

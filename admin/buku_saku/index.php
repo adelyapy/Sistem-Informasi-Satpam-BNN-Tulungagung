@@ -7,7 +7,7 @@ $title = "Buku Saku";
 $base_url = "../../";
 $activeMenu = "buku_saku";
 
-$keyword = isset($_GET['keyword']) ? mysqli_real_escape_string($conn,$_GET['keyword']) : '';
+$keyword = isset($_GET['keyword']) ? mysqli_real_escape_string($conn, $_GET['keyword']) : '';
 
 $sql = "
 SELECT
@@ -18,13 +18,13 @@ LEFT JOIN users
 ON users.id_user = buku_saku.uploaded_by
 ";
 
-if($keyword!=''){
-    $sql .= " WHERE buku_saku.judul LIKE '%$keyword%'";
+if ($keyword != '') {
+  $sql .= " WHERE buku_saku.judul LIKE '%$keyword%'";
 }
 
 $sql .= " ORDER BY created_at DESC";
 
-$query = mysqli_query($conn,$sql);
+$query = mysqli_query($conn, $sql);
 
 include "../../includes/header.php";
 ?>
@@ -34,271 +34,269 @@ include "../../includes/header.php";
 
 <div class="main-content">
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-<div>
+      <div>
 
-<h3 class="fw-bold mb-1">
-Buku Saku Satpam
-</h3>
+        <h3 class="fw-bold mb-1">
+          Buku Saku Satpam
+        </h3>
 
-<p class="text-muted mb-0">
-Kelola seluruh dokumen buku saku satpam.
-</p>
+        <p class="text-muted mb-0">
+          Kelola seluruh dokumen buku saku satpam.
+        </p>
 
-</div>
+      </div>
 
-<a href="tambah.php" class="btn btn-primary">
+      <a href="tambah.php" class="btn btn-primary">
 
-<i class="bi bi-plus-circle me-2"></i>
+        <i class="bi bi-plus-circle me-2"></i>
 
-Tambah Buku
+        Tambah Buku
 
-</a>
+      </a>
 
-</div>
+    </div>
 
 
-<div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0">
 
-<div class="card-body">
+      <div class="card-body">
 
-<form method="GET" class="mb-3">
+        <form method="GET" class="mb-3">
 
-<div class="row">
+          <div class="row">
 
-<div class="col-md-4">
+            <div class="col-md-4">
 
-<input
-type="text"
-name="keyword"
-class="form-control"
-placeholder="Cari Judul Buku..."
-value="<?= htmlspecialchars($keyword); ?>">
+              <input
+                type="text"
+                name="keyword"
+                class="form-control"
+                placeholder="Cari Judul Buku..."
+                value="<?= htmlspecialchars($keyword); ?>">
 
-</div>
+            </div>
 
-<div class="col-md-2">
+            <div class="col-md-2">
 
-<button class="btn btn-primary w-100">
+              <button class="btn btn-primary w-100">
 
-<i class="bi bi-search"></i>
+                <i class="bi bi-search"></i>
 
-Cari
+                Cari
 
-</button>
+              </button>
 
-</div>
+            </div>
 
-</div>
+          </div>
 
-</form>
+        </form>
 
-<div class="table-responsive">
+        <div class="table-responsive">
 
-<table class="table table-hover align-middle">
+          <table class="table table-hover align-middle">
 
-<thead class="table-light">
+            <thead class="table-light">
 
-<tr>
+              <tr>
 
-<th width="60">
-No
-</th>
+                <th width="60">
+                  No
+                </th>
 
-<th>
-Judul Buku
-</th>
+                <th>
+                  Judul Buku
+                </th>
 
-<th width="180">
-Nama File
-</th>
+                <th width="180">
+                  Nama File
+                </th>
 
-<th width="120">
-Ukuran
-</th>
+                <th width="120">
+                  Ukuran
+                </th>
 
-<th width="180">
-Uploader
-</th>
+                <th width="180">
+                  Uploader
+                </th>
 
-<th width="170">
-Tanggal Upload
-</th>
+                <th width="170">
+                  Tanggal Upload
+                </th>
 
-<th width="180" class="text-center">
-Aksi
-</th>
+                <th width="180" class="text-center">
+                  Aksi
+                </th>
 
-</tr>
+              </tr>
 
-</thead>
+            </thead>
 
-<tbody>
+            <tbody>
 
-<?php
+              <?php
 
-if(mysqli_num_rows($query)>0):
+              if (mysqli_num_rows($query) > 0):
 
-$no=1;
+                $no = 1;
 
-while($data=mysqli_fetch_assoc($query)):
+                while ($data = mysqli_fetch_assoc($query)):
 
-?>
+              ?>
 
-<tr>
+                  <tr>
 
-<td><?= $no++; ?></td>
+                    <td><?= $no++; ?></td>
 
-<td>
+                    <td>
 
-<strong>
+                      <strong>
 
-<?= htmlspecialchars($data['judul']); ?>
+                        <?= htmlspecialchars($data['judul']); ?>
 
-</strong>
+                      </strong>
 
-</td>
+                    </td>
 
-<td>
+                    <td>
 
-<?= htmlspecialchars($data['nama_file']); ?>
+                      <?= htmlspecialchars($data['nama_file']); ?>
 
-</td>
+                    </td>
 
-<td>
+                    <td>
 
-<?= round($data['ukuran_file']/1024,2); ?> KB
+                      <?= round($data['ukuran_file'] / 1024, 2); ?> KB
 
-</td>
+                    </td>
 
-<td>
+                    <td>
 
-<?= htmlspecialchars($data['nama']); ?>
+                      <?= htmlspecialchars($data['nama']); ?>
 
-</td>
+                    </td>
 
-<td>
+                    <td>
 
-<?= date('d-m-Y H:i',strtotime($data['created_at'])); ?>
+                      <?= date('d-m-Y H:i', strtotime($data['created_at'])); ?>
 
-</td>
+                    </td>
 
-<td class="text-center">
+                    <td class="text-center">
 
-<a
-href="detail.php?id=<?= $data['id_buku']; ?>"
-class="btn btn-info btn-sm">
+                      <a
+                        href="detail.php?id=<?= $data['id_buku']; ?>"
+                        class="btn btn-info btn-sm">
 
-<i class="bi bi-eye"></i>
+                        <i class="bi bi-eye"></i>
 
-</a>
+                      </a>
 
-<a
-href="edit.php?id=<?= $data['id_buku']; ?>"
-class="btn btn-warning btn-sm">
+                      <a
+                        href="edit.php?id=<?= $data['id_buku']; ?>"
+                        class="btn btn-warning btn-sm">
 
-<i class="bi bi-pencil-square"></i>
+                        <i class="bi bi-pencil-square"></i>
 
-</a>
+                      </a>
 
-<button
-class="btn btn-danger btn-sm"
-onclick="hapusBuku(<?= $data['id_buku']; ?>)">
+                      <button
+                        class="btn btn-danger btn-sm"
+                        onclick="hapusBuku(<?= $data['id_buku']; ?>)">
 
-<i class="bi bi-trash"></i>
+                        <i class="bi bi-trash"></i>
 
-</button>
+                      </button>
 
-</td>
+                    </td>
 
-</tr>
+                  </tr>
 
-<?php
+                <?php
 
-endwhile;
+                endwhile;
 
-else:
+              else:
 
-?>
+                ?>
 
-<tr>
+                <tr>
 
-<td colspan="7" class="text-center py-5">
+                  <td colspan="7" class="text-center py-5">
 
-<img
-src="../../assets/img/empty-data.png"
-width="120"
-class="mb-3">
+                    <img
+                      src="../../assets/img/empty-data.png"
+                      width="120"
+                      class="mb-3">
 
-<h6 class="fw-semibold">
+                    <h6 class="fw-semibold">
 
-Belum ada Buku Saku
+                      Belum ada Buku Saku
 
-</h6>
+                    </h6>
 
-<p class="text-muted mb-0">
+                    <p class="text-muted mb-0">
 
-Silakan tambahkan Buku Saku terlebih dahulu.
+                      Silakan tambahkan Buku Saku terlebih dahulu.
 
-</p>
+                    </p>
 
-</td>
+                  </td>
 
-</tr>
+                </tr>
 
-<?php endif; ?>
+              <?php endif; ?>
 
-</tbody>
+            </tbody>
 
-</table>
+          </table>
 
-</div>
+        </div>
 
-</div>
+      </div>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
 </div>
 
 <script>
+  function hapusBuku(id) {
 
-function hapusBuku(id){
+    Swal.fire({
 
-Swal.fire({
+      title: 'Hapus Buku?',
 
-title:'Hapus Buku?',
+      text: 'Data buku saku akan dihapus.',
 
-text:'Data buku saku akan dihapus.',
+      icon: 'warning',
 
-icon:'warning',
+      showCancelButton: true,
 
-showCancelButton:true,
+      confirmButtonColor: '#dc3545',
 
-confirmButtonColor:'#dc3545',
+      cancelButtonColor: '#6c757d',
 
-cancelButtonColor:'#6c757d',
+      confirmButtonText: 'Ya, Hapus',
 
-confirmButtonText:'Ya, Hapus',
+      cancelButtonText: 'Batal'
 
-cancelButtonText:'Batal'
+    }).then((result) => {
 
-}).then((result)=>{
+      if (result.isConfirmed) {
 
-if(result.isConfirmed){
+        window.location = 'hapus.php?id=' + id;
 
-window.location='hapus.php?id='+id;
+      }
 
-}
+    });
 
-});
-
-}
-
+  }
 </script>
 
 <?php include "../../includes/footer.php"; ?>

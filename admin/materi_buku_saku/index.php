@@ -5,11 +5,11 @@ require_once "../../config/function.php";
 
 $cari = "";
 
-if(isset($_GET['cari'])){
-    $cari = mysqli_real_escape_string($conn,$_GET['cari']);
+if (isset($_GET['cari'])) {
+  $cari = mysqli_real_escape_string($conn, $_GET['cari']);
 }
 
-$query = mysqli_query($conn,"
+$query = mysqli_query($conn, "
 SELECT
 m.*,
 k.nama_kategori
@@ -35,215 +35,215 @@ m.id_materi ASC
 
 <body>
 
-<?php include "../../includes/navbar.php"; ?>
+  <?php include "../../includes/navbar.php"; ?>
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="row">
+    <div class="row">
 
-<?php include "../../includes/admin_sidebar.php"; ?>
+      <?php include "../../includes/admin_sidebar.php"; ?>
 
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
-<div class="d-flex justify-content-between align-items-center pt-3 pb-3">
+        <div class="d-flex justify-content-between align-items-center pt-3 pb-3">
 
-<h3>
+          <h3>
 
-<i class="bi bi-book-fill"></i>
+            <i class="bi bi-book-fill"></i>
 
-Materi Buku Saku
+            Materi Buku Saku
 
-</h3>
+          </h3>
 
-<a href="tambah.php" class="btn btn-primary">
+          <a href="tambah.php" class="btn btn-primary">
 
-<i class="bi bi-plus-circle"></i>
+            <i class="bi bi-plus-circle"></i>
 
-Tambah Materi
+            Tambah Materi
 
-</a>
+          </a>
 
-</div>
+        </div>
 
-<div class="card shadow">
+        <div class="card shadow">
 
-<div class="card-body">
+          <div class="card-body">
 
-<form method="GET">
+            <form method="GET">
 
-<div class="row mb-3">
+              <div class="row mb-3">
 
-<div class="col-md-4">
+                <div class="col-md-4">
 
-<input
-type="text"
-name="cari"
-class="form-control"
-placeholder="Cari Judul..."
-value="<?= $cari; ?>">
+                  <input
+                    type="text"
+                    name="cari"
+                    class="form-control"
+                    placeholder="Cari Judul..."
+                    value="<?= $cari; ?>">
 
-</div>
+                </div>
 
-<div class="col-md-2">
+                <div class="col-md-2">
 
-<button class="btn btn-primary w-100">
+                  <button class="btn btn-primary w-100">
 
-Cari
+                    Cari
 
-</button>
+                  </button>
 
-</div>
+                </div>
 
-<div class="col-md-2">
+                <div class="col-md-2">
 
-<a
-href="index.php"
-class="btn btn-secondary w-100">
+                  <a
+                    href="index.php"
+                    class="btn btn-secondary w-100">
 
-Reset
+                    Reset
 
-</a>
+                  </a>
 
-</div>
+                </div>
 
-</div>
+              </div>
 
-</form>
+            </form>
 
-<div class="table-responsive">
+            <div class="table-responsive">
 
-<table class="table table-bordered table-hover align-middle">
+              <table class="table table-bordered table-hover align-middle">
 
-<thead class="table-primary">
+                <thead class="table-primary">
 
-<tr>
+                  <tr>
 
-<th width="60">No</th>
+                    <th width="60">No</th>
 
-<th>Judul</th>
+                    <th>Judul</th>
 
-<th width="200">Kategori</th>
+                    <th width="200">Kategori</th>
 
-<th width="120">Tanggal</th>
+                    <th width="120">Tanggal</th>
 
-<th width="170">Aksi</th>
+                    <th width="170">Aksi</th>
 
-</tr>
+                  </tr>
 
-</thead>
+                </thead>
 
-<tbody>
+                <tbody>
 
-<?php
+                  <?php
 
-$no=1;
+                  $no = 1;
 
-while($d=mysqli_fetch_assoc($query)):
+                  while ($d = mysqli_fetch_assoc($query)):
 
-?>
+                  ?>
 
-<tr>
+                    <tr>
 
-<td class="text-center">
+                      <td class="text-center">
 
-<?= $no++; ?>
+                        <?= $no++; ?>
 
-</td>
+                      </td>
 
-<td>
+                      <td>
 
-<b>
+                        <b>
 
-<?= htmlspecialchars($d['judul']); ?>
+                          <?= htmlspecialchars($d['judul']); ?>
 
-</b>
+                        </b>
 
-</td>
+                      </td>
 
-<td>
+                      <td>
 
-<span class="badge bg-success">
+                        <span class="badge bg-success">
 
-<?= htmlspecialchars($d['nama_kategori']); ?>
+                          <?= htmlspecialchars($d['nama_kategori']); ?>
 
-</span>
+                        </span>
 
-</td>
+                      </td>
 
-<td>
+                      <td>
 
-<?= date('d-m-Y',strtotime($d['created_at'])); ?>
+                        <?= date('d-m-Y', strtotime($d['created_at'])); ?>
 
-</td>
+                      </td>
 
-<td class="text-center">
+                      <td class="text-center">
 
-<a
-href="detail.php?id=<?= $d['id_materi']; ?>"
-class="btn btn-info btn-sm">
+                        <a
+                          href="detail.php?id=<?= $d['id_materi']; ?>"
+                          class="btn btn-info btn-sm">
 
-<i class="bi bi-eye"></i>
+                          <i class="bi bi-eye"></i>
 
-</a>
+                        </a>
 
-<a
-href="edit.php?id=<?= $d['id_materi']; ?>"
-class="btn btn-warning btn-sm">
+                        <a
+                          href="edit.php?id=<?= $d['id_materi']; ?>"
+                          class="btn btn-warning btn-sm">
 
-<i class="bi bi-pencil"></i>
+                          <i class="bi bi-pencil"></i>
 
-</a>
+                        </a>
 
-<a
-href="hapus.php?id=<?= $d['id_materi']; ?>"
-class="btn btn-danger btn-sm"
-onclick="return confirm('Hapus materi ini?')">
+                        <a
+                          href="hapus.php?id=<?= $d['id_materi']; ?>"
+                          class="btn btn-danger btn-sm"
+                          onclick="return confirm('Hapus materi ini?')">
 
-<i class="bi bi-trash"></i>
+                          <i class="bi bi-trash"></i>
 
-</a>
+                        </a>
 
-</td>
+                      </td>
 
-</tr>
+                    </tr>
 
-<?php endwhile; ?>
+                  <?php endwhile; ?>
 
-<?php
+                  <?php
 
-if(mysqli_num_rows($query)==0):
+                  if (mysqli_num_rows($query) == 0):
 
-?>
+                  ?>
 
-<tr>
+                    <tr>
 
-<td colspan="5" class="text-center">
+                      <td colspan="5" class="text-center">
 
-Belum ada data materi.
+                        Belum ada data materi.
 
-</td>
+                      </td>
 
-</tr>
+                    </tr>
 
-<?php endif; ?>
+                  <?php endif; ?>
 
-</tbody>
+                </tbody>
 
-</table>
+              </table>
 
-</div>
+            </div>
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-</main>
+      </main>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
-<?php include "../../includes/footer.php"; ?>
+  <?php include "../../includes/footer.php"; ?>
 
 </body>
 

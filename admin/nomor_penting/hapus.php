@@ -4,8 +4,8 @@ require_once "../../config/admin_auth.php";
 require_once "../../config/function.php";
 
 if (!isset($_GET['id'])) {
-    header("Location: index.php");
-    exit;
+  header("Location: index.php");
+  exit;
 }
 
 $id = (int) $_GET['id'];
@@ -17,8 +17,8 @@ $cek = mysqli_query($conn, "
 ");
 
 if (mysqli_num_rows($cek) == 0) {
-    header("Location: index.php");
-    exit;
+  header("Location: index.php");
+  exit;
 }
 
 $hapus = mysqli_query($conn, "
@@ -28,7 +28,7 @@ $hapus = mysqli_query($conn, "
 
 if ($hapus) {
 
-    echo "
+  echo "
 
     <script>
 
@@ -49,10 +49,9 @@ if ($hapus) {
     </script>
 
     ";
-
 } else {
 
-    echo "
+  echo "
 
     <script>
 
@@ -73,5 +72,4 @@ if ($hapus) {
     </script>
 
     ";
-
 }

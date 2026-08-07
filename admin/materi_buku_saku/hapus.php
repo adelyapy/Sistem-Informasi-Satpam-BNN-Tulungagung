@@ -3,8 +3,8 @@ require_once "../../config/admin_auth.php";
 require_once "../../config/database.php";
 
 if (!isset($_GET['id'])) {
-    header("Location:index.php");
-    exit;
+  header("Location:index.php");
+  exit;
 }
 
 $id = (int) $_GET['id'];
@@ -17,12 +17,12 @@ $query = mysqli_query($conn, "
 ");
 
 if (mysqli_num_rows($query) == 0) {
-    echo "
+  echo "
     <script>
         alert('Data tidak ditemukan');
         location='index.php';
     </script>";
-    exit;
+  exit;
 }
 
 $data = mysqli_fetch_assoc($query);
@@ -30,11 +30,11 @@ $data = mysqli_fetch_assoc($query);
 // Hapus icon jika ada
 if (!empty($data['icon'])) {
 
-    $file = "../../uploads/icon_buku_saku/" . $data['icon'];
+  $file = "../../uploads/icon_buku_saku/" . $data['icon'];
 
-    if (file_exists($file)) {
-        unlink($file);
-    }
+  if (file_exists($file)) {
+    unlink($file);
+  }
 }
 
 // Hapus data dari database
@@ -45,19 +45,16 @@ $hapus = mysqli_query($conn, "
 
 if ($hapus) {
 
-    echo "
+  echo "
     <script>
         alert('Materi berhasil dihapus');
         location='index.php';
     </script>";
-
 } else {
 
-    echo "
+  echo "
     <script>
         alert('Materi gagal dihapus');
         location='index.php';
     </script>";
-
 }
-?>

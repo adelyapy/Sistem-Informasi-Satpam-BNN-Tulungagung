@@ -5,50 +5,49 @@ require_once "../../config/function.php";
 
 if (isset($_POST['simpan'])) {
 
-    $nama = mysqli_real_escape_string($conn, trim($_POST['nama_kategori']));
+  $nama = mysqli_real_escape_string($conn, trim($_POST['nama_kategori']));
 
-    if ($nama == "") {
+  if ($nama == "") {
 
-        echo "
+    echo "
         <script>
             alert('Nama kategori tidak boleh kosong!');
             window.history.back();
         </script>";
-        exit;
-    }
+    exit;
+  }
 
-    // Cek duplikat
-    $cek = mysqli_query($conn, "
+  // Cek duplikat
+  $cek = mysqli_query($conn, "
         SELECT *
         FROM kategori_buku_saku
         WHERE nama_kategori='$nama'
     ");
 
-    if (mysqli_num_rows($cek) > 0) {
+  if (mysqli_num_rows($cek) > 0) {
 
-        echo "
+    echo "
         <script>
             alert('Kategori sudah ada!');
             window.history.back();
         </script>";
-        exit;
-    }
+    exit;
+  }
 
-    // Ambil ID berikutnya
-    $idBaru = 1;
+  // Ambil ID berikutnya
+  $idBaru = 1;
 
-    $q = mysqli_query($conn,"
+  $q = mysqli_query($conn, "
         SELECT MAX(id_kategori) AS id
         FROM kategori_buku_saku
     ");
 
-    if($d = mysqli_fetch_assoc($q)){
+  if ($d = mysqli_fetch_assoc($q)) {
 
-        $idBaru = $d['id'] + 1;
+    $idBaru = $d['id'] + 1;
+  }
 
-    }
-
-    $insert = mysqli_query($conn,"
+  $insert = mysqli_query($conn, "
         INSERT INTO kategori_buku_saku
         (
             id_kategori,
@@ -61,9 +60,9 @@ if (isset($_POST['simpan'])) {
         )
     ");
 
-    if($insert){
+  if ($insert) {
 
-        echo "
+    echo "
         <script>
 
             alert('Kategori berhasil ditambahkan');
@@ -71,10 +70,9 @@ if (isset($_POST['simpan'])) {
             window.location='index.php';
 
         </script>";
+  } else {
 
-    }else{
-
-        echo "
+    echo "
         <script>
 
             alert('Gagal menambahkan kategori');
@@ -82,9 +80,7 @@ if (isset($_POST['simpan'])) {
             window.history.back();
 
         </script>";
-
-    }
-
+  }
 }
 ?>
 
@@ -95,87 +91,87 @@ if (isset($_POST['simpan'])) {
 
 <body>
 
-<?php include '../../includes/navbar.php'; ?>
+  <?php include '../../includes/navbar.php'; ?>
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="row">
+    <div class="row">
 
-<?php include '../../includes/admin_sidebar.php'; ?>
+      <?php include '../../includes/admin_sidebar.php'; ?>
 
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 
-<h3>
+          <h3>
 
-<i class="bi bi-folder-plus"></i>
+            <i class="bi bi-folder-plus"></i>
 
-Tambah Kategori Buku Saku
+            Tambah Kategori Buku Saku
 
-</h3>
+          </h3>
 
-</div>
+        </div>
 
-<div class="card shadow">
+        <div class="card shadow">
 
-<div class="card-body">
+          <div class="card-body">
 
-<form method="POST">
+            <form method="POST">
 
-<div class="mb-3">
+              <div class="mb-3">
 
-<label class="form-label">
+                <label class="form-label">
 
-Nama Kategori
+                  Nama Kategori
 
-</label>
+                </label>
 
-<input
-type="text"
-name="nama_kategori"
-class="form-control"
-placeholder="Contoh : SOP Satpam"
-required>
+                <input
+                  type="text"
+                  name="nama_kategori"
+                  class="form-control"
+                  placeholder="Contoh : SOP Satpam"
+                  required>
 
-</div>
+              </div>
 
-<div class="mt-4">
+              <div class="mt-4">
 
-<button
-type="submit"
-name="simpan"
-class="btn btn-primary">
+                <button
+                  type="submit"
+                  name="simpan"
+                  class="btn btn-primary">
 
-<i class="bi bi-save"></i>
+                  <i class="bi bi-save"></i>
 
-Simpan
+                  Simpan
 
-</button>
+                </button>
 
-<a
-href="index.php"
-class="btn btn-secondary">
+                <a
+                  href="index.php"
+                  class="btn btn-secondary">
 
-Kembali
+                  Kembali
 
-</a>
+                </a>
 
-</div>
+              </div>
 
-</form>
+            </form>
 
-</div>
+          </div>
 
-</div>
+        </div>
 
-</main>
+      </main>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
-<?php include '../../includes/footer.php'; ?>
+  <?php include '../../includes/footer.php'; ?>
 
 </body>
 

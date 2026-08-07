@@ -2,8 +2,8 @@
 session_start();
 
 if (!isset($_SESSION['login']) || $_SESSION['role'] != 'satpam') {
-    header("Location: ../../login.php");
-    exit;
+  header("Location: ../../login.php");
+  exit;
 }
 
 require "../../config/database.php";
@@ -33,14 +33,14 @@ LIMIT 1
 
 if (mysqli_num_rows($qJadwal) == 0) {
 
-    echo "
+  echo "
     <script>
         alert('Anda tidak memiliki jadwal bertugas hari ini.');
         window.location='index.php';
     </script>
     ";
 
-    exit;
+  exit;
 }
 
 $jadwal = mysqli_fetch_assoc($qJadwal);
@@ -62,10 +62,10 @@ LIMIT 1
 
 if (mysqli_num_rows($qLaporan) > 0) {
 
-    $laporan = mysqli_fetch_assoc($qLaporan);
+  $laporan = mysqli_fetch_assoc($qLaporan);
 
-    header("Location: detail.php?id=" . $laporan['id_laporan']);
-    exit;
+  header("Location: detail.php?id=" . $laporan['id_laporan']);
+  exit;
 }
 
 /*
@@ -107,7 +107,5 @@ $id_laporan = mysqli_insert_id($conn);
 |--------------------------------------------------------------------------
 */
 
-header("Location: detail.php?id=".$id_laporan);
+header("Location: detail.php?id=" . $id_laporan);
 exit;
-
-?>

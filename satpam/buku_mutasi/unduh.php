@@ -19,8 +19,8 @@ mysqli_stmt_execute($laporanStmt);
 $laporan = mysqli_fetch_assoc(mysqli_stmt_get_result($laporanStmt));
 
 if (!$laporan) {
-    header('Location: index.php');
-    exit;
+  header('Location: index.php');
+  exit;
 }
 
 $inventaris = mysqli_query($conn, "SELECT nama_barang, jumlah, keterangan FROM inventaris WHERE id_laporan = {$idLaporan} ORDER BY urutan ASC");
@@ -31,11 +31,99 @@ header('Content-Type: text/html; charset=UTF-8');
 header('Content-Disposition: attachment; filename="' . $namaFile . '"');
 ?>
 <!doctype html>
-<html lang="id"><head><meta charset="utf-8"><title>Laporan Buku Mutasi</title>
-<style>body{font:14px Arial,sans-serif;color:#172033;margin:36px}h1{color:#004aad}h2{margin-top:28px;color:#004aad;font-size:18px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #cbd5e1;padding:9px;text-align:left}th{background:#eaf1ff}.meta td{border:0;padding:4px}</style></head>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8">
+  <title>Laporan Buku Mutasi</title>
+  <style>
+    body {
+      font: 14px Arial, sans-serif;
+      color: #172033;
+      margin: 36px
+    }
+
+    h1 {
+      color: #004aad
+    }
+
+    h2 {
+      margin-top: 28px;
+      color: #004aad;
+      font-size: 18px
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    th,
+    td {
+      border: 1px solid #cbd5e1;
+      padding: 9px;
+      text-align: left
+    }
+
+    th {
+      background: #eaf1ff
+    }
+
+    .meta td {
+      border: 0;
+      padding: 4px
+    }
+  </style>
+</head>
+
 <body>
-<h1>Laporan Buku Mutasi Satpam</h1>
-<table class="meta"><tr><td>Tanggal</td><td>: <?= htmlspecialchars($laporan['tanggal_laporan']) ?></td></tr><tr><td>Shift</td><td>: <?= htmlspecialchars($laporan['nama_shift']) ?> (<?= substr($laporan['jam_mulai'], 0, 5) ?>–<?= substr($laporan['jam_selesai'], 0, 5) ?>)</td></tr><tr><td>Dibuat oleh</td><td>: <?= htmlspecialchars($laporan['pembuat'] ?: 'Satpam') ?></td></tr><tr><td>Status</td><td>: Sudah divalidasi Kepala BNN</td></tr></table>
-<h2>Inventaris</h2><table><tr><th>No.</th><th>Nama Barang</th><th>Jumlah</th><th>Keterangan</th></tr><?php $nomor = 1; while ($row = mysqli_fetch_assoc($inventaris)) { ?><tr><td><?= $nomor++ ?></td><td><?= htmlspecialchars($row['nama_barang']) ?></td><td><?= (int) $row['jumlah'] ?></td><td><?= htmlspecialchars($row['keterangan']) ?></td></tr><?php } ?></table>
-<h2>Uraian Kegiatan</h2><table><tr><th>No.</th><th>Waktu</th><th>Uraian</th></tr><?php $nomor = 1; while ($row = mysqli_fetch_assoc($uraian)) { ?><tr><td><?= $nomor++ ?></td><td><?= htmlspecialchars(substr($row['jam'], 0, 5)) ?></td><td><?= nl2br(htmlspecialchars($row['uraian'])) ?></td></tr><?php } ?></table>
-</body></html>
+  <h1>Laporan Buku Mutasi Satpam</h1>
+  <table class="meta">
+    <tr>
+      <td>Tanggal</td>
+      <td>: <?= htmlspecialchars($laporan['tanggal_laporan']) ?></td>
+    </tr>
+    <tr>
+      <td>Shift</td>
+      <td>: <?= htmlspecialchars($laporan['nama_shift']) ?> (<?= substr($laporan['jam_mulai'], 0, 5) ?>–<?= substr($laporan['jam_selesai'], 0, 5) ?>)</td>
+    </tr>
+    <tr>
+      <td>Dibuat oleh</td>
+      <td>: <?= htmlspecialchars($laporan['pembuat'] ?: 'Satpam') ?></td>
+    </tr>
+    <tr>
+      <td>Status</td>
+      <td>: Sudah divalidasi Kepala BNN</td>
+    </tr>
+  </table>
+  <h2>Inventaris</h2>
+  <table>
+    <tr>
+      <th>No.</th>
+      <th>Nama Barang</th>
+      <th>Jumlah</th>
+      <th>Keterangan</th>
+    </tr><?php $nomor = 1;
+          while ($row = mysqli_fetch_assoc($inventaris)) { ?><tr>
+        <td><?= $nomor++ ?></td>
+        <td><?= htmlspecialchars($row['nama_barang']) ?></td>
+        <td><?= (int) $row['jumlah'] ?></td>
+        <td><?= htmlspecialchars($row['keterangan']) ?></td>
+      </tr><?php } ?>
+  </table>
+  <h2>Uraian Kegiatan</h2>
+  <table>
+    <tr>
+      <th>No.</th>
+      <th>Waktu</th>
+      <th>Uraian</th>
+    </tr><?php $nomor = 1;
+          while ($row = mysqli_fetch_assoc($uraian)) { ?><tr>
+        <td><?= $nomor++ ?></td>
+        <td><?= htmlspecialchars(substr($row['jam'], 0, 5)) ?></td>
+        <td><?= nl2br(htmlspecialchars($row['uraian'])) ?></td>
+      </tr><?php } ?>
+  </table>
+</body>
+
+</html>

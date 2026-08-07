@@ -1,0 +1,213 @@
+/* Halaman publik: Buku Saku dan Nomor Penting */
+.public-page {
+  min-height: calc(100vh - 90px);
+  padding: 56px 0 72px;
+}
+
+.public-shell {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.public-heading {
+  margin-bottom: 32px;
+}
+
+.public-heading h1 {
+  font-size: clamp(30px, 4vw, 42px);
+  color: #102a5c;
+  font-weight: 800;
+}
+
+.public-heading p {
+  color: #64748b;
+  font-size: 16px;
+  margin-top: 6px;
+}
+
+.public-back {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 600;
+}
+
+.public-back:hover {
+  color: #0756d9;
+  border-color: #0756d9;
+}
+
+.public-card {
+  background: rgba(255, 255, 255, .96);
+  border: 1px solid rgba(226, 232, 240, .95);
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, .10);
+}
+
+.public-card .card-body {
+  padding: 28px;
+}
+
+.public-choice-card {
+  min-height: 315px;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.public-choice-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, .15);
+}
+
+.public-icon {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: #edf3ff;
+  color: #1468ee;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  margin-bottom: 22px;
+}
+
+.public-icon.pdf {
+  color: #df3449;
+  background: #fff0f2;
+}
+
+.public-title {
+  font-size: 24px;
+  color: #142950;
+  font-weight: 800;
+}
+
+.public-description {
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.public-primary {
+  border: 0;
+  background: #1468ee;
+  color: #fff;
+  border-radius: 10px;
+  padding: 11px 22px;
+  font-weight: 700;
+}
+
+.public-primary:hover {
+  background: #0756d9;
+  color: #fff;
+}
+
+.public-danger {
+  background: #df3449;
+}
+
+.public-danger:hover {
+  background: #c4273a;
+}
+
+.public-search {
+  background: #fff;
+  border: 1px solid #dce5f1;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .05);
+}
+
+.public-search .form-control {
+  min-height: 48px;
+  border-radius: 10px;
+}
+
+.book-pdf-card {
+  min-height: 375px;
+}
+
+.book-pdf-card .file-meta {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.category-card {
+  min-height: 225px;
+}
+
+.material-card {
+  min-height: 220px;
+}
+
+.contact-stat {
+  min-height: 120px;
+}
+
+.contact-card {
+  min-height: 280px;
+}
+
+.contact-number {
+  color: #168a50;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.content-card {
+  background: rgba(255, 255, 255, .97);
+  border: 1px solid #e1e8f2;
+  border-radius: 18px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, .08);
+}
+
+.content-card .card-body {
+  padding: 30px;
+}
+
+.materi-content {
+  color: #334155;
+  font-size: 16px;
+  line-height: 1.9;
+  text-align: justify;
+}
+
+.materi-content p {
+  margin-bottom: 14px;
+}
+
+.materi-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.materi-content table {
+  width: 100%;
+  margin: 15px 0;
+}
+
+.pdf-preview {
+  min-height: 680px;
+  border: 0;
+  width: 100%;
+}
+
+@media(max-width:768px) {
+  .public-page {
+    padding: 34px 16px 54px;
+  }
+
+  .public-card .card-body {
+    padding: 22px
+  }
+
+  .pdf-preview {
+    min-height: 480px
+  }
+
+  .public-heading h1 {
+    font-size: 30px
+  }
+}

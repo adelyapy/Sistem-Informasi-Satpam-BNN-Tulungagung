@@ -112,6 +112,8 @@ CREATE TABLE `laporan` (
   `uraian_selesai` tinyint(1) DEFAULT 0,
   `validated_by` int(11) DEFAULT NULL,
   `validated_at` datetime DEFAULT NULL,
+  `ttd_kepala` varchar(255) DEFAULT NULL,
+  `ttd_satpam` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

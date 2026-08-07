@@ -6,8 +6,8 @@ require_once "../../config/function.php";
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
 if ($id <= 0) {
-    header("Location: index.php");
-    exit;
+  header("Location: index.php");
+  exit;
 }
 
 // Ambil data buku
@@ -18,8 +18,8 @@ $query = mysqli_query($conn, "
 ");
 
 if (mysqli_num_rows($query) == 0) {
-    header("Location: index.php");
-    exit;
+  header("Location: index.php");
+  exit;
 }
 
 $data = mysqli_fetch_assoc($query);
@@ -27,11 +27,11 @@ $data = mysqli_fetch_assoc($query);
 // Hapus file PDF jika ada
 if (!empty($data['path_file'])) {
 
-    $file = "../../" . $data['path_file'];
+  $file = "../../" . $data['path_file'];
 
-    if (file_exists($file)) {
-        unlink($file);
-    }
+  if (file_exists($file)) {
+    unlink($file);
+  }
 }
 
 // Hapus data database
@@ -44,51 +44,47 @@ if ($hapus) {
 
 ?>
 
-<script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+  <script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
 
-<script>
+  <script>
+    Swal.fire({
 
-Swal.fire({
+      icon: 'success',
 
-    icon:'success',
+      title: 'Berhasil',
 
-    title:'Berhasil',
+      text: 'Buku saku berhasil dihapus'
 
-    text:'Buku saku berhasil dihapus'
+    }).then(() => {
 
-}).then(()=>{
+      window.location = 'index.php';
 
-    window.location='index.php';
-
-});
-
-</script>
+    });
+  </script>
 
 <?php
 
-}else{
+} else {
 
 ?>
 
-<script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
+  <script src="../../assets/vendor/sweetalert2/sweetalert2.all.min.js"></script>
 
-<script>
+  <script>
+    Swal.fire({
 
-Swal.fire({
+      icon: 'error',
 
-    icon:'error',
+      title: 'Gagal',
 
-    title:'Gagal',
+      text: 'Data gagal dihapus'
 
-    text:'Data gagal dihapus'
+    }).then(() => {
 
-}).then(()=>{
+      window.location = 'index.php';
 
-    window.location='index.php';
-
-});
-
-</script>
+    });
+  </script>
 
 <?php
 

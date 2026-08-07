@@ -2,104 +2,115 @@
 $scriptPath = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
 $sectionPos = strpos($scriptPath, '/admin/');
 if ($sectionPos === false) {
-    $sectionPos = strpos($scriptPath, '/satpam/');
+  $sectionPos = strpos($scriptPath, '/satpam/');
 }
 $appBase = $sectionPos === false ? '' : substr($scriptPath, 0, $sectionPos);
 $activeMenu = $activeMenu ?? '';
 ?>
 
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-header text-center">
+  <div class="sidebar-header text-center">
 
-        <div class="sidebar-logo">
-            <img src="<?= $appBase ?>/assets/img/logo-bnn.png"
-                alt="Logo BNN">
-        </div>
-
-        <div class="sidebar-brand-name">BUKU MUTASI SATPAM</div>
-        <div class="sidebar-brand-unit">BNN TULUNGAGUNG</div>
-
+    <div class="sidebar-logo">
+      <img src="<?= $appBase ?>/assets/img/logo-bnn.png"
+        alt="Logo BNN">
     </div>
 
-    <ul class="sidebar-menu">
+    <div class="sidebar-brand-name">BUKU MUTASI SATPAM</div>
+    <div class="sidebar-brand-unit">BNN TULUNGAGUNG</div>
 
-      <li>
-        <a class="<?= $activeMenu=='dashboard'?'active':'' ?>"
-          href="<?= $appBase ?>/admin/dashboard/dashboard.php">
+  </div>
 
-          <i class="bi bi-house-door-fill"></i>
+  <ul class="sidebar-menu">
 
-          Dashboard
+    <li>
+      <a class="<?= $activeMenu == 'dashboard' ? 'active' : '' ?>"
+        href="<?= $appBase ?>/admin/dashboard/dashboard.php">
 
-        </a>
-      </li>
+        <i class="bi bi-house-door-fill"></i>
 
-      <li>
-        <a class="<?= $activeMenu=='monitoring_laporan'?'active':'' ?>"
-          href="<?= $appBase ?>/admin/buku_mutasi/index.php">
+        Dashboard
 
-          <i class="bi bi-file-earmark-text"></i>
+      </a>
+    </li>
 
-          Monitoring Laporan
+    <li>
+      <a class="<?= $activeMenu == 'monitoring_laporan' ? 'active' : '' ?>"
+        href="<?= $appBase ?>/admin/buku_mutasi/index.php">
 
-        </a>
-      </li>
+        <i class="bi bi-file-earmark-text"></i>
 
-      <li>
-        <a class="<?= $activeMenu=='data_satpam'?'active':'' ?>"
-          href="<?= $appBase ?>/satpam/index.php">
+        Monitoring Laporan
 
-          <i class="bi bi-people-fill"></i>
+      </a>
+    </li>
 
-          Data Satpam
+    <li>
+      <a class="<?= $activeMenu == 'data_satpam' ? 'active' : '' ?>"
+        href="<?= $appBase ?>/satpam/index.php">
 
-        </a>
-      </li>
+        <i class="bi bi-people-fill"></i>
 
-      <li>
-        <a class="<?= $activeMenu=='jadwal_satpam'?'active':'' ?>"
-          href="<?= $appBase ?>/admin/shift/index.php">
+        Data Satpam
 
-          <i class="bi bi-calendar-week-fill"></i>
+      </a>
+    </li>
 
-          Jadwal Satpam
+    <li>
+      <a class="<?= $activeMenu == 'jadwal_satpam' ? 'active' : '' ?>"
+        href="<?= $appBase ?>/admin/shift/index.php">
 
-        </a>
-      </li>
+        <i class="bi bi-calendar-week-fill"></i>
 
-      <li>
-        <a class="<?= $activeMenu=='buku_saku'?'active':'' ?>"
-          href="<?= $appBase ?>/admin/buku_saku/index.php">
+        Jadwal Satpam
 
-          <i class="bi bi-book-fill"></i>
+      </a>
+    </li>
 
-          Buku Saku
+    <li>
+      <a class="<?= $activeMenu == 'profil_kepala' ? 'active' : '' ?>"
+        href="<?= $appBase ?>/admin/profil_kepala.php">
 
-        </a>
-      </li>
+        <i class="bi bi-person-vcard-fill"></i>
 
-      <li>
-        <a class="<?= $activeMenu=='nomor_penting'?'active':'' ?>"
-          href="<?= $appBase ?>/admin/nomor_penting/index.php">
+        Profil Kepala BNN
 
-          <i class="bi bi-telephone-fill"></i>
+      </a>
+    </li>
 
-          Nomor Penting
+    <li>
+      <a class="<?= $activeMenu == 'buku_saku' ? 'active' : '' ?>"
+        href="<?= $appBase ?>/admin/buku_saku/index.php">
 
-        </a>
-      </li>
+        <i class="bi bi-book-fill"></i>
 
-      <li>
+        Buku Saku
 
-        <a href="<?= $appBase ?>/logout.php">
+      </a>
+    </li>
 
-          <i class="bi bi-box-arrow-right"></i>
+    <li>
+      <a class="<?= $activeMenu == 'nomor_penting' ? 'active' : '' ?>"
+        href="<?= $appBase ?>/admin/nomor_penting/index.php">
 
-          Logout
+        <i class="bi bi-telephone-fill"></i>
 
-        </a>
+        Nomor Penting
 
-      </li>
+      </a>
+    </li>
 
-    </ul>
+    <li>
+
+      <a href="<?= $appBase ?>/logout.php">
+
+        <i class="bi bi-box-arrow-right"></i>
+
+        Logout
+
+      </a>
+
+    </li>
+
+  </ul>
 </div>

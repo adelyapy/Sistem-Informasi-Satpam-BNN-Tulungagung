@@ -1,25 +1,25 @@
-body{
-    background:#f5f7fb;
+body {
+  background: url('../img/bg-app.png') center center / cover fixed no-repeat;
 }
 
-.statistik-card{
+.statistik-card {
 
-    border-radius:20px;
+  border-radius: 20px;
 
 }
 
 .nomor-card .btn {
-    height: 48px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .nomor-card .btn i {
-    font-size: 18px;
+  font-size: 18px;
 }

@@ -4,21 +4,21 @@ require_once "../../config/database.php";
 require_once "../../config/function.php";
 
 if (!isset($_GET['id'])) {
-    header("Location:index.php");
-    exit;
+  header("Location:index.php");
+  exit;
 }
 
 $id = (int)$_GET['id'];
 
-$q = mysqli_query($conn,"
+$q = mysqli_query($conn, "
 SELECT *
 FROM materi_buku_saku
 WHERE id_materi='$id'
 ");
 
-if(mysqli_num_rows($q)==0){
+if (mysqli_num_rows($q) == 0) {
 
-    echo "
+  echo "
     <script>
 
     alert('Data tidak ditemukan');
@@ -27,52 +27,49 @@ if(mysqli_num_rows($q)==0){
 
     </script>";
 
-    exit;
-
+  exit;
 }
 
 $data = mysqli_fetch_assoc($q);
 
-if(isset($_POST['update'])){
+if (isset($_POST['update'])) {
 
-    $judul = mysqli_real_escape_string($conn,$_POST['judul']);
-    $kategori = (int)$_POST['kategori'];
-    $isi = mysqli_real_escape_string($conn,$_POST['isi']);
+  $judul = mysqli_real_escape_string($conn, $_POST['judul']);
+  $kategori = (int)$_POST['kategori'];
+  $isi = mysqli_real_escape_string($conn, $_POST['isi']);
 
-    $icon = $data['icon'];
+  $icon = $data['icon'];
 
-    if(isset($_FILES['icon']) && $_FILES['icon']['error']==0){
+  if (isset($_FILES['icon']) && $_FILES['icon']['error'] == 0) {
 
-        $folder="../../uploads/icon_buku_saku/";
+    $folder = "../../uploads/icon_buku_saku/";
 
-        if(!is_dir($folder)){
-            mkdir($folder,0777,true);
-        }
-
-        $ext = strtolower(pathinfo($_FILES['icon']['name'],PATHINFO_EXTENSION));
-
-        $allow = ['png','jpg','jpeg','svg','webp'];
-
-        if(in_array($ext,$allow)){
-
-            $namaBaru = uniqid().".".$ext;
-
-            move_uploaded_file(
-                $_FILES['icon']['tmp_name'],
-                $folder.$namaBaru
-            );
-
-            if($icon!="" && file_exists($folder.$icon)){
-                unlink($folder.$icon);
-            }
-
-            $icon = $namaBaru;
-
-        }
-
+    if (!is_dir($folder)) {
+      mkdir($folder, 0777, true);
     }
 
-    $update = mysqli_query($conn,"
+    $ext = strtolower(pathinfo($_FILES['icon']['name'], PATHINFO_EXTENSION));
+
+    $allow = ['png', 'jpg', 'jpeg', 'svg', 'webp'];
+
+    if (in_array($ext, $allow)) {
+
+      $namaBaru = uniqid() . "." . $ext;
+
+      move_uploaded_file(
+        $_FILES['icon']['tmp_name'],
+        $folder . $namaBaru
+      );
+
+      if ($icon != "" && file_exists($folder . $icon)) {
+        unlink($folder . $icon);
+      }
+
+      $icon = $namaBaru;
+    }
+  }
+
+  $update = mysqli_query($conn, "
     UPDATE materi_buku_saku
     SET
 
@@ -90,9 +87,9 @@ if(isset($_POST['update'])){
 
     ");
 
-    if($update){
+  if ($update) {
 
-        echo "
+    echo "
 
         <script>
 
@@ -102,23 +99,20 @@ if(isset($_POST['update'])){
 
         </script>";
 
-        exit;
+    exit;
+  } else {
 
-    }else{
-
-        echo "
+    echo "
 
         <script>
 
         alert('Gagal memperbarui materi');
 
         </script>";
-
-    }
-
+  }
 }
 
-$kategori = mysqli_query($conn,"
+$kategori = mysqli_query($conn, "
 SELECT *
 FROM kategori_buku_saku
 ORDER BY nama_kategori
@@ -133,182 +127,181 @@ ASC
 
 <body>
 
-<?php include "../../includes/navbar.php"; ?>
+  <?php include "../../includes/navbar.php"; ?>
 
-<div class="container-fluid">
+  <div class="container-fluid">
 
-<div class="row">
+    <div class="row">
 
-<?php include "../../includes/admin_sidebar.php"; ?>
+      <?php include "../../includes/admin_sidebar.php"; ?>
 
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
 
-    <h3>
-        <i class="bi bi-pencil-square"></i>
-        Edit Materi Buku Saku
-    </h3>
+          <h3>
+            <i class="bi bi-pencil-square"></i>
+            Edit Materi Buku Saku
+          </h3>
 
-    <a href="index.php" class="btn btn-secondary">
+          <a href="index.php" class="btn btn-secondary">
 
-        <i class="bi bi-arrow-left"></i>
+            <i class="bi bi-arrow-left"></i>
 
-        Kembali
+            Kembali
 
-    </a>
+          </a>
 
-  </div>
+        </div>
 
-  <div class="card shadow">
+        <div class="card shadow">
 
-    <div class="card-header bg-primary text-white">
+          <div class="card-header bg-primary text-white">
 
-        <h5 class="mb-0">
+            <h5 class="mb-0">
 
-            Form Edit Materi
+              Form Edit Materi
 
-        </h5>
+            </h5>
 
-    </div>
+          </div>
 
-    <div class="card-body">
-      <form
-      method="POST"
-      enctype="multipart/form-data"
+          <div class="card-body">
+            <form
+              method="POST"
+              enctype="multipart/form-data"
 
-      onsubmit="return confirm('Simpan perubahan materi?')">
+              onsubmit="return confirm('Simpan perubahan materi?')">
 
-      <div class="mb-3">
+              <div class="mb-3">
 
-      <label>Judul</label>
+                <label>Judul</label>
 
-      <input
-      type="text"
-      name="judul"
-      class="form-control"
-      maxlength="255"
-      value="<?= htmlspecialchars($data['judul']); ?>"
-      required>
+                <input
+                  type="text"
+                  name="judul"
+                  class="form-control"
+                  maxlength="255"
+                  value="<?= htmlspecialchars($data['judul']); ?>"
+                  required>
 
-      </div>
+              </div>
 
-      <div class="mb-3">
+              <div class="mb-3">
 
-      <label>Kategori</label>
+                <label>Kategori</label>
 
-      <select
-      name="kategori"
-      class="form-select">
+                <select
+                  name="kategori"
+                  class="form-select">
 
-      <?php while($k=mysqli_fetch_assoc($kategori)): ?>
+                  <?php while ($k = mysqli_fetch_assoc($kategori)): ?>
 
-      <option
-      value="<?= $k['id_kategori']; ?>"
+                    <option
+                      value="<?= $k['id_kategori']; ?>"
 
-      <?= $k['id_kategori']==$data['id_kategori']?'selected':''; ?>
+                      <?= $k['id_kategori'] == $data['id_kategori'] ? 'selected' : ''; ?>>
 
-      >
+                      <?= $k['nama_kategori']; ?>
 
-      <?= $k['nama_kategori']; ?>
+                    </option>
 
-      </option>
+                  <?php endwhile; ?>
 
-      <?php endwhile; ?>
+                </select>
 
-      </select>
+              </div>
 
-      </div>
+              <div class="mb-3">
 
-      <div class="mb-3">
+                <label>Icon</label>
 
-      <label>Icon</label>
+                <?php if ($data['icon'] != ""): ?>
 
-      <?php if($data['icon']!=""): ?>
+                  <div class="mb-3">
 
-      <div class="mb-3">
+                    <label>Icon Saat Ini</label>
 
-      <label>Icon Saat Ini</label>
+                    <br>
 
-      <br>
+                    <img
+                      src="../../uploads/icon_buku_saku/<?= htmlspecialchars($data['icon']); ?>"
+                      class="img-thumbnail"
+                      style="max-height:100px">
 
-      <img
-      src="../../uploads/icon_buku_saku/<?= htmlspecialchars($data['icon']); ?>"
-      class="img-thumbnail"
-      style="max-height:100px">
+                  </div>
 
-      </div>
+                <?php endif; ?>
 
-      <?php endif; ?>
+                <input
+                  type="file"
+                  name="icon"
+                  class="form-control">
 
-      <input
-      type="file"
-      name="icon"
-      class="form-control">
+              </div>
 
-      </div>
+              <div class="mb-3">
 
-      <div class="mb-3">
+                <label>Isi Materi</label>
 
-      <label>Isi Materi</label>
-
-      <textarea
-        id="editor"
-        name="isi">
+                <textarea
+                  id="editor"
+                  name="isi">
 
         <?= htmlspecialchars($data['isi']); ?>
 
       </textarea>
 
-      </div>
+              </div>
 
-      <div class="text-end mt-4">
-      <button class="btn btn-success" name="update">
-          <i class="bi bi-save"></i> Update
-      </button>
+              <div class="text-end mt-4">
+                <button class="btn btn-success" name="update">
+                  <i class="bi bi-save"></i> Update
+                </button>
 
-      <a href="index.php" class="btn btn-secondary">
-          <i class="bi bi-arrow-left"></i> Kembali
-      </a>
-      </div>
+                <a href="index.php" class="btn btn-secondary">
+                  <i class="bi bi-arrow-left"></i> Kembali
+                </a>
+              </div>
 
-      </form>
+            </form>
+
+          </div>
+
+        </div>
+
+      </main>
 
     </div>
 
   </div>
 
-</main>
+  <?php include "../../includes/footer.php"; ?>
 
-</div>
+  <!-- DI SINI LETAK SCRIPT -->
 
-</div>
+  <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 
-<?php include "../../includes/footer.php"; ?>
+  <script>
+    ClassicEditor
+      .create(document.querySelector('#editor'))
+      .then(editor => {
 
-<!-- DI SINI LETAK SCRIPT -->
+        editor.editing.view.change(writer => {
 
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
-
-<script>
-ClassicEditor
-.create(document.querySelector('#editor'))
-.then(editor => {
-
-    editor.editing.view.change(writer => {
-
-        writer.setStyle(
+          writer.setStyle(
             'min-height',
             '450px',
             editor.editing.view.document.getRoot()
-        );
+          );
 
-    });
+        });
 
-})
-.catch(error => {
-    console.error(error);
-});
-</script>
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  </script>
 
 </body>
+
 </html>

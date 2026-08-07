@@ -4,8 +4,8 @@ require_once "../../config/database.php";
 require_once "../../config/function.php";
 
 if (!isset($_GET['id'])) {
-    header("Location: index.php");
-    exit;
+  header("Location: index.php");
+  exit;
 }
 
 $id = (int) $_GET['id'];
@@ -24,7 +24,7 @@ WHERE id_kategori='$id'
 
 if (mysqli_num_rows($cekKategori) == 0) {
 
-    echo "
+  echo "
     <script>
 
         alert('Kategori tidak ditemukan');
@@ -33,7 +33,7 @@ if (mysqli_num_rows($cekKategori) == 0) {
 
     </script>";
 
-    exit;
+  exit;
 }
 
 /*
@@ -52,7 +52,7 @@ $data = mysqli_fetch_assoc($cekMateri);
 
 if ($data['total'] > 0) {
 
-    echo "
+  echo "
     <script>
 
         alert('Kategori tidak dapat dihapus karena masih digunakan oleh materi buku saku.');
@@ -61,7 +61,7 @@ if ($data['total'] > 0) {
 
     </script>";
 
-    exit;
+  exit;
 }
 
 /*
@@ -77,7 +77,7 @@ WHERE id_kategori='$id'
 
 if ($hapus) {
 
-    echo "
+  echo "
     <script>
 
         alert('Kategori berhasil dihapus');
@@ -85,10 +85,9 @@ if ($hapus) {
         window.location='index.php';
 
     </script>";
-
 } else {
 
-    echo "
+  echo "
     <script>
 
         alert('Gagal menghapus kategori');
@@ -96,6 +95,4 @@ if ($hapus) {
         window.location='index.php';
 
     </script>";
-
 }
-?>

@@ -109,7 +109,9 @@ CREATE TABLE `laporan` (
   `tanggal_laporan` date NOT NULL,
   `status` enum('draft','menunggu_validasi','tervalidasi') DEFAULT 'draft',
   `inventaris_selesai` tinyint(1) DEFAULT 0,
+  `inventaris_draft_disimpan` tinyint(1) NOT NULL DEFAULT 0,
   `uraian_selesai` tinyint(1) DEFAULT 0,
+  `uraian_draft_disimpan` tinyint(1) NOT NULL DEFAULT 0,
   `validated_by` int(11) DEFAULT NULL,
   `validated_at` datetime DEFAULT NULL,
   `ttd_kepala` varchar(255) DEFAULT NULL,
@@ -161,8 +163,9 @@ CREATE TABLE `shift` (
 --
 
 INSERT INTO `shift` (`id_shift`, `nama_shift`, `jam_mulai`, `jam_selesai`) VALUES
-(1, 'Shift 1', '07:00:00', '19:00:00'),
-(2, 'Shift 2', '19:00:00', '07:00:00');
+(1, 'Shift 1', '07:30:00', '19:30:00'),
+(2, 'Shift 2', '19:30:00', '07:30:00'),
+(3, 'Shift 1 & 2', '07:30:00', '07:30:00');
 
 -- --------------------------------------------------------
 
@@ -214,6 +217,22 @@ INSERT INTO `users` (`id_user`, `kode_satpam`, `nama`, `username`, `password`, `
 (6, 'STP004', 'Doni', NULL, NULL, NULL, NULL, 'satpam', 'aktif', '2026-07-28 02:38:48', NULL);
 
 --
+-- Struktur dari tabel `lampiran_foto`
+--
+
+CREATE TABLE `lampiran_foto` (
+  `id_lampiran` int(11) NOT NULL,
+  `id_laporan` int(11) NOT NULL,
+  `id_uraian` int(11) DEFAULT NULL,
+  `id_inventaris` int(11) DEFAULT NULL,
+  `nama_file` varchar(255) NOT NULL,
+  `path_file` varchar(255) NOT NULL,
+  `ukuran_file` bigint(20) DEFAULT NULL,
+  `uploaded_by` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
 -- Indexes for dumped tables
 --
 
@@ -240,6 +259,16 @@ ALTER TABLE `buku_saku`
 ALTER TABLE `inventaris`
   ADD PRIMARY KEY (`id_inventaris`),
   ADD KEY `idx_inventaris_laporan` (`id_laporan`);
+
+--
+-- Indeks untuk tabel `lampiran_foto`
+--
+ALTER TABLE `lampiran_foto`
+  ADD PRIMARY KEY (`id_lampiran`),
+  ADD KEY `idx_lampiran_laporan` (`id_laporan`),
+  ADD KEY `idx_lampiran_uraian` (`id_uraian`),
+  ADD KEY `idx_lampiran_inventaris` (`id_inventaris`),
+  ADD KEY `idx_lampiran_uploader` (`uploaded_by`);
 
 --
 -- Indeks untuk tabel `jadwal_shift`
@@ -327,6 +356,12 @@ ALTER TABLE `laporan`
   MODIFY `id_laporan` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT untuk tabel `lampiran_foto`
+--
+ALTER TABLE `lampiran_foto`
+  MODIFY `id_lampiran` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT untuk tabel `nomor_penting`
 --
 ALTER TABLE `nomor_penting`
@@ -336,7 +371,7 @@ ALTER TABLE `nomor_penting`
 -- AUTO_INCREMENT untuk tabel `shift`
 --
 ALTER TABLE `shift`
-  MODIFY `id_shift` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_shift` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT untuk tabel `uraian_kegiatan`
@@ -372,6 +407,15 @@ ALTER TABLE `buku_saku`
 --
 ALTER TABLE `inventaris`
   ADD CONSTRAINT `fk_inventaris_laporan` FOREIGN KEY (`id_laporan`) REFERENCES `laporan` (`id_laporan`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `lampiran_foto`
+--
+ALTER TABLE `lampiran_foto`
+  ADD CONSTRAINT `fk_lampiran_laporan` FOREIGN KEY (`id_laporan`) REFERENCES `laporan` (`id_laporan`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_lampiran_uraian` FOREIGN KEY (`id_uraian`) REFERENCES `uraian_kegiatan` (`id_uraian`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_lampiran_inventaris` FOREIGN KEY (`id_inventaris`) REFERENCES `inventaris` (`id_inventaris`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_lampiran_uploader` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id_user`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Ketidakleluasaan untuk tabel `jadwal_shift`

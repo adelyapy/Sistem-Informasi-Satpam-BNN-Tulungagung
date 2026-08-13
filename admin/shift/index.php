@@ -1,5 +1,8 @@
 <?php
 require_once "../../config/admin_auth.php";
+require_once "../../config/shift_config.php";
+
+ensureShiftDobel($conn);
 
 $title = "Jadwal Satpam";
 $base_url = "../../";

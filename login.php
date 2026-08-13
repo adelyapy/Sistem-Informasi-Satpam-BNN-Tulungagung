@@ -18,6 +18,9 @@ if (isset($_SESSION['login'], $_SESSION['role'])) {
 }
 
 require_once "config/database.php";
+require_once "config/shift_config.php";
+
+ensureShiftDobel($conn);
 
 $title = "Login";
 $base_url = "./";
@@ -185,6 +188,8 @@ include "includes/header.php";
                   <?php } ?>
 
                 </select>
+
+                <small class="form-text text-muted">Jadwal bersifat fleksibel. Semua satpam aktif dapat memilih shift tanpa menunggu jadwal dari admin.</small>
 
               </div>
 

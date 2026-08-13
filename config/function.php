@@ -62,6 +62,55 @@ function uploadTTD(array $file): ?string
   return move_uploaded_file($file['tmp_name'], $folder . '/' . $name) ? $name : null;
 }
 
+/** Unggah buku saku secara ketat: hanya dokumen PDF hingga 10 MB. */
+function uploadBukuSakuPdf(array $file): array
+{
+  if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+    return ['ok' => false, 'message' => 'Silakan pilih file PDF.'];
+  }
+
+  if (($file['size'] ?? 0) < 1 || $file['size'] > 10 * 1024 * 1024) {
+    return ['ok' => false, 'message' => 'Ukuran file PDF maksimal 10 MB.'];
+  }
+
+  if (strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION)) !== 'pdf') {
+    return ['ok' => false, 'message' => 'File harus berformat PDF.'];
+  }
+
+  $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+  $handle = @fopen($file['tmp_name'], 'rb');
+  $signature = $handle ? fread($handle, 4) : '';
+  if ($handle) {
+    fclose($handle);
+  }
+
+  if ($mime !== 'application/pdf' || $signature !== '%PDF') {
+    return ['ok' => false, 'message' => 'File yang diunggah bukan dokumen PDF yang valid.'];
+  }
+
+  $folder = dirname(__DIR__) . '/uploads/buku_saku';
+  if (!is_dir($folder) && !mkdir($folder, 0755, true) && !is_dir($folder)) {
+    return ['ok' => false, 'message' => 'Folder buku saku tidak dapat dibuat.'];
+  }
+
+  try {
+    $namaFile = bin2hex(random_bytes(16)) . '.pdf';
+  } catch (Throwable) {
+    return ['ok' => false, 'message' => 'Nama file buku tidak dapat dibuat.'];
+  }
+
+  if (!move_uploaded_file($file['tmp_name'], $folder . '/' . $namaFile)) {
+    return ['ok' => false, 'message' => 'File PDF gagal diunggah.'];
+  }
+
+  return [
+    'ok' => true,
+    'nama_file' => $namaFile,
+    'path_file' => 'uploads/buku_saku/' . $namaFile,
+    'ukuran_file' => (int) $file['size'],
+  ];
+}
+
 /* =========================
    HELPER SHIFT
 ========================= */

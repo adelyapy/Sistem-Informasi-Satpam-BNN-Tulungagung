@@ -27,14 +27,20 @@ include 'includes/header.php';
         <div class="public-search h-100 d-flex align-items-center"><input type="search" id="searchNomor" class="form-control" placeholder="Cari instansi atau layanan..."></div>
       </div>
     </div>
-    <div class="row g-4"><?php while ($row = mysqli_fetch_assoc($query)): $nama = strtolower($row['instansi']);
-                            $icon = str_contains($nama, 'rumah sakit') || str_contains($nama, 'rs') ? 'bi-hospital-fill' : (str_contains($nama, 'damkar') ? 'bi-fire' : (str_contains($nama, 'pln') ? 'bi-lightning-fill' : (str_contains($nama, 'pol') ? 'bi-shield-fill' : 'bi-telephone-fill'))); ?><div class="col-lg-4 col-md-6 nomor-card">
+    <div class="row g-4"><?php while ($row = mysqli_fetch_assoc($query)):
+                            $nama = strtolower($row['instansi']);
+                            $icon = str_contains($nama, 'rumah sakit') || str_contains($nama, 'rs') ? 'bi-hospital-fill' : (str_contains($nama, 'damkar') ? 'bi-fire' : (str_contains($nama, 'pln') ? 'bi-lightning-fill' : (str_contains($nama, 'pol') ? 'bi-shield-fill' : 'bi-telephone-fill')));
+                            $nomorTampil = (string) $row['nomor_telepon'];
+                            $digitNomor = preg_replace('/\\D+/', '', $nomorTampil);
+                            $nomorDial = str_starts_with(ltrim($nomorTampil), '+') ? '+' . $digitNomor : $digitNomor;
+                            $tautanTelepon = 'tel:' . $nomorDial;
+                            ?><div class="col-lg-4 col-md-6 nomor-card">
           <article class="public-card contact-card h-100">
             <div class="card-body text-center d-flex flex-column align-items-center">
               <div class="public-icon"><i class="bi <?= $icon ?>"></i></div>
               <h2 class="public-title fs-4"><?= htmlspecialchars($row['instansi']) ?></h2>
-              <div class="contact-number mt-3"><?= htmlspecialchars($row['nomor_telepon']) ?></div>
-              <p class="public-description mb-3"><?= htmlspecialchars($row['keterangan']) ?></p><a href="tel:<?= htmlspecialchars($row['nomor_telepon']) ?>" class="public-primary mt-auto w-100"><i class="bi bi-telephone-fill me-1"></i>Hubungi</a>
+              <a href="<?= htmlspecialchars($tautanTelepon, ENT_QUOTES, 'UTF-8') ?>" class="contact-number mt-3" aria-label="Panggil <?= htmlspecialchars($nomorTampil, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($nomorTampil) ?></a>
+              <p class="public-description mb-3"><?= htmlspecialchars($row['keterangan']) ?></p><a href="<?= htmlspecialchars($tautanTelepon, ENT_QUOTES, 'UTF-8') ?>" class="public-primary mt-auto w-100" aria-label="Panggil <?= htmlspecialchars($nomorTampil, ENT_QUOTES, 'UTF-8') ?>"><i class="bi bi-telephone-fill me-1"></i>Panggil</a>
             </div>
           </article>
         </div><?php endwhile; ?></div>

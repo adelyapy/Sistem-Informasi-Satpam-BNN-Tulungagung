@@ -1,6 +1,7 @@
 <?php
 require_once "config/session.php";
 require_once "config/database.php";
+require_once "config/shift_config.php";
 
 function loginFailed(string $message): never
 {
@@ -61,6 +62,10 @@ $tanggal = date('Y-m-d');
 try {
   mysqli_begin_transaction($conn);
 
+  if (!ensureShiftDobel($conn)) {
+    throw new RuntimeException('Pilihan shift tidak dapat disiapkan.');
+  }
+
   $userStmt = mysqli_prepare($conn, "SELECT id_user, nama, role FROM users WHERE id_user = ? AND role = 'satpam' AND status = 'aktif' LIMIT 1");
   mysqli_stmt_bind_param($userStmt, "i", $idUser);
   mysqli_stmt_execute($userStmt);
@@ -69,15 +74,36 @@ try {
     throw new RuntimeException('Satpam tidak ditemukan atau tidak aktif.');
   }
 
-  $jadwalStmt = mysqli_prepare($conn, "SELECT id_jadwal FROM jadwal_shift WHERE id_satpam = ? AND id_shift = ? AND tanggal = ? AND status = 'bertugas' LIMIT 1");
-  mysqli_stmt_bind_param($jadwalStmt, "iis", $idUser, $idShift, $tanggal);
-  mysqli_stmt_execute($jadwalStmt);
-  $jadwal = mysqli_fetch_assoc(mysqli_stmt_get_result($jadwalStmt));
-  if (!$jadwal) {
-    throw new RuntimeException('Tidak ada jadwal bertugas pada shift yang dipilih.');
+  $shiftStmt = mysqli_prepare($conn, 'SELECT id_shift FROM shift WHERE id_shift = ? LIMIT 1');
+  mysqli_stmt_bind_param($shiftStmt, 'i', $idShift);
+  mysqli_stmt_execute($shiftStmt);
+  if (!mysqli_fetch_assoc(mysqli_stmt_get_result($shiftStmt))) {
+    throw new RuntimeException('Shift yang dipilih tidak tersedia.');
   }
 
-  $idJadwal = (int) $jadwal['id_jadwal'];
+  // Jadwal bersifat fleksibel: bila belum dibuat oleh admin, buat otomatis
+  // untuk satpam dan shift yang dipilih pada hari ini.
+  $jadwalStmt = mysqli_prepare($conn, "
+    INSERT INTO jadwal_shift (id_satpam, id_shift, tanggal, status)
+    VALUES (?, ?, ?, 'bertugas')
+    ON DUPLICATE KEY UPDATE id_jadwal = LAST_INSERT_ID(id_jadwal)
+  ");
+  mysqli_stmt_bind_param($jadwalStmt, "iis", $idUser, $idShift, $tanggal);
+  if (!mysqli_stmt_execute($jadwalStmt)) {
+    throw new RuntimeException('Jadwal shift tidak dapat disiapkan.');
+  }
+
+  $idJadwal = (int) mysqli_insert_id($conn);
+  if ($idJadwal < 1) {
+    $jadwalCek = mysqli_prepare($conn, 'SELECT id_jadwal FROM jadwal_shift WHERE id_satpam = ? AND id_shift = ? AND tanggal = ? LIMIT 1');
+    mysqli_stmt_bind_param($jadwalCek, 'iis', $idUser, $idShift, $tanggal);
+    mysqli_stmt_execute($jadwalCek);
+    $jadwal = mysqli_fetch_assoc(mysqli_stmt_get_result($jadwalCek));
+    $idJadwal = (int) ($jadwal['id_jadwal'] ?? 0);
+  }
+  if ($idJadwal < 1) {
+    throw new RuntimeException('Jadwal shift tidak ditemukan.');
+  }
 
   // Satu laporan dipakai bersama oleh seluruh Satpam pada tanggal dan shift yang sama.
   $laporanStmt = mysqli_prepare($conn, "

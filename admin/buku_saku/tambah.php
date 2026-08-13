@@ -7,120 +7,29 @@ $title = "Tambah Buku Saku";
 $base_url = "../../";
 $activeMenu = "buku_saku";
 
+$error = '';
+
 if (isset($_POST['simpan'])) {
+  $judul = trim($_POST['judul'] ?? '');
 
-  $judul = trim($_POST['judul']);
-
-  if (empty($judul)) {
-    echo "<script>
-        Swal.fire('Gagal','Judul buku tidak boleh kosong','error');
-        </script>";
+  if ($judul === '') {
+    $error = 'Judul buku tidak boleh kosong.';
   } else {
-
-    if ($_FILES['file']['error'] == 4) {
-
-      echo "<script>
-            Swal.fire('Gagal','Silakan pilih file PDF','error');
-            </script>";
+    $upload = uploadBukuSakuPdf($_FILES['file'] ?? []);
+    if (!$upload['ok']) {
+      $error = $upload['message'];
     } else {
+      $uploadedBy = (int) $_SESSION['id_user'];
+      $insert = mysqli_prepare($conn, 'INSERT INTO buku_saku (judul, nama_file, path_file, ukuran_file, uploaded_by) VALUES (?, ?, ?, ?, ?)');
+      mysqli_stmt_bind_param($insert, 'sssii', $judul, $upload['nama_file'], $upload['path_file'], $upload['ukuran_file'], $uploadedBy);
 
-      $namaFile = $_FILES['file']['name'];
-      $tmpFile  = $_FILES['file']['tmp_name'];
-      $ukuran   = $_FILES['file']['size'];
-
-      $ext = strtolower(pathinfo($namaFile, PATHINFO_EXTENSION));
-
-      if ($ext != 'pdf') {
-
-        echo "<script>
-                Swal.fire('Gagal','File harus PDF','error');
-                </script>";
-      } elseif ($ukuran > 10 * 1024 * 1024) {
-
-        echo "<script>
-                Swal.fire('Gagal','Ukuran maksimal 10 MB','error');
-                </script>";
-      } else {
-
-        $namaBaru = time() . '_' . rand(1000, 9999) . '.pdf';
-
-        $folder = "../../uploads/buku_saku/";
-
-        if (!is_dir($folder)) {
-          mkdir($folder, 0777, true);
-        }
-
-        if (move_uploaded_file($tmpFile, $folder . $namaBaru)) {
-
-          $path = "uploads/buku_saku/" . $namaBaru;
-
-          $uploaded_by = $_SESSION['id_user'];
-
-          $insert = mysqli_query($conn, "
-                    INSERT INTO buku_saku
-                    (
-                        judul,
-                        nama_file,
-                        path_file,
-                        ukuran_file,
-                        uploaded_by
-                    )
-                    VALUES
-                    (
-                        '$judul',
-                        '$namaBaru',
-                        '$path',
-                        '$ukuran',
-                        '$uploaded_by'
-                    )
-                    ");
-
-          if ($insert) {
-
-            echo "
-                        <script>
-
-                        Swal.fire({
-                            icon:'success',
-                            title:'Berhasil',
-                            text:'Buku saku berhasil ditambahkan'
-                        }).then(()=>{
-                            window.location='index.php';
-                        });
-
-                        </script>
-                        ";
-          } else {
-
-            unlink($folder . $namaBaru);
-
-            echo "
-                        <script>
-
-                        Swal.fire(
-                        'Gagal',
-                        'Database gagal disimpan',
-                        'error'
-                        );
-
-                        </script>
-                        ";
-          }
-        } else {
-
-          echo "
-                    <script>
-
-                    Swal.fire(
-                    'Gagal',
-                    'Upload file gagal',
-                    'error'
-                    );
-
-                    </script>
-                    ";
-        }
+      if (mysqli_stmt_execute($insert)) {
+        header('Location: index.php?success=tambah');
+        exit;
       }
+
+      @unlink(dirname(__DIR__, 2) . '/' . $upload['path_file']);
+      $error = 'Data buku saku gagal disimpan.';
     }
   }
 }
@@ -155,6 +64,10 @@ include "../../includes/header.php";
           <div class="card-body">
 
             <form method="POST" enctype="multipart/form-data">
+
+              <?php if ($error !== ''): ?>
+                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+              <?php endif; ?>
 
               <div class="mb-3">
 

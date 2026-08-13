@@ -1,9 +1,13 @@
 <?php
 require_once "../../config/admin_auth.php";
 require_once "../../config/report_signature.php";
+require_once '../../config/report_attachment.php';
 
 ensureLaporanTtdKepalaColumn($conn);
 ensureLaporanTtdSatpamColumn($conn);
+if (!ensureLampiranFotoTable($conn)) {
+  exit('Tabel lampiran foto tidak dapat disiapkan.');
+}
 
 if (!isset($_GET['id'])) {
   header("Location:index.php");
@@ -81,6 +85,15 @@ WHERE id_laporan='$id'
 
 ORDER BY urutan ASC
 
+");
+
+$lampiran = mysqli_query($conn, "
+SELECT f.*, u.uraian, u.jam, i.nama_barang
+FROM lampiran_foto f
+LEFT JOIN uraian_kegiatan u ON u.id_uraian = f.id_uraian
+LEFT JOIN inventaris i ON i.id_inventaris = f.id_inventaris
+WHERE f.id_laporan='$id'
+ORDER BY f.created_at ASC, f.id_lampiran ASC
 ");
 ?>
 
@@ -303,6 +316,38 @@ ORDER BY urutan ASC
 
       </table>
 
+    </div>
+
+    <h5 class="mt-4 mb-3">
+      Lampiran Foto
+    </h5>
+
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th width="60">No</th>
+            <th width="110">Foto</th>
+            <th>Uraian Kegiatan / Inventaris</th>
+            <th width="120">Jam</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php $no = 1; ?>
+          <?php if (mysqli_num_rows($lampiran) > 0): ?>
+            <?php while ($foto = mysqli_fetch_assoc($lampiran)): ?>
+              <tr>
+                <td class="text-center"><?= $no++ ?></td>
+                <td class="text-center"><img src="../../<?= htmlspecialchars($foto['path_file']) ?>" alt="Lampiran kegiatan" style="width:80px;height:80px;object-fit:cover;"></td>
+                <td><?php if ($foto['uraian']): ?><?= nl2br(htmlspecialchars($foto['uraian'])) ?><?php elseif ($foto['nama_barang']): ?>Inventaris: <?= htmlspecialchars($foto['nama_barang']) ?><?php else: ?>-<?php endif; ?></td>
+                <td class="text-center"><?= $foto['jam'] ? htmlspecialchars(substr($foto['jam'], 0, 5)) . ' WIB' : '-' ?></td>
+              </tr>
+            <?php endwhile; ?>
+          <?php else: ?>
+            <tr><td colspan="4" class="text-center">Belum ada lampiran foto.</td></tr>
+          <?php endif; ?>
+        </tbody>
+      </table>
     </div>
 
     <h5 class="mt-4 mb-3">

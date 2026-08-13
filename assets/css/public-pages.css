@@ -13,6 +13,18 @@
   margin-bottom: 32px;
 }
 
+/* Menjaga navigasi dan unduhan PDF berada di sisi kanan pada setiap halaman buku. */
+.public-heading.d-flex > :first-child {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.public-heading.d-flex > .public-back,
+.public-heading-actions {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
 .public-heading h1 {
   font-size: clamp(30px, 4vw, 42px);
   color: #102a5c;
@@ -209,5 +221,10 @@
 
   .public-heading h1 {
     font-size: 30px
+  }
+
+  .public-heading-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 }

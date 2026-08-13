@@ -1,5 +1,10 @@
 <?php
 require_once '../../config/satpam_auth.php';
+require_once '../../config/report_attachment.php';
+
+if (!ensureLampiranFotoTable($conn)) {
+  exit('Tabel lampiran foto tidak dapat disiapkan.');
+}
 
 $idLaporan = (int) ($_GET['id'] ?? 0);
 $idSatpam = (int) ($_SESSION['id_user'] ?? 0);
@@ -23,15 +28,30 @@ if (!$laporan) {
   exit;
 }
 
-$inventarisStmt = mysqli_prepare($conn, 'SELECT nama_barang, jumlah, keterangan FROM inventaris WHERE id_laporan = ? ORDER BY urutan ASC');
+$inventarisStmt = mysqli_prepare($conn, 'SELECT id_inventaris, nama_barang, jumlah, keterangan FROM inventaris WHERE id_laporan = ? ORDER BY urutan ASC');
 mysqli_stmt_bind_param($inventarisStmt, 'i', $idLaporan);
 mysqli_stmt_execute($inventarisStmt);
 $inventaris = mysqli_fetch_all(mysqli_stmt_get_result($inventarisStmt), MYSQLI_ASSOC);
 
-$uraianStmt = mysqli_prepare($conn, 'SELECT jam, uraian FROM uraian_kegiatan WHERE id_laporan = ? ORDER BY urutan ASC');
+$uraianStmt = mysqli_prepare($conn, 'SELECT id_uraian, jam, uraian FROM uraian_kegiatan WHERE id_laporan = ? ORDER BY urutan ASC');
 mysqli_stmt_bind_param($uraianStmt, 'i', $idLaporan);
 mysqli_stmt_execute($uraianStmt);
 $uraian = mysqli_fetch_all(mysqli_stmt_get_result($uraianStmt), MYSQLI_ASSOC);
+
+$fotoStmt = mysqli_prepare($conn, 'SELECT id_lampiran, id_uraian, id_inventaris, path_file, nama_file FROM lampiran_foto WHERE id_laporan = ? ORDER BY created_at ASC, id_lampiran ASC');
+mysqli_stmt_bind_param($fotoStmt, 'i', $idLaporan);
+mysqli_stmt_execute($fotoStmt);
+$lampiranPerInventaris = [];
+$lampiranPerUraian = [];
+$fotoResult = mysqli_stmt_get_result($fotoStmt);
+while ($foto = mysqli_fetch_assoc($fotoResult)) {
+  if (!empty($foto['id_inventaris'])) {
+    $lampiranPerInventaris[(int) $foto['id_inventaris']][] = $foto;
+  }
+  if (!empty($foto['id_uraian'])) {
+    $lampiranPerUraian[(int) $foto['id_uraian']][] = $foto;
+  }
+}
 
 $statusTervalidasi = $laporan['status'] === 'tervalidasi';
 $statusMenunggu = $laporan['status'] === 'menunggu_validasi';
@@ -91,15 +111,17 @@ include '../../includes/header.php';
                 <th>Nama Barang</th>
                 <th>Jumlah</th>
                 <th>Keterangan</th>
+                <th>Lampiran Foto</th>
               </tr>
             </thead>
             <tbody><?php if (!$inventaris) { ?><tr>
-                  <td colspan="4" class="text-center text-muted py-4">Belum ada data inventaris.</td>
-                </tr><?php } ?><?php foreach ($inventaris as $nomor => $row) { ?><tr>
+                  <td colspan="5" class="text-center text-muted py-4">Belum ada data inventaris.</td>
+                </tr><?php } ?><?php foreach ($inventaris as $nomor => $row) { $fotoInventaris = $lampiranPerInventaris[(int) $row['id_inventaris']] ?? []; ?><tr>
                   <td><?= $nomor + 1 ?></td>
                   <td><?= htmlspecialchars($row['nama_barang']) ?></td>
                   <td><?= (int) $row['jumlah'] ?></td>
                   <td><?= htmlspecialchars($row['keterangan']) ?></td>
+                  <td><?php if ($fotoInventaris): ?><div class="d-flex flex-wrap gap-1"><?php foreach ($fotoInventaris as $foto): ?><a href="../../<?= htmlspecialchars($foto['path_file']) ?>" target="_blank"><img src="../../<?= htmlspecialchars($foto['path_file']) ?>" alt="Lampiran <?= htmlspecialchars($row['nama_barang']) ?>" width="50" height="50" class="rounded border object-fit-cover"></a><?php endforeach; ?></div><?php else: ?><span class="text-muted">-</span><?php endif; ?></td>
                 </tr><?php } ?></tbody>
           </table>
         </div>
@@ -115,14 +137,16 @@ include '../../includes/header.php';
                 <th>No.</th>
                 <th>Waktu</th>
                 <th>Uraian Kegiatan</th>
+                <th>Lampiran Foto</th>
               </tr>
             </thead>
             <tbody><?php if (!$uraian) { ?><tr>
-                  <td colspan="3" class="text-center text-muted py-4">Belum ada uraian kegiatan.</td>
-                </tr><?php } ?><?php foreach ($uraian as $nomor => $row) { ?><tr>
+                  <td colspan="4" class="text-center text-muted py-4">Belum ada uraian kegiatan.</td>
+                </tr><?php } ?><?php foreach ($uraian as $nomor => $row) { $fotoUraian = $lampiranPerUraian[(int) $row['id_uraian']] ?? []; ?><tr>
                   <td><?= $nomor + 1 ?></td>
                   <td><?= htmlspecialchars(substr($row['jam'], 0, 5)) ?> WIB</td>
                   <td class="activity-description"><?= nl2br(htmlspecialchars($row['uraian'])) ?></td>
+                  <td><?php if ($fotoUraian): ?><div class="d-flex flex-wrap gap-1"><?php foreach ($fotoUraian as $foto): ?><a href="../../<?= htmlspecialchars($foto['path_file']) ?>" target="_blank"><img src="../../<?= htmlspecialchars($foto['path_file']) ?>" alt="Lampiran kegiatan" width="50" height="50" class="rounded border object-fit-cover"></a><?php endforeach; ?></div><?php else: ?><span class="text-muted">-</span><?php endif; ?></td>
                 </tr><?php } ?></tbody>
           </table>
         </div>

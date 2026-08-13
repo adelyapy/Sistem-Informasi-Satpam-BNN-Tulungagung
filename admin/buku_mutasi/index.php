@@ -1,10 +1,15 @@
 <?php
 require_once "../../config/admin_auth.php";
+require_once '../../config/report_attachment.php';
 
 $title = 'Monitoring Laporan';
 $pageTitle = 'Monitoring Laporan';
 $base_url = '../../';
 $activeMenu = 'monitoring_laporan';
+
+if (!ensureLampiranFotoTable($conn)) {
+  exit('Tabel lampiran foto tidak dapat disiapkan.');
+}
 
 include "../../includes/header.php";
 ?>
@@ -107,6 +112,10 @@ SELECT
     laporan.id_laporan,
     laporan.tanggal_laporan,
     laporan.status,
+
+    (SELECT COUNT(*) FROM inventaris WHERE inventaris.id_laporan = laporan.id_laporan) AS jumlah_inventaris,
+    (SELECT COUNT(*) FROM uraian_kegiatan WHERE uraian_kegiatan.id_laporan = laporan.id_laporan) AS jumlah_uraian,
+    (SELECT COUNT(*) FROM lampiran_foto WHERE lampiran_foto.id_laporan = laporan.id_laporan) AS jumlah_lampiran,
 
     users.nama,
     users.kode_satpam,
@@ -385,6 +394,9 @@ ORDER BY nama_shift
               <th>Kode</th>
               <th>Nama Satpam</th>
               <th>Shift</th>
+              <th class="text-center">Inventaris</th>
+              <th class="text-center">Uraian</th>
+              <th class="text-center">Foto</th>
               <th>Status</th>
               <th width="140" class="text-center">Aksi</th>
 
@@ -458,6 +470,12 @@ ORDER BY nama_shift
 
                   </td>
 
+                  <td class="text-center"><span class="badge bg-info text-dark"><?= (int) $row['jumlah_inventaris'] ?></span></td>
+
+                  <td class="text-center"><span class="badge bg-primary"><?= (int) $row['jumlah_uraian'] ?></span></td>
+
+                  <td class="text-center"><span class="badge bg-success"><?= (int) $row['jumlah_lampiran'] ?></span></td>
+
                   <td>
 
                     <?php
@@ -527,7 +545,7 @@ ORDER BY nama_shift
 
               <tr>
 
-                <td colspan="7" class="text-center py-5">
+                <td colspan="10" class="text-center py-5">
 
                   <i class="bi bi-inbox display-5 d-block mb-3 text-secondary"></i>
 

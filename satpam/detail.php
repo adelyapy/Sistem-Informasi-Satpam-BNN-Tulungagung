@@ -73,16 +73,16 @@ include "../includes/header.php";
             <?php if (!empty($satpam['foto'])): ?>
 
               <img
-                src="../../uploads/foto/<?= $satpam['foto']; ?>"
+                src="../uploads/foto/<?= rawurlencode($satpam['foto']); ?>"
+                alt="Foto <?= htmlspecialchars($satpam['nama']); ?>"
                 class="img-thumbnail rounded-circle mb-3"
                 style="width:220px;height:220px;object-fit:cover;">
 
             <?php else: ?>
 
-              <img
-                src="../../assets/img/default-user.png"
-                class="img-thumbnail rounded-circle mb-3"
-                style="width:220px;height:220px;object-fit:cover;">
+              <div class="rounded-circle border bg-light text-secondary d-inline-flex align-items-center justify-content-center mb-3" style="width:220px;height:220px;" aria-label="Foto profil belum tersedia">
+                <i class="bi bi-person-fill display-1"></i>
+              </div>
 
             <?php endif; ?>
 
@@ -94,7 +94,7 @@ include "../includes/header.php";
 
               <tr>
                 <th width="180">Kode Satpam</th>
-                <td>: <?= $satpam['kode_satpam']; ?></td>
+                <td>: <?= htmlspecialchars($satpam['kode_satpam']); ?></td>
               </tr>
 
               <tr>
@@ -109,9 +109,10 @@ include "../includes/header.php";
                   <?php if (!empty($satpam['ttd'])): ?>
 
                     <img
-                      src="../../uploads/ttd/<?= $satpam['ttd']; ?>"
+                      src="../uploads/ttd/<?= rawurlencode($satpam['ttd']); ?>"
+                      alt="Tanda tangan <?= htmlspecialchars($satpam['nama']); ?>"
                       class="img-thumbnail p-2"
-                      style="height:120px;">
+                      style="width:100%;max-width:420px;height:120px;object-fit:contain;object-position:left center;">
 
                   <?php else: ?>
 

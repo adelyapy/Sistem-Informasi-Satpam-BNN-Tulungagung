@@ -27,80 +27,48 @@ if (mysqli_num_rows($query) == 0) {
 
 $data = mysqli_fetch_assoc($query);
 
+$error = '';
+
 if (isset($_POST['update'])) {
+  $judul = trim($_POST['judul'] ?? '');
+  $namaFile = $data['nama_file'];
+  $pathFile = $data['path_file'];
+  $ukuran = (int) $data['ukuran_file'];
+  $fileBaru = null;
 
-  $judul = trim($_POST['judul']);
-
-  $nama_file = $data['nama_file'];
-  $path_file = $data['path_file'];
-  $ukuran = $data['ukuran_file'];
-
-  if ($_FILES['file']['error'] != 4) {
-
-    $ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
-
-    if ($ext != "pdf") {
-
-      echo "<script>
-            Swal.fire('Gagal','File harus PDF','error');
-            </script>";
-    } elseif ($_FILES['file']['size'] > 10 * 1024 * 1024) {
-
-      echo "<script>
-            Swal.fire('Gagal','Ukuran maksimal 10 MB','error');
-            </script>";
+  if ($judul === '') {
+    $error = 'Judul buku tidak boleh kosong.';
+  } elseif (($_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+    $upload = uploadBukuSakuPdf($_FILES['file']);
+    if (!$upload['ok']) {
+      $error = $upload['message'];
     } else {
-
-      $folder = "../../uploads/buku_saku/";
-
-      $namaBaru = time() . "_" . rand(1000, 9999) . ".pdf";
-
-      if (move_uploaded_file($_FILES['file']['tmp_name'], $folder . $namaBaru)) {
-
-        if (file_exists("../../" . $path_file)) {
-          unlink("../../" . $path_file);
-        }
-
-        $nama_file = $namaBaru;
-        $path_file = "uploads/buku_saku/" . $namaBaru;
-        $ukuran = $_FILES['file']['size'];
-      } else {
-
-        echo "<script>
-                Swal.fire('Gagal','Upload gagal','error');
-                </script>";
-      }
+      $fileBaru = $upload;
+      $namaFile = $upload['nama_file'];
+      $pathFile = $upload['path_file'];
+      $ukuran = $upload['ukuran_file'];
     }
   }
 
-  $update = mysqli_query($conn, "
-    UPDATE buku_saku SET
+  if ($error === '') {
+    $update = mysqli_prepare($conn, 'UPDATE buku_saku SET judul = ?, nama_file = ?, path_file = ?, ukuran_file = ? WHERE id_buku = ?');
+    mysqli_stmt_bind_param($update, 'sssii', $judul, $namaFile, $pathFile, $ukuran, $id);
 
-    judul='$judul',
+    if (mysqli_stmt_execute($update)) {
+      if ($fileBaru && !empty($data['path_file'])) {
+        $fileLama = dirname(__DIR__, 2) . '/' . $data['path_file'];
+        if (is_file($fileLama)) {
+          @unlink($fileLama);
+        }
+      }
+      header('Location: index.php?success=edit');
+      exit;
+    }
 
-    nama_file='$nama_file',
-
-    path_file='$path_file',
-
-    ukuran_file='$ukuran'
-
-    WHERE id_buku='$id'
-    ");
-
-  if ($update) {
-
-    echo "
-        <script>
-
-        Swal.fire({
-            icon:'success',
-            title:'Berhasil',
-            text:'Data berhasil diperbarui'
-        }).then(()=>{
-            window.location='index.php';
-        });
-
-        </script>";
+    if ($fileBaru) {
+      @unlink(dirname(__DIR__, 2) . '/' . $fileBaru['path_file']);
+    }
+    $error = 'Data buku saku gagal diperbarui.';
   }
 }
 
@@ -130,6 +98,10 @@ include "../../includes/header.php";
           <div class="card-body">
 
             <form method="POST" enctype="multipart/form-data">
+
+              <?php if ($error !== ''): ?>
+                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+              <?php endif; ?>
 
               <div class="mb-3">
 

@@ -53,7 +53,11 @@ $qShift = mysqli_query($conn, "
 ");
 
 while ($row = mysqli_fetch_assoc($qShift)) {
-  $shift[] = $row;
+  // Shift gabungan adalah jadwal administrasi, bukan pilihan login.
+  // Satpam hanya dapat masuk pada shift yang sedang berlangsung.
+  if ($row['nama_shift'] !== 'Shift 1 & 2' && shiftSedangBerlangsung($row)) {
+    $shift[] = $row;
+  }
 }
 
 include "includes/header.php";
@@ -189,7 +193,7 @@ include "includes/header.php";
 
                 </select>
 
-                <small class="form-text text-muted">Jadwal bersifat fleksibel. Semua satpam aktif dapat memilih shift tanpa menunggu jadwal dari admin.</small>
+                <small class="form-text text-muted">Hanya shift yang sedang berlangsung yang dapat dipilih.</small>
 
               </div>
 

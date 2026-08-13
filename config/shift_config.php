@@ -34,3 +34,25 @@ function ensureShiftDobel(mysqli $conn): bool
 
   return true;
 }
+
+/**
+ * Menentukan apakah waktu saat ini berada pada rentang shift tertentu.
+ * Shift yang melewati tengah malam, misalnya 19:30 - 07:30, ditangani
+ * sebagai dua rentang waktu yang berkesinambungan.
+ */
+function shiftSedangBerlangsung(array $shift, ?string $waktu = null): bool
+{
+  $sekarang = $waktu ?? (new DateTimeImmutable('now', new DateTimeZone('Asia/Jakarta')))->format('H:i:s');
+  $mulai = (string) ($shift['jam_mulai'] ?? '');
+  $selesai = (string) ($shift['jam_selesai'] ?? '');
+
+  if ($mulai === '' || $selesai === '' || $mulai === $selesai) {
+    return false;
+  }
+
+  if ($mulai < $selesai) {
+    return $sekarang >= $mulai && $sekarang < $selesai;
+  }
+
+  return $sekarang >= $mulai || $sekarang < $selesai;
+}

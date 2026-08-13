@@ -149,9 +149,9 @@ laporan.id_laporan DESC
 
 ?>
 
-<main class="main-content">
+<main class="main-content admin-monitoring-content">
 
-  <div class="container-fluid">
+  <div class="container-fluid px-0">
 
     <!-- Header -->
 

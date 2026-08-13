@@ -12,6 +12,7 @@ if (!$kepala) {
 }
 
 $error = '';
+$berhasilDisimpan = !empty($_SESSION['admin_success']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $fotoBaru = uploadFoto($_FILES['foto'] ?? ['error' => UPLOAD_ERR_NO_FILE]);
   $ttdBaru = uploadTTD($_FILES['ttd'] ?? ['error' => UPLOAD_ERR_NO_FILE]);
@@ -49,8 +50,13 @@ include '../includes/admin_sidebar.php';
 <main class="main-content">
   <div class="admin-form-container">
     <div class="mb-4">
-      <h2 class="fw-bold mb-1">Profil Kepala BNN</h2>
-      <p class="text-muted mb-0">Kelola foto profil dan tanda tangan Kepala BNN untuk proses validasi laporan.</p>
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+          <h2 class="fw-bold mb-1">Profil Kepala BNN</h2>
+          <p class="text-muted mb-0">Kelola foto profil dan tanda tangan Kepala BNN untuk proses validasi laporan.</p>
+        </div>
+        <a href="dashboard/dashboard.php" class="btn btn-inventaris-outline"><i class="bi bi-arrow-left me-1"></i>Kembali</a>
+      </div>
     </div>
 
     <div class="card shadow-sm border-0 admin-form-card">
@@ -84,7 +90,9 @@ include '../includes/admin_sidebar.php';
               <img class="signature-preview mt-3" src="../uploads/ttd/<?= rawurlencode($kepala['ttd']) ?>" alt="Tanda tangan Kepala BNN">
             <?php endif; ?>
           </div>
-          <div class="col-12"><button class="btn btn-primary px-4">Simpan Perubahan</button></div>
+          <?php if (!$berhasilDisimpan): ?>
+            <div class="col-12"><button class="btn btn-primary px-4">Simpan Perubahan</button></div>
+          <?php endif; ?>
         </form>
       </div>
     </div>

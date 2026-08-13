@@ -90,6 +90,27 @@ function ensureUraianDraftColumn(mysqli $conn): bool
     || (bool) mysqli_query($conn, 'ALTER TABLE laporan ADD COLUMN uraian_draft_disimpan TINYINT(1) NOT NULL DEFAULT 0 AFTER uraian_selesai');
 }
 
+/** Menandai setiap baris yang sudah dipindahkan ke rekap, tanpa mengunci form input. */
+function ensureStatusRekapColumns(mysqli $conn): bool
+{
+  $queries = [
+    "ALTER TABLE inventaris ADD COLUMN sudah_direkap TINYINT(1) NOT NULL DEFAULT 0 AFTER updated_at",
+    "ALTER TABLE uraian_kegiatan ADD COLUMN sudah_direkap TINYINT(1) NOT NULL DEFAULT 0 AFTER created_at",
+  ];
+
+  foreach ([['inventaris', 'sudah_direkap'], ['uraian_kegiatan', 'sudah_direkap']] as $index => [$tabel, $kolom]) {
+    $hasil = mysqli_query($conn, "SHOW COLUMNS FROM {$tabel} LIKE '{$kolom}'");
+    if (!$hasil) {
+      return false;
+    }
+    if (mysqli_num_rows($hasil) === 0 && !mysqli_query($conn, $queries[$index])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /** Mengunggah satu foto lampiran dan mengembalikan metadata atau pesan kesalahan. */
 function uploadLampiranFoto(array $file): array
 {

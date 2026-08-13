@@ -6,6 +6,11 @@ if (!ensureMateriPdfColumns($conn)) {
   exit('PDF materi tidak dapat disiapkan.');
 }
 
+if (!materiBukuSakuTableExists($conn)) {
+  header('Location: pdf.php');
+  exit;
+}
+
 $idKategori = (int) ($_GET['kategori'] ?? 0);
 $kategoriStmt = mysqli_prepare($conn, 'SELECT id_kategori, nama_kategori FROM kategori_buku_saku WHERE id_kategori = ? LIMIT 1');
 mysqli_stmt_bind_param($kategoriStmt, 'i', $idKategori);

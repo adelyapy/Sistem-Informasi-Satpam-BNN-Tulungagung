@@ -6,7 +6,7 @@ $activeMenu = 'dashboard';
 
 $menunggu = (int) (mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) total FROM laporan WHERE status='menunggu_validasi'"))['total'] ?? 0);
 $tervalidasi = (int) (mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) total FROM laporan WHERE status='tervalidasi'"))['total'] ?? 0);
-$hariIni = (int) (mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) total FROM laporan WHERE status='menunggu_validasi' AND tanggal_laporan=CURDATE()"))['total'] ?? 0);
+$hariIni = (int) (mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) total FROM laporan WHERE status IN ('menunggu_validasi', 'tervalidasi') AND tanggal_laporan=CURDATE()"))['total'] ?? 0);
 $ttd = mysqli_fetch_assoc(mysqli_query($conn, "SELECT ttd FROM users WHERE id_user=" . (int) $_SESSION['id_user'] . " LIMIT 1"));
 $ttdTersedia = !empty($ttd['ttd']);
 $laporanTerbaru = mysqli_query($conn, "SELECT l.id_laporan,l.tanggal_laporan,l.created_at,u.nama,s.nama_shift
@@ -31,7 +31,7 @@ include '../includes/kepala_sidebar.php';
       </div><?php endif; ?>
     <div class="row g-4 mb-4">
       <div class="col-md-4">
-        <div class="card-menu">
+        <a class="card-menu text-decoration-none d-block" href="validasi/index.php?status=menunggu_validasi" aria-label="Lihat laporan menunggu validasi">
           <div class="card-body d-flex align-items-center gap-3">
             <div class="menu-icon-wrap"><i class="bi bi-hourglass-split"></i></div>
             <div>
@@ -40,10 +40,10 @@ include '../includes/kepala_sidebar.php';
               <div class="small text-muted">Laporan final</div>
             </div>
           </div>
-        </div>
+        </a>
       </div>
       <div class="col-md-4">
-        <div class="card-menu">
+        <a class="card-menu text-decoration-none d-block" href="validasi/index.php?status=tervalidasi" aria-label="Lihat laporan yang sudah divalidasi">
           <div class="card-body d-flex align-items-center gap-3">
             <div class="menu-icon-wrap"><i class="bi bi-check2-circle"></i></div>
             <div>
@@ -52,10 +52,10 @@ include '../includes/kepala_sidebar.php';
               <div class="small text-muted">Seluruh laporan</div>
             </div>
           </div>
-        </div>
+        </a>
       </div>
       <div class="col-md-4">
-        <div class="card-menu">
+        <a class="card-menu text-decoration-none d-block" href="validasi/index.php?status=hari_ini" aria-label="Lihat laporan hari ini">
           <div class="card-body d-flex align-items-center gap-3">
             <div class="menu-icon-wrap"><i class="bi bi-calendar-day"></i></div>
             <div>
@@ -64,7 +64,7 @@ include '../includes/kepala_sidebar.php';
               <div class="small text-muted">Siap ditinjau</div>
             </div>
           </div>
-        </div>
+        </a>
       </div>
     </div>
     <div class="card progress-card">

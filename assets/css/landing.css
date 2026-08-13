@@ -151,6 +151,80 @@ body {
   color: #bcd1ff;
 }
 
+.landing-about-link {
+  color: #173f87;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.landing-about-link:hover {
+  color: #0756d9;
+  text-decoration: underline;
+}
+
+.about-page {
+  min-height: 100vh;
+  padding: 70px 20px;
+  background: url('../img/bg-app.png') center / cover fixed no-repeat;
+}
+
+.about-container {
+  max-width: 760px;
+}
+
+.about-card {
+  padding: 44px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, .95);
+  box-shadow: 0 18px 38px rgba(16, 42, 92, .16);
+  color: #334155;
+  text-align: center;
+}
+
+.about-logo {
+  width: 88px;
+  height: 88px;
+  margin-bottom: 18px;
+  object-fit: contain;
+}
+
+.about-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 15px;
+  font-size: 28px;
+}
+
+.about-card h1 {
+  color: #102a5c;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.about-card hr {
+  width: 70px;
+  margin: 22px auto;
+  border: 2px solid #2467e9;
+  opacity: 1;
+}
+
+.about-card p {
+  line-height: 1.8;
+}
+
+.about-lead {
+  color: #2365dc;
+  font-weight: 700;
+}
+
+.about-back {
+  max-width: 280px;
+  margin: 28px auto 0;
+  justify-content: center;
+  gap: 8px;
+}
+
 @media (max-width: 768px) {
   .landing-hero {
     min-height: auto;

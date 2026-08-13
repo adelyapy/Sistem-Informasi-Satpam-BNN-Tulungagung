@@ -6,6 +6,11 @@ if (!ensureMateriPdfColumns($conn)) {
   exit('PDF materi tidak dapat disiapkan.');
 }
 
+if (!materiBukuSakuTableExists($conn)) {
+  header('Location: pdf.php');
+  exit;
+}
+
 $idMateri = (int) ($_GET['id'] ?? 0);
 $stmt = mysqli_prepare($conn, '
   SELECT m.id_materi, m.judul, m.pdf_path, m.pdf_size, m.pdf_generated_at, k.id_kategori, k.nama_kategori

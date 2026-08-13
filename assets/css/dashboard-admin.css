@@ -418,8 +418,24 @@
   margin: 0 8px;
 }
 
+/* Monitoring laporan membutuhkan ruang tabel penuh, tidak dibatasi lebar dashboard. */
+.main-content.admin-monitoring-content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 28px 44px 40px;
+}
+
+.admin-monitoring-content .container-fluid {
+  max-width: none;
+}
+
 @media (max-width: 576px) {
   .main-content {
+    padding: 22px 16px 32px;
+  }
+
+  .main-content.admin-monitoring-content {
     padding: 22px 16px 32px;
   }
 

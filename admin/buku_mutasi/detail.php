@@ -218,12 +218,29 @@ include '../../includes/header.php';
   .report-detail-table .report-photo:hover {
     transform: scale(1.08);
   }
+
+  .main-content.admin-report-detail-content {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 28px 44px 40px;
+  }
+
+  .admin-report-detail-content .container-fluid {
+    max-width: none;
+  }
+
+  @media (max-width: 576px) {
+    .main-content.admin-report-detail-content {
+      padding: 22px 16px 32px;
+    }
+  }
 </style>
 <?php include '../../includes/admin_navbar.php'; ?>
 <?php include '../../includes/admin_sidebar.php'; ?>
 
-<main class="main-content">
-  <div class="container-fluid py-4">
+<main class="main-content admin-report-detail-content">
+  <div class="container-fluid px-0 py-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
       <div>
         <h2 class="fw-bold mb-1">Detail Laporan</h2>

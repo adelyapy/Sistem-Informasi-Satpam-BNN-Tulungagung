@@ -1,6 +1,11 @@
 <?php
 require_once "../../config/satpam_auth.php";
 require_once "../../config/report_signature.php";
+require_once "../../config/report_attachment.php";
+
+if (!ensureInventarisDraftColumn($conn) || !ensureUraianDraftColumn($conn) || !ensureStatusRekapColumns($conn)) {
+  exit('Status penyimpanan laporan tidak dapat disiapkan.');
+}
 
 $id_user     = (int) ($_SESSION['id_user'] ?? 0);
 $id_laporan  = (int) ($_GET['id'] ?? $_POST['id_laporan'] ?? $_SESSION['id_laporan'] ?? 0);
@@ -11,28 +16,29 @@ if (empty($id_laporan)) {
   exit;
 }
 
-$q = mysqli_query($conn, "
-SELECT
-    l.*
-FROM laporan l
+$q = mysqli_prepare($conn, '
+  SELECT l.*
+  FROM laporan l
+  INNER JOIN anggota_shift a ON a.id_laporan = l.id_laporan
+  WHERE l.id_laporan = ? AND a.id_satpam = ?
+  LIMIT 1
+');
+mysqli_stmt_bind_param($q, 'ii', $id_laporan, $id_user);
+mysqli_stmt_execute($q);
+$hasilLaporan = mysqli_stmt_get_result($q);
 
-JOIN anggota_shift a
-ON a.id_laporan=l.id_laporan
-
-WHERE
-
-l.id_laporan='$id_laporan'
-AND a.id_satpam='$id_user'
-
-LIMIT 1
-");
-
-if (mysqli_num_rows($q) == 0) {
+if (mysqli_num_rows($hasilLaporan) === 0) {
   header("Location:index.php");
   exit;
 }
 
-$laporan = mysqli_fetch_assoc($q);
+$laporan = mysqli_fetch_assoc($hasilLaporan);
+
+if ((int) $laporan['created_by'] !== $id_user) {
+  $_SESSION['finalisasi_error'] = 'Hanya Satpam yang membuat laporan ini yang dapat melakukan finalisasi dan mengirimkannya ke Kepala BNN.';
+  header("Location: detail.php?id={$id_laporan}");
+  exit;
+}
 
 if ($laporan['status'] != 'draft') {
   echo "<script>
@@ -54,17 +60,45 @@ FROM uraian_kegiatan
 WHERE id_laporan='$id_laporan'
 "));
 
+$inventarisBelumDirekap = mysqli_num_rows(mysqli_query($conn, "
+SELECT id_inventaris
+FROM inventaris
+WHERE id_laporan='$id_laporan' AND sudah_direkap = 0
+"));
+
+$uraianBelumDirekap = mysqli_num_rows(mysqli_query($conn, "
+SELECT id_uraian
+FROM uraian_kegiatan
+WHERE id_laporan='$id_laporan' AND sudah_direkap = 0
+"));
+
 $errors = [];
 
 $satpamQuery = mysqli_query($conn, "SELECT ttd FROM users WHERE id_user='$id_user' LIMIT 1");
 $satpam = mysqli_fetch_assoc($satpamQuery);
 
-if ($inventaris == 0) {
+if ($inventaris === 0) {
   $errors[] = "Inventaris belum diisi.";
 }
 
-if ($uraian == 0) {
+if ($uraian === 0) {
   $errors[] = "Uraian kegiatan belum diisi.";
+}
+
+if ((int) ($laporan['inventaris_draft_disimpan'] ?? 0) !== 1) {
+  $errors[] = "Inventaris belum disimpan. Klik Simpan Draft pada menu Inventaris terlebih dahulu.";
+}
+
+if ((int) ($laporan['uraian_draft_disimpan'] ?? 0) !== 1) {
+  $errors[] = "Uraian kegiatan belum disimpan. Klik Simpan Draft pada menu Uraian Kegiatan terlebih dahulu.";
+}
+
+if ($inventarisBelumDirekap > 0) {
+  $errors[] = "Masih ada inventaris baru yang belum disimpan ke rekap.";
+}
+
+if ($uraianBelumDirekap > 0) {
+  $errors[] = "Masih ada uraian kegiatan baru yang belum disimpan ke rekap.";
 }
 
 if (empty($satpam['ttd'])) {
@@ -74,7 +108,8 @@ if (empty($satpam['ttd'])) {
 if (isset($_POST['kirim'])) {
 
   if (count($errors) > 0) {
-    echo "<script>alert('Lengkapi data inventaris dan uraian terlebih dahulu.');history.back();</script>";
+    $_SESSION['finalisasi_error'] = implode(' ', $errors);
+    header("Location: detail.php?id={$id_laporan}");
     exit;
   }
 
@@ -92,10 +127,14 @@ if (isset($_POST['kirim'])) {
   mysqli_stmt_bind_param($update, 'si', $ttdSatpam, $id_laporan);
   mysqli_stmt_execute($update);
 
-  echo "<script>
-    alert('Laporan berhasil dikirim untuk validasi.');
-    window.location='detail.php?id={$id_laporan}';
-    </script>";
+  if (mysqli_stmt_affected_rows($update) !== 1) {
+    $_SESSION['finalisasi_error'] = 'Laporan tidak dapat dikirim. Muat ulang halaman lalu coba kembali.';
+    header("Location: detail.php?id={$id_laporan}");
+    exit;
+  }
+
+  $_SESSION['finalisasi_success'] = 'Laporan berhasil difinalisasi dan dikirim ke Kepala BNN untuk divalidasi.';
+  header("Location: detail.php?id={$id_laporan}");
   exit;
 }
 ?>

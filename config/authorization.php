@@ -26,6 +26,11 @@ function requireRole(string $role, ?string $loginPath = null): void
     header('Location: ' . ($loginPath ?? loginPath()));
     exit;
   }
+
+  // Halaman privat tidak boleh ditampilkan kembali dari cache browser.
+  header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+  header('Pragma: no-cache');
+  header('Expires: 0');
 }
 
 /**

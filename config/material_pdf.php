@@ -1,8 +1,21 @@
 <?php
 
+/** Mengecek apakah modul materi buku saku tersedia pada database aktif. */
+function materiBukuSakuTableExists(mysqli $conn): bool
+{
+  $result = mysqli_query($conn, "SHOW TABLES LIKE 'materi_buku_saku'");
+  return $result && mysqli_num_rows($result) > 0;
+}
+
 /** Menyimpan metadata PDF untuk setiap materi buku saku. */
 function ensureMateriPdfColumns(mysqli $conn): bool
 {
+  // Database lama hanya mempunyai tabel buku_saku. Halaman PDF tetap dapat
+  // digunakan untuk menampilkan semua dokumen yang pernah diunggah.
+  if (!materiBukuSakuTableExists($conn)) {
+    return true;
+  }
+
   $kolom = [
     'pdf_path' => "ALTER TABLE materi_buku_saku ADD COLUMN pdf_path VARCHAR(255) DEFAULT NULL AFTER icon",
     'pdf_size' => "ALTER TABLE materi_buku_saku ADD COLUMN pdf_size BIGINT(20) DEFAULT NULL AFTER pdf_path",

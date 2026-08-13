@@ -52,6 +52,10 @@ include 'includes/header.php';
           </a>
         </div>
       </section>
+
+      <div class="text-center mt-4">
+        <a class="landing-about-link" href="tentang.php"><i class="bi bi-info-circle me-1"></i>Tentang Aplikasi</a>
+      </div>
     </div>
   </section>
 

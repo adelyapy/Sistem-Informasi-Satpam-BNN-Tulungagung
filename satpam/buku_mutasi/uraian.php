@@ -4,7 +4,7 @@ require_once '../../config/report_attachment.php';
 
 date_default_timezone_set('Asia/Jakarta');
 
-if (!ensureLampiranFotoTable($conn) || !ensureUraianDraftColumn($conn)) {
+if (!ensureLampiranFotoTable($conn) || !ensureUraianDraftColumn($conn) || !ensureStatusRekapColumns($conn)) {
   exit('Tabel lampiran foto tidak dapat disiapkan.');
 }
 
@@ -37,28 +37,29 @@ if (!$laporan) {
 
 $error = '';
 $uraianTersimpan = (int) $laporan['uraian_draft_disimpan'] === 1;
-$bolehUbahUraian = $laporan['status'] === 'draft' && !$uraianTersimpan;
+$bolehUbahUraian = $laporan['status'] === 'draft';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $action = $_POST['action'] ?? '';
 
   if ($action === 'simpan_draft') {
-    $total = (int) mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM uraian_kegiatan WHERE id_laporan = {$idLaporan}"))['total'];
+    $total = (int) mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM uraian_kegiatan WHERE id_laporan = {$idLaporan} AND sudah_direkap = 0"))['total'];
     if ($laporan['status'] !== 'draft') {
       $error = 'Laporan yang telah dikirim tidak dapat diubah.';
     } elseif ($total < 1) {
       $error = 'Tambahkan minimal satu uraian kegiatan sebelum menyimpan draft.';
     } else {
-      $simpanDraft = mysqli_prepare($conn, 'UPDATE laporan SET uraian_selesai = 1, uraian_draft_disimpan = 1, updated_at = NOW() WHERE id_laporan = ? AND status = \'draft\'');
+      $simpanDraft = mysqli_prepare($conn, 'UPDATE uraian_kegiatan SET sudah_direkap = 1 WHERE id_laporan = ? AND sudah_direkap = 0');
       mysqli_stmt_bind_param($simpanDraft, 'i', $idLaporan);
       if (mysqli_stmt_execute($simpanDraft)) {
+        mysqli_query($conn, "UPDATE laporan SET uraian_selesai = 1, uraian_draft_disimpan = 1, updated_at = NOW() WHERE id_laporan = {$idLaporan} AND status = 'draft'");
         header("Location: detail.php?id={$idLaporan}");
         exit;
       }
       $error = 'Draft uraian kegiatan tidak dapat disimpan.';
     }
   } elseif (!$bolehUbahUraian) {
-    $error = 'Uraian kegiatan telah disimpan sebagai draft sehingga tidak dapat diubah lagi.';
+    $error = 'Laporan telah dikirim sehingga uraian kegiatan tidak dapat diubah.';
   } elseif ($action === 'tambah') {
     $uraian = trim($_POST['uraian'] ?? '');
     $files = $_FILES['lampiran_foto'] ?? null;
@@ -229,7 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $dataStmt = mysqli_prepare($conn, '
     SELECT id_uraian, urutan, jam, uraian, created_at
     FROM uraian_kegiatan
-    WHERE id_laporan = ?
+    WHERE id_laporan = ? AND sudah_direkap = 0
     ORDER BY urutan ASC, id_uraian ASC
 ');
 mysqli_stmt_bind_param($dataStmt, 'i', $idLaporan);
@@ -291,7 +292,7 @@ include '../../includes/header.php';
             <div class="text-end mt-3"><button class="btn btn-inventaris-primary" type="submit"><i class="bi bi-plus-lg me-2"></i>Tambah Kegiatan</button></div>
           </form>
         <?php } elseif ($uraianTersimpan) { ?>
-          <div class="alert alert-info mb-0"><i class="bi bi-lock-fill me-2"></i>Uraian kegiatan sudah disimpan sebagai draft. Data dan aksi edit tidak dapat diubah.</div>
+          <div class="alert alert-info mb-0"><i class="bi bi-info-circle-fill me-2"></i>Uraian kegiatan sudah disimpan ke rekap. Anda masih dapat menambah, mengubah, atau menghapus data selama laporan belum difinalisasi.</div>
         <?php } else { ?>
           <div class="alert alert-success mb-0">Laporan telah dikirim sehingga uraian kegiatan tidak dapat diubah.</div>
         <?php } ?>
@@ -343,7 +344,7 @@ include '../../includes/header.php';
     <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
       <a class="btn btn-light btn-inventaris-outline" href="../dashboard.php"><i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard</a>
       <?php if ($bolehUbahUraian): ?><form method="post" action="uraian.php?id=<?= $idLaporan ?>" class="d-inline"><input type="hidden" name="action" value="simpan_draft"><button class="btn btn-inventaris-primary" type="submit"><i class="bi bi-floppy me-2"></i>Simpan Draft &amp; Lihat Rekap</button></form><?php endif; ?>
-      <a class="btn btn-inventaris-primary" href="detail.php?id=<?= $idLaporan ?>"><i class="bi bi-file-earmark-text me-2"></i><?= $uraianTersimpan ? 'Lihat Rekap Uraian Kegiatan' : 'Lihat Laporan Uraian Kegiatan' ?></a>
+      <a class="btn btn-inventaris-primary" href="detail.php?id=<?= $idLaporan ?>"><i class="bi bi-file-earmark-text me-2"></i>Lihat Rekap Uraian Kegiatan</a>
     </div>
   </div>
 </main>

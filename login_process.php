@@ -74,11 +74,16 @@ try {
     throw new RuntimeException('Satpam tidak ditemukan atau tidak aktif.');
   }
 
-  $shiftStmt = mysqli_prepare($conn, 'SELECT id_shift FROM shift WHERE id_shift = ? LIMIT 1');
+  $shiftStmt = mysqli_prepare($conn, 'SELECT id_shift, nama_shift, jam_mulai, jam_selesai FROM shift WHERE id_shift = ? LIMIT 1');
   mysqli_stmt_bind_param($shiftStmt, 'i', $idShift);
   mysqli_stmt_execute($shiftStmt);
-  if (!mysqli_fetch_assoc(mysqli_stmt_get_result($shiftStmt))) {
+  $shiftTerpilih = mysqli_fetch_assoc(mysqli_stmt_get_result($shiftStmt));
+  if (!$shiftTerpilih || $shiftTerpilih['nama_shift'] === 'Shift 1 & 2') {
     throw new RuntimeException('Shift yang dipilih tidak tersedia.');
+  }
+
+  if (!shiftSedangBerlangsung($shiftTerpilih)) {
+    throw new RuntimeException('Anda hanya dapat login pada jam shift yang sedang berlangsung.');
   }
 
   // Jadwal bersifat fleksibel: bila belum dibuat oleh admin, buat otomatis
@@ -105,19 +110,21 @@ try {
     throw new RuntimeException('Jadwal shift tidak ditemukan.');
   }
 
-  // Satu laporan dipakai bersama oleh seluruh Satpam pada tanggal dan shift yang sama.
+  // Cari hanya laporan shift yang sudah secara resmi memasukkan Satpam ini
+  // sebagai anggota. Ini mencegah Satpam berbeda mengambil laporan shift orang lain.
   $laporanStmt = mysqli_prepare($conn, "
         SELECT l.id_laporan
         FROM laporan l
         INNER JOIN jadwal_shift j ON j.id_jadwal = l.id_jadwal
-        WHERE l.tanggal_laporan = ? AND j.id_shift = ?
+        INNER JOIN anggota_shift a ON a.id_laporan = l.id_laporan
+        WHERE l.tanggal_laporan = ? AND j.id_shift = ? AND a.id_satpam = ?
         ORDER BY
             (EXISTS (SELECT 1 FROM inventaris i WHERE i.id_laporan = l.id_laporan)
              + EXISTS (SELECT 1 FROM uraian_kegiatan u WHERE u.id_laporan = l.id_laporan)) DESC,
             l.created_at ASC
         LIMIT 1
     ");
-  mysqli_stmt_bind_param($laporanStmt, "si", $tanggal, $idShift);
+  mysqli_stmt_bind_param($laporanStmt, "sii", $tanggal, $idShift, $idUser);
   mysqli_stmt_execute($laporanStmt);
   $laporan = mysqli_fetch_assoc(mysqli_stmt_get_result($laporanStmt));
 

@@ -2,7 +2,7 @@
 require_once '../../config/satpam_auth.php';
 require_once '../../config/report_attachment.php';
 
-if (!ensureLampiranFotoTable($conn) || !ensureInventarisDraftColumn($conn)) {
+if (!ensureLampiranFotoTable($conn) || !ensureInventarisDraftColumn($conn) || !ensureStatusRekapColumns($conn)) {
   exit('Penyimpanan inventaris tidak dapat disiapkan.');
 }
 
@@ -30,29 +30,30 @@ if (!$laporan) {
 
 $kondisiBarang = ['Lengkap berfungsi dengan baik', 'Lengkap baik', 'Lengkap', 'Baik'];
 $inventarisTersimpan = (int) $laporan['inventaris_draft_disimpan'] === 1;
-$bolehUbahInventaris = $laporan['status'] === 'draft' && !$inventarisTersimpan;
+$bolehUbahInventaris = $laporan['status'] === 'draft';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $action = $_POST['action'] ?? '';
 
   if ($action === 'simpan_draft') {
-    $total = (int) mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM inventaris WHERE id_laporan = {$idLaporan}"))['total'];
+    $total = (int) mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM inventaris WHERE id_laporan = {$idLaporan} AND sudah_direkap = 0"))['total'];
     if ($laporan['status'] !== 'draft') {
       $error = 'Laporan yang telah dikirim tidak dapat diubah.';
     } elseif ($total < 1) {
       $error = 'Tambahkan minimal satu barang sebelum menyimpan draft inventaris.';
     } else {
-      $simpanDraft = mysqli_prepare($conn, 'UPDATE laporan SET inventaris_selesai = 1, inventaris_draft_disimpan = 1, updated_at = NOW() WHERE id_laporan = ? AND status = \'draft\'');
+      $simpanDraft = mysqli_prepare($conn, 'UPDATE inventaris SET sudah_direkap = 1 WHERE id_laporan = ? AND sudah_direkap = 0');
       mysqli_stmt_bind_param($simpanDraft, 'i', $idLaporan);
       if (mysqli_stmt_execute($simpanDraft)) {
+        mysqli_query($conn, "UPDATE laporan SET inventaris_selesai = 1, inventaris_draft_disimpan = 1, updated_at = NOW() WHERE id_laporan = {$idLaporan} AND status = 'draft'");
         header("Location: detail.php?id={$idLaporan}");
         exit;
       }
       $error = 'Draft inventaris tidak dapat disimpan.';
     }
   } elseif (!$bolehUbahInventaris) {
-    $error = 'Inventaris telah disimpan sebagai draft sehingga tidak dapat diubah lagi.';
+    $error = 'Laporan telah dikirim sehingga inventaris tidak dapat diubah.';
   } elseif ($action === 'tambah') {
     $namaBarang = trim($_POST['nama_barang'] ?? '');
     $jumlah = filter_input(INPUT_POST, 'jumlah', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
@@ -223,7 +224,7 @@ $dataStmt = mysqli_prepare($conn, '
   SELECT i.*, u.nama AS nama_input
   FROM inventaris i
   LEFT JOIN users u ON u.id_user = i.created_by
-  WHERE i.id_laporan = ?
+  WHERE i.id_laporan = ? AND i.sudah_direkap = 0
   ORDER BY i.urutan ASC, i.id_inventaris ASC
 ');
 mysqli_stmt_bind_param($dataStmt, 'i', $idLaporan);
@@ -265,7 +266,7 @@ include '../../includes/header.php';
             <div class="col-lg-4 text-lg-end"><button class="btn btn-inventaris-primary" type="submit"><i class="bi bi-plus-lg me-2"></i>Tambah Barang</button></div>
           </form>
         <?php elseif ($inventarisTersimpan): ?>
-          <div class="alert alert-info mb-0"><i class="bi bi-lock-fill me-2"></i>Inventaris sudah disimpan sebagai draft. Data dan aksi edit tidak dapat diubah.</div>
+          <div class="alert alert-info mb-0"><i class="bi bi-info-circle-fill me-2"></i>Inventaris sudah disimpan ke rekap. Anda masih dapat menambah, mengubah, atau menghapus data selama laporan belum difinalisasi.</div>
         <?php else: ?>
           <div class="alert alert-success mb-0">Laporan telah dikirim sehingga data inventaris tidak dapat diubah.</div>
         <?php endif; ?>
@@ -297,7 +298,7 @@ include '../../includes/header.php';
     <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
       <a class="btn btn-light btn-inventaris-outline" href="../dashboard.php"><i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard</a>
       <?php if ($bolehUbahInventaris): ?><form method="post" action="inventaris.php?id=<?= $idLaporan ?>" class="d-inline"><input type="hidden" name="action" value="simpan_draft"><button class="btn btn-inventaris-primary" type="submit"><i class="bi bi-floppy me-2"></i>Simpan Draft &amp; Lihat Rekap</button></form><?php endif; ?>
-      <a class="btn btn-inventaris-primary" href="detail.php?id=<?= $idLaporan ?>"><i class="bi bi-file-earmark-text me-2"></i><?= $inventarisTersimpan ? 'Lihat Rekap Inventaris' : 'Lihat Laporan Inventaris' ?></a>
+      <a class="btn btn-inventaris-primary" href="detail.php?id=<?= $idLaporan ?>"><i class="bi bi-file-earmark-text me-2"></i>Lihat Rekap Inventaris</a>
     </div>
   </div>
 </main>

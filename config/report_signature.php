@@ -12,16 +12,30 @@ function ensureLaporanTtdKepalaColumn(mysqli $conn): bool
   if ($result && mysqli_num_rows($result) > 0) {
     return true;
   }
-  return (bool) mysqli_query($conn, "ALTER TABLE laporan ADD COLUMN ttd_kepala VARCHAR(255) NULL AFTER validated_at");
+  try {
+    return (bool) mysqli_query($conn, "ALTER TABLE laporan ADD COLUMN ttd_kepala VARCHAR(255) NULL AFTER validated_at");
+  } catch (mysqli_sql_exception) {
+    return false;
+  }
 }
 
 /** Menyimpan snapshot tanda tangan Satpam ketika laporan difinalisasi. */
 function ensureLaporanTtdSatpamColumn(mysqli $conn): bool
 {
+  // Database lama mungkin belum memiliki ttd_kepala; pastikan lebih dulu
+  // karena kolom ttd_satpam ditempatkan setelahnya.
+  if (!ensureLaporanTtdKepalaColumn($conn)) {
+    return false;
+  }
+
   $result = mysqli_query($conn, "SHOW COLUMNS FROM laporan LIKE 'ttd_satpam'");
   if ($result && mysqli_num_rows($result) > 0) {
     return true;
   }
 
-  return (bool) mysqli_query($conn, "ALTER TABLE laporan ADD COLUMN ttd_satpam VARCHAR(255) NULL AFTER ttd_kepala");
+  try {
+    return (bool) mysqli_query($conn, "ALTER TABLE laporan ADD COLUMN ttd_satpam VARCHAR(255) NULL AFTER ttd_kepala");
+  } catch (mysqli_sql_exception) {
+    return false;
+  }
 }

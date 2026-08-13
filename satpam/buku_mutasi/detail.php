@@ -55,6 +55,9 @@ while ($foto = mysqli_fetch_assoc($fotoResult)) {
 
 $statusTervalidasi = $laporan['status'] === 'tervalidasi';
 $statusMenunggu = $laporan['status'] === 'menunggu_validasi';
+$inventarisTersimpan = (int) ($laporan['inventaris_draft_disimpan'] ?? 0) === 1;
+$uraianTersimpan = (int) ($laporan['uraian_draft_disimpan'] ?? 0) === 1;
+$adalahPembuatLaporan = (int) $laporan['created_by'] === $idSatpam;
 $title = 'Detail Laporan';
 $pageTitle = 'Detail Laporan';
 $base_url = '../../';
@@ -99,6 +102,13 @@ include '../../includes/header.php';
         </div>
       </div>
     </section>
+
+    <?php if (!empty($_SESSION['finalisasi_error'])): ?>
+      <div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i><?= htmlspecialchars($_SESSION['finalisasi_error']); unset($_SESSION['finalisasi_error']); ?></div>
+    <?php endif; ?>
+    <?php if (!empty($_SESSION['finalisasi_success'])): ?>
+      <div class="alert alert-success"><i class="bi bi-check-circle-fill me-2"></i><?= htmlspecialchars($_SESSION['finalisasi_success']); unset($_SESSION['finalisasi_success']); ?></div>
+    <?php endif; ?>
 
     <section class="inventaris-card mb-3">
       <div class="card-body">
@@ -153,16 +163,18 @@ include '../../includes/header.php';
       </div>
     </section>
 
-    <?php if (!$statusTervalidasi && !$statusMenunggu) { ?>
+    <?php if (!$statusTervalidasi && !$statusMenunggu && $adalahPembuatLaporan) { ?>
       <section class="inventaris-card mt-3">
         <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
           <div>
             <h2 class="inventaris-heading mb-1">Finalisasi Laporan</h2>
-            <p class="text-muted mb-0">Pastikan inventaris dan uraian kegiatan sudah lengkap. Setelah difinalisasi, laporan tidak dapat diubah dan dikirim ke Kepala BNN untuk validasi.</p>
+            <p class="text-muted mb-0">Inventaris: <?= $inventarisTersimpan ? 'sudah disimpan' : 'belum disimpan' ?> · Uraian kegiatan: <?= $uraianTersimpan ? 'sudah disimpan' : 'belum disimpan' ?>. Setelah difinalisasi, laporan tidak dapat diubah dan dikirim ke Kepala BNN untuk validasi.</p>
           </div>
           <a class="btn btn-inventaris-primary" href="kirim.php?id=<?= $idLaporan ?>"><i class="bi bi-send-check me-2"></i>Finalisasi &amp; Kirim ke Kepala</a>
         </div>
       </section>
+    <?php } elseif (!$statusTervalidasi && !$statusMenunggu) { ?>
+      <div class="alert alert-info mt-3"><i class="bi bi-info-circle-fill me-2"></i>Anda dapat melihat laporan ini sebagai anggota shift. Finalisasi hanya dapat dilakukan oleh Satpam yang membuat laporan.</div>
     <?php } ?>
   </div>
 </main>

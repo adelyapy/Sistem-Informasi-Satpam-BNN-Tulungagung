@@ -239,6 +239,7 @@ include "../includes/satpam_sidebar.php";
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <form action="tambah_anggota.php" method="POST">
+        <?= csrf_input() ?>
         <div class="modal-header">
           <h5 class="modal-title">
             <i class="bi bi-person-plus"></i> Tambah Nama Satpam

@@ -41,32 +41,19 @@ if (isset($_POST['update'])) {
   $icon = $data['icon'];
 
   if (isset($_FILES['icon']) && $_FILES['icon']['error'] == 0) {
-
     $folder = "../../uploads/icon_buku_saku/";
-
-    if (!is_dir($folder)) {
-      mkdir($folder, 0777, true);
+    $namaBaru = uploadGambarAman($_FILES['icon'], 'icon_buku_saku');
+    if (!$namaBaru) {
+      $_SESSION['error'] = 'Ikon harus berupa gambar JPG, PNG, atau WEBP maksimal 2 MB.';
+      header('Location: edit.php?id=' . $id);
+      exit;
     }
 
-    $ext = strtolower(pathinfo($_FILES['icon']['name'], PATHINFO_EXTENSION));
-
-    $allow = ['png', 'jpg', 'jpeg', 'svg', 'webp'];
-
-    if (in_array($ext, $allow)) {
-
-      $namaBaru = uniqid() . "." . $ext;
-
-      move_uploaded_file(
-        $_FILES['icon']['tmp_name'],
-        $folder . $namaBaru
-      );
-
-      if ($icon != "" && file_exists($folder . $icon)) {
-        unlink($folder . $icon);
-      }
-
-      $icon = $namaBaru;
+    if ($icon != "" && file_exists($folder . $icon)) {
+      unlink($folder . $icon);
     }
+
+    $icon = $namaBaru;
   }
 
   $update = mysqli_query($conn, "
@@ -171,6 +158,7 @@ ASC
               enctype="multipart/form-data"
 
               onsubmit="return confirm('Simpan perubahan materi?')">
+              <?= csrf_input() ?>
 
               <div class="mb-3">
 

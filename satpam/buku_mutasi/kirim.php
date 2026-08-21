@@ -133,6 +133,7 @@ if (isset($_POST['kirim'])) {
     exit;
   }
 
+  logActivity($conn, 'Kirim laporan', 'laporan', $id_laporan);
   $_SESSION['finalisasi_success'] = 'Laporan berhasil difinalisasi dan dikirim ke Kepala BNN untuk divalidasi.';
   header("Location: detail.php?id={$id_laporan}");
   exit;
@@ -205,6 +206,7 @@ if (isset($_POST['kirim'])) {
             <?php } ?>
 
             <form method="post" class="d-flex justify-content-end gap-2">
+              <?= csrf_input() ?>
 
               <input type="hidden" name="id_laporan" value="<?= $id_laporan ?>">
 

@@ -1,7 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 require_once "config/session.php";
 
 if (isset($_SESSION['login'], $_SESSION['role'])) {
@@ -101,8 +98,15 @@ include "includes/header.php";
                 unset($_SESSION['login_error']); ?>
               </div>
             <?php } ?>
+            <?php if (!empty($_SESSION['login_success'])) { ?>
+              <div class="alert alert-success" role="alert">
+                <?= htmlspecialchars($_SESSION['login_success']);
+                unset($_SESSION['login_success']); ?>
+              </div>
+            <?php } ?>
 
             <form action="login_process.php" method="POST">
+              <?= csrf_input() ?>
 
               <div class="mb-3">
 
@@ -199,6 +203,18 @@ include "includes/header.php";
 
               <div class="mb-3" id="passwordGroup" style="display:none;">
 
+                <label class="form-label" for="identifier">
+                  Username atau Email
+                </label>
+
+                <input
+                  type="text"
+                  class="form-control mb-3"
+                  id="identifier"
+                  name="identifier"
+                  autocomplete="username"
+                  placeholder="Masukkan username atau email">
+
                 <label class="form-label">
                   Password
                 </label>
@@ -209,6 +225,8 @@ include "includes/header.php";
                   id="password"
                   name="password"
                   placeholder="Masukkan password">
+
+                <div class="text-end mt-2"><a href="forgot_password.php" class="small">Lupa password?</a></div>
 
               </div>
               <button
@@ -249,6 +267,7 @@ include "includes/header.php";
   const passwordGroup = document.getElementById('passwordGroup');
   const shiftGroup = document.getElementById('shiftGroup');
   const password = document.getElementById('password');
+  const identifier = document.getElementById('identifier');
   const shift = document.getElementById('id_shift');
 
   role.addEventListener('change', function() {
@@ -264,6 +283,7 @@ include "includes/header.php";
       user.required = true;
       shift.required = true;
       password.required = false;
+      identifier.required = false;
 
     } else if (role.value === "admin" || role.value === "kepala") {
 
@@ -274,6 +294,7 @@ include "includes/header.php";
       user.required = false;
       shift.required = false;
       password.required = true;
+      identifier.required = true;
 
     } else {
 
@@ -284,6 +305,7 @@ include "includes/header.php";
       user.required = false;
       shift.required = false;
       password.required = false;
+      identifier.required = false;
 
     }
 

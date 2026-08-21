@@ -26,6 +26,7 @@ $update = mysqli_prepare($conn, "UPDATE laporan SET status='tervalidasi',validat
 mysqli_stmt_bind_param($update, 'isi', $idUser, $ttd, $id);
 mysqli_stmt_execute($update);
 if (mysqli_stmt_affected_rows($update) === 1) {
+  logActivity($conn, 'Validasi laporan', 'laporan', $id);
   $_SESSION['kepala_success'] = 'Laporan berhasil divalidasi. Tanda tangan Kepala telah disimpan untuk cetak laporan.';
 } else {
   $_SESSION['kepala_error'] = 'Laporan tidak dapat divalidasi atau sudah diproses.';

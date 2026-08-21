@@ -37,6 +37,7 @@ include '../../includes/admin_sidebar.php'; ?>
     <div class="card shadow-sm border-0">
       <div class="card-body p-4">
         <form method="post" class="row g-3">
+          <?= csrf_input() ?>
           <div class="col-md-6"><label class="form-label">Tanggal Tugas</label><input class="form-control" type="date" name="tanggal" value="<?= htmlspecialchars($jadwal['tanggal']) ?>" required></div>
           <div class="col-md-6"><label class="form-label">Status</label><select class="form-select" name="status">
               <option value="bertugas" <?= $jadwal['status'] === 'bertugas' ? 'selected' : '' ?>>Bertugas</option>

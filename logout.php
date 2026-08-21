@@ -2,6 +2,7 @@
 
 require_once "config/session.php";
 
+session_unset();
 $_SESSION = [];
 
 if (ini_get("session.use_cookies")) {

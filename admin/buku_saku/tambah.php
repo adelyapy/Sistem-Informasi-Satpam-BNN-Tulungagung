@@ -64,6 +64,7 @@ include "../../includes/header.php";
           <div class="card-body">
 
             <form method="POST" enctype="multipart/form-data">
+              <?= csrf_input() ?>
 
               <?php if ($error !== ''): ?>
                 <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>

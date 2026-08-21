@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../config/session.php';
+
 if (!isset($title)) {
   $title = 'Buku Mutasi Satpam';
 }

@@ -267,7 +267,9 @@ include '../../includes/kepala_sidebar.php';
       <a href="index.php" class="btn btn-inventaris-outline">Kembali</a>
       <?php if ($menungguValidasi && $siapValidasi): ?>
         <form method="post" action="validasi.php" onsubmit="return confirm('Validasi laporan ini? Tanda tangan Kepala akan disimpan pada laporan dan laporan tidak dapat diubah kembali.');">
+          <?= csrf_input() ?>
           <input type="hidden" name="id" value="<?= $id ?>">
+          <input type="hidden" name="action" value="validasi">
           <button class="btn btn-success"><i class="bi bi-check2-circle me-2"></i>Validasi Laporan</button>
         </form>
       <?php elseif ($menungguValidasi): ?>

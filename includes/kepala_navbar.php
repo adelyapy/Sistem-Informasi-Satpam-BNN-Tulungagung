@@ -16,7 +16,9 @@ $appBase = $sectionPos === false ? '' : substr($scriptPath, 0, $sectionPos);
     <?php else: ?>
       <div class="navbar-brand-wrap mx-auto text-center">
         <div class="d-flex align-items-center justify-content-center gap-2">
-          <div class="brand-logo"><img src="<?= $appBase ?>/assets/img/logo-bnn.png" class="logo-bnn" alt="Logo BNN"><i class="bi bi-shield-fill-check" aria-hidden="true"></i></div>
+          <div class="brand-logo">
+              <img src="<?= $appBase ?>/assets/img/logo-bnn.png" class="logo-bnn" alt="Logo BNN">
+          </div>
           <div class="text-start">
             <div class="title-app">BUKU MUTASI SATPAM</div>
             <div class="subtitle-app">BNN TULUNGAGUNG</div>

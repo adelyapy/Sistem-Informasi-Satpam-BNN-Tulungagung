@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       mysqli_stmt_bind_param($simpanDraft, 'i', $idLaporan);
       if (mysqli_stmt_execute($simpanDraft)) {
         mysqli_query($conn, "UPDATE laporan SET uraian_selesai = 1, uraian_draft_disimpan = 1, updated_at = NOW() WHERE id_laporan = {$idLaporan} AND status = 'draft'");
+        logActivity($conn, 'Edit data', 'uraian_kegiatan', $idLaporan);
         header("Location: detail.php?id={$idLaporan}");
         exit;
       }
@@ -222,6 +223,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   if ($error === '') {
+    $aktivitas = ['tambah' => 'Tambah data', 'edit' => 'Edit data', 'hapus' => 'Hapus data', 'simpan_draft' => 'Edit data'][$action] ?? null;
+    if ($aktivitas !== null) {
+      logActivity($conn, $aktivitas, 'uraian_kegiatan', $idLaporan);
+    }
     header("Location: uraian.php?id={$idLaporan}");
     exit;
   }
@@ -269,6 +274,7 @@ include '../../includes/header.php';
         <h2 class="inventaris-heading">Form Uraian Kegiatan</h2>
         <?php if ($bolehUbahUraian) { ?>
           <form method="post" enctype="multipart/form-data">
+            <?= csrf_input() ?>
             <input type="hidden" name="action" value="tambah">
             <div class="row g-3 mb-3">
               <div class="col-lg-4"><label class="form-label">Nama Satpam</label>
@@ -332,7 +338,7 @@ include '../../includes/header.php';
                         <?php foreach ($lampiranBaris as $foto): ?><a href="../../<?= htmlspecialchars($foto['path_file']) ?>" target="_blank" title="Lihat <?= htmlspecialchars($foto['nama_file']) ?>"><img src="../../<?= htmlspecialchars($foto['path_file']) ?>" alt="Lampiran kegiatan" width="44" height="44" class="rounded border object-fit-cover"></a><?php endforeach; ?>
                       </div><?php else: ?><span class="text-muted">-</span><?php endif; ?>
                   </td>
-                  <?php if ($bolehUbahUraian): ?><td class="text-center inventory-actions"><button class="btn btn-edit" type="button" data-bs-toggle="modal" data-bs-target="#edit<?= (int) $row['id_uraian'] ?>" aria-label="Edit uraian"><i class="bi bi-pencil-square"></i></button><form method="post" class="d-inline" onsubmit="return confirm('Hapus uraian kegiatan ini?')"><input type="hidden" name="action" value="hapus"><input type="hidden" name="id_uraian" value="<?= (int) $row['id_uraian'] ?>"><button class="btn btn-delete" type="submit" aria-label="Hapus uraian"><i class="bi bi-trash3"></i></button></form></td><?php endif; ?>
+                  <?php if ($bolehUbahUraian): ?><td class="text-center inventory-actions"><button class="btn btn-edit" type="button" data-bs-toggle="modal" data-bs-target="#edit<?= (int) $row['id_uraian'] ?>" aria-label="Edit uraian"><i class="bi bi-pencil-square"></i></button><form method="post" class="d-inline" onsubmit="return confirm('Hapus uraian kegiatan ini?')"><?= csrf_input() ?><input type="hidden" name="action" value="hapus"><input type="hidden" name="id_uraian" value="<?= (int) $row['id_uraian'] ?>"><button class="btn btn-delete" type="submit" aria-label="Hapus uraian"><i class="bi bi-trash3"></i></button></form></td><?php endif; ?>
                 </tr>
               <?php } ?>
             </tbody>
@@ -343,7 +349,7 @@ include '../../includes/header.php';
 
     <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
       <a class="btn btn-light btn-inventaris-outline" href="../dashboard.php"><i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard</a>
-      <?php if ($bolehUbahUraian): ?><form method="post" action="uraian.php?id=<?= $idLaporan ?>" class="d-inline"><input type="hidden" name="action" value="simpan_draft"><button class="btn btn-inventaris-primary" type="submit"><i class="bi bi-floppy me-2"></i>Simpan Draft &amp; Lihat Rekap</button></form><?php endif; ?>
+      <?php if ($bolehUbahUraian): ?><form method="post" action="uraian.php?id=<?= $idLaporan ?>" class="d-inline"><?= csrf_input() ?><input type="hidden" name="action" value="simpan_draft"><button class="btn btn-inventaris-primary" type="submit"><i class="bi bi-floppy me-2"></i>Simpan Draft &amp; Lihat Rekap</button></form><?php endif; ?>
       <a class="btn btn-inventaris-primary" href="detail.php?id=<?= $idLaporan ?>"><i class="bi bi-file-earmark-text me-2"></i>Lihat Rekap Uraian Kegiatan</a>
     </div>
   </div>
@@ -356,6 +362,7 @@ include '../../includes/header.php';
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <form method="post" enctype="multipart/form-data">
+            <?= csrf_input() ?>
             <div class="modal-header">
               <h5 class="modal-title">Edit Uraian Kegiatan</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>

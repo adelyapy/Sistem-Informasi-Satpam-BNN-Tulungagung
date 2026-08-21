@@ -10,6 +10,32 @@ function e($string)
   return htmlspecialchars(trim($string), ENT_QUOTES, 'UTF-8');
 }
 
+/** Menampilkan rich text materi dengan tag dan atribut yang telah dibatasi. */
+function sanitizeRichHtml(string $html): string
+{
+  $allowedTags = '<p><br><strong><b><em><i><u><ul><ol><li><h1><h2><h3><h4><h5><h6><blockquote><a><img><table><thead><tbody><tr><th><td><hr><span>';
+  $clean = strip_tags($html, $allowedTags);
+
+  $clean = preg_replace_callback('/<(a|img|span)\\b([^>]*)>/i', static function (array $match): string {
+    $tag = strtolower($match[1]);
+    $attributes = '';
+    preg_match_all('/\\s+(href|src|alt|title|target|rel|class)\\s*=\\s*(["\\\'])(.*?)\\2/i', $match[2], $found, PREG_SET_ORDER);
+    foreach ($found as $attribute) {
+      $name = strtolower($attribute[1]);
+      $value = trim($attribute[3]);
+      if (($name === 'href' || $name === 'src') && !preg_match('#^(https?://|/|uploads/|data:image/)#i', $value)) continue;
+      if ($tag === 'span' && $name !== 'class') continue;
+      if ($tag === 'a' && !in_array($name, ['href', 'title', 'target', 'rel', 'class'], true)) continue;
+      if ($tag === 'img' && !in_array($name, ['src', 'alt', 'title', 'class'], true)) continue;
+      $attributes .= ' ' . $name . '="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '"';
+    }
+    if ($tag === 'a' && str_contains($attributes, 'target="_blank"') && !str_contains($attributes, ' rel=')) $attributes .= ' rel="noopener noreferrer"';
+    return '<' . $tag . $attributes . '>';
+  }, $clean);
+
+  return $clean ?? '';
+}
+
 function redirect($url)
 {
   header("Location: $url");
@@ -36,30 +62,35 @@ function generateKodeSatpam(mysqli $conn): string
   return 'STP' . str_pad((string) $nomor, 3, '0', STR_PAD_LEFT);
 }
 
-function uploadFoto(array $file): ?string
+/** Menyimpan gambar dari unggahan secara aman; nama asli pengguna tidak pernah dipakai. */
+function uploadGambarAman(array $file, string $folderRelatif, int $maksUkuran = 2097152): ?string
 {
   if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) return null;
-  if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK || ($file['size'] ?? 0) > 2 * 1024 * 1024) return null;
-  $allowed = ['jpg', 'jpeg', 'png'];
-  $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-  if (!in_array($ext, $allowed, true)) return null;
-  $folder = dirname(__DIR__) . '/uploads/foto';
-  if (!is_dir($folder)) mkdir($folder, 0755, true);
-  $name = bin2hex(random_bytes(8)) . '.' . $ext;
-  return move_uploaded_file($file['tmp_name'], $folder . '/' . $name) ? $name : null;
+  if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'] ?? '') || ($file['size'] ?? 0) < 1 || ($file['size'] ?? 0) > $maksUkuran) return null;
+
+  $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+  $ekstensi = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+  if (!isset($ekstensi[$mime]) || @getimagesize($file['tmp_name']) === false) return null;
+
+  $folder = dirname(__DIR__) . '/uploads/' . trim($folderRelatif, '/');
+  if (!is_dir($folder) && !mkdir($folder, 0755, true) && !is_dir($folder)) return null;
+  try {
+    $nama = bin2hex(random_bytes(16)) . '.' . $ekstensi[$mime];
+  } catch (Throwable) {
+    return null;
+  }
+
+  return move_uploaded_file($file['tmp_name'], $folder . '/' . $nama) ? $nama : null;
+}
+
+function uploadFoto(array $file): ?string
+{
+  return uploadGambarAman($file, 'foto');
 }
 
 function uploadTTD(array $file): ?string
 {
-  if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) return null;
-  if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK || ($file['size'] ?? 0) > 2 * 1024 * 1024) return null;
-  $allowed = ['jpg', 'jpeg', 'png'];
-  $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-  if (!in_array($ext, $allowed, true)) return null;
-  $folder = dirname(__DIR__) . '/uploads/ttd';
-  if (!is_dir($folder)) mkdir($folder, 0755, true);
-  $name = bin2hex(random_bytes(8)) . '.' . $ext;
-  return move_uploaded_file($file['tmp_name'], $folder . '/' . $name) ? $name : null;
+  return uploadGambarAman($file, 'ttd');
 }
 
 /** Unggah buku saku secara ketat: hanya dokumen PDF hingga 10 MB. */

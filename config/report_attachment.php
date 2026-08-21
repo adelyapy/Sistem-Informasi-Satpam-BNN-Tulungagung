@@ -122,15 +122,19 @@ function uploadLampiranFoto(array $file): array
     return ['ok' => false, 'message' => 'Ukuran setiap foto maksimal 5 MB.'];
   }
 
+  if (!is_uploaded_file($file['tmp_name'] ?? '')) {
+    return ['ok' => false, 'message' => 'Lampiran foto tidak valid.'];
+  }
+
   $imageInfo = @getimagesize($file['tmp_name'] ?? '');
-  $mime = $imageInfo['mime'] ?? '';
+  $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
   $extensionByMime = [
     'image/jpeg' => 'jpg',
     'image/png' => 'png',
     'image/webp' => 'webp',
   ];
 
-  if (!isset($extensionByMime[$mime])) {
+  if (!isset($extensionByMime[$mime]) || empty($imageInfo)) {
     return ['ok' => false, 'message' => 'Lampiran harus berupa foto JPG, PNG, atau WEBP.'];
   }
 

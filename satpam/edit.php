@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     mysqli_stmt_bind_param($update, 'sssssi', $kode, $nama, $status, $foto, $ttd, $id);
 
     if (mysqli_stmt_execute($update)) {
+      logActivity($conn, 'Edit data', 'satpam', $id);
       if ($fotoBaru && !empty($satpam['foto'])) {
         @unlink('../uploads/foto/' . $satpam['foto']);
       }
@@ -70,6 +71,7 @@ include '../includes/admin_sidebar.php';
         <?php endif; ?>
 
         <form method="post" enctype="multipart/form-data" class="row g-4">
+          <?= csrf_input() ?>
           <div class="col-md-6">
             <label class="form-label">Kode Satpam</label>
             <input class="form-control" name="kode_satpam" value="<?= htmlspecialchars($satpam['kode_satpam']) ?>" required>

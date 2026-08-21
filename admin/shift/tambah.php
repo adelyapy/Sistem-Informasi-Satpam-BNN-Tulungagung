@@ -49,6 +49,7 @@ include "../../includes/admin_sidebar.php";
     <div class="card shadow-sm border-0">
       <div class="card-body p-4">
         <form method="post" class="row g-3">
+          <?= csrf_input() ?>
           <?php if ($error): ?><div class="col-12">
               <div class="alert alert-danger mb-0"><?= htmlspecialchars($error) ?></div>
             </div><?php endif; ?>

@@ -152,7 +152,7 @@ $data = mysqli_fetch_assoc($query);
 
             <div class="isi-materi">
 
-              <?= $data['isi']; ?>
+              <?= sanitizeRichHtml((string) $data['isi']); ?>
 
             </div>
 

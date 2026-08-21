@@ -6,7 +6,9 @@ $activeMenu = $activeMenu ?? '';
 ?>
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <div class="sidebar-logo"><img src="<?= $appBase ?>/assets/img/logo-bnn.png" alt="Logo BNN"><i class="bi bi-shield-fill-check" aria-hidden="true"></i></div>
+    <div class="sidebar-logo">
+        <img src="<?= $appBase ?>/assets/img/logo-bnn.png" alt="Logo BNN">
+    </div>
     <div class="sidebar-brand-name">BUKU MUTASI SATPAM</div>
     <div class="sidebar-brand-unit">BNN TULUNGAGUNG</div>
   </div>

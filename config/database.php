@@ -1,14 +1,22 @@
 <?php
 
-$host     = "localhost";
-$username = "root";
-$password = "";
-$database = "db_sistem_informasi_satpam";
+declare(strict_types=1);
 
-$conn = mysqli_connect($host, $username, $password, $database);
+require_once __DIR__ . '/error_handler.php';
+require_once __DIR__ . '/environment.php';
 
-if (!$conn) {
-  die("Koneksi database gagal : " . mysqli_connect_error());
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+try {
+  $conn = mysqli_connect(
+    requireEnvironment('DB_HOST'),
+    requireEnvironment('DB_USERNAME'),
+    requireEnvironment('DB_PASSWORD'),
+    requireEnvironment('DB_DATABASE'),
+    (int) (environment('DB_PORT', '3306') ?? '3306')
+  );
+  mysqli_set_charset($conn, 'utf8mb4');
+} catch (Throwable $error) {
+  appLog($error);
+  appSafeErrorResponse();
 }
-
-mysqli_set_charset($conn, "utf8");

@@ -119,6 +119,7 @@ include "../../includes/header.php";
       <div class="card-body">
 
         <form method="POST">
+          <?= csrf_input() ?>
 
           <div class="row">
 

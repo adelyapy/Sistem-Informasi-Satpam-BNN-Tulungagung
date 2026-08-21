@@ -40,6 +40,8 @@ if (isset($_POST['simpan'])) {
 
   if ($query) {
 
+    logActivity($conn, 'Tambah data', 'satpam', (int) mysqli_insert_id($conn));
+
     header('Location: index.php?success=tambah');
     exit;
   } else {
@@ -100,6 +102,7 @@ include "../includes/header.php";
       <div class="card-body">
 
         <form method="POST" enctype="multipart/form-data">
+          <?= csrf_input() ?>
 
           <div class="row">
 

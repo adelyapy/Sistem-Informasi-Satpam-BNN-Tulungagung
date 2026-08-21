@@ -115,6 +115,7 @@ ORDER BY nama_kategori ASC
           <div class="card-body">
 
             <form method="POST">
+              <?= csrf_input() ?>
 
               <div class="mb-3">
 

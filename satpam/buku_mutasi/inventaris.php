@@ -47,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       mysqli_stmt_bind_param($simpanDraft, 'i', $idLaporan);
       if (mysqli_stmt_execute($simpanDraft)) {
         mysqli_query($conn, "UPDATE laporan SET inventaris_selesai = 1, inventaris_draft_disimpan = 1, updated_at = NOW() WHERE id_laporan = {$idLaporan} AND status = 'draft'");
+        logActivity($conn, 'Edit data', 'inventaris', $idLaporan);
         header("Location: detail.php?id={$idLaporan}");
         exit;
       }
@@ -215,6 +216,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   if ($error === '') {
+    $aktivitas = ['tambah' => 'Tambah data', 'edit' => 'Edit data', 'hapus' => 'Hapus data', 'simpan_draft' => 'Edit data'][$action] ?? null;
+    if ($aktivitas !== null) {
+      logActivity($conn, $aktivitas, 'inventaris', $idLaporan);
+    }
     header("Location: inventaris.php?id={$idLaporan}");
     exit;
   }
@@ -258,6 +263,7 @@ include '../../includes/header.php';
         <h2 class="inventaris-heading">Form Input Inventaris</h2>
         <?php if ($bolehUbahInventaris): ?>
           <form method="post" enctype="multipart/form-data" class="row g-3 align-items-end">
+            <?= csrf_input() ?>
             <input type="hidden" name="action" value="tambah">
             <div class="col-lg-5"><label class="form-label" for="nama_barang">Nama Barang</label><input class="form-control" id="nama_barang" name="nama_barang" placeholder="Masukkan nama barang" required></div>
             <div class="col-lg-3"><label class="form-label" for="jumlah">Jumlah</label><input class="form-control" id="jumlah" name="jumlah" type="number" min="1" placeholder="Masukkan jumlah" required></div>
@@ -286,7 +292,7 @@ include '../../includes/header.php';
                 <tr>
                   <td><?= $index + 1 ?></td><td class="fw-medium"><?= htmlspecialchars($row['nama_barang']) ?></td><td><?= (int) $row['jumlah'] ?></td><td><span class="inventory-badge"><?= htmlspecialchars($row['keterangan']) ?></span></td>
                   <td><?php if ($lampiranBaris): ?><div class="d-flex flex-wrap gap-1"><?php foreach ($lampiranBaris as $foto): ?><a href="../../<?= htmlspecialchars($foto['path_file']) ?>" target="_blank" title="Lihat <?= htmlspecialchars($foto['nama_file']) ?>"><img src="../../<?= htmlspecialchars($foto['path_file']) ?>" alt="Lampiran <?= htmlspecialchars($row['nama_barang']) ?>" width="44" height="44" class="rounded border object-fit-cover"></a><?php endforeach; ?></div><?php else: ?><span class="text-muted">-</span><?php endif; ?></td>
-                  <?php if ($bolehUbahInventaris): ?><td class="text-center inventory-actions"><button class="btn btn-edit" type="button" data-bs-toggle="modal" data-bs-target="#edit<?= (int) $row['id_inventaris'] ?>" aria-label="Edit <?= htmlspecialchars($row['nama_barang']) ?>"><i class="bi bi-pencil-square"></i></button><form method="post" class="d-inline" onsubmit="return confirm('Hapus barang ini?')"><input type="hidden" name="action" value="hapus"><input type="hidden" name="id_inventaris" value="<?= (int) $row['id_inventaris'] ?>"><button class="btn btn-delete" type="submit" aria-label="Hapus <?= htmlspecialchars($row['nama_barang']) ?>"><i class="bi bi-trash3"></i></button></form></td><?php endif; ?>
+                  <?php if ($bolehUbahInventaris): ?><td class="text-center inventory-actions"><button class="btn btn-edit" type="button" data-bs-toggle="modal" data-bs-target="#edit<?= (int) $row['id_inventaris'] ?>" aria-label="Edit <?= htmlspecialchars($row['nama_barang']) ?>"><i class="bi bi-pencil-square"></i></button><form method="post" class="d-inline" onsubmit="return confirm('Hapus barang ini?')"><?= csrf_input() ?><input type="hidden" name="action" value="hapus"><input type="hidden" name="id_inventaris" value="<?= (int) $row['id_inventaris'] ?>"><button class="btn btn-delete" type="submit" aria-label="Hapus <?= htmlspecialchars($row['nama_barang']) ?>"><i class="bi bi-trash3"></i></button></form></td><?php endif; ?>
                 </tr>
               <?php endforeach; ?>
             </tbody>
@@ -297,14 +303,14 @@ include '../../includes/header.php';
 
     <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
       <a class="btn btn-light btn-inventaris-outline" href="../dashboard.php"><i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard</a>
-      <?php if ($bolehUbahInventaris): ?><form method="post" action="inventaris.php?id=<?= $idLaporan ?>" class="d-inline"><input type="hidden" name="action" value="simpan_draft"><button class="btn btn-inventaris-primary" type="submit"><i class="bi bi-floppy me-2"></i>Simpan Draft &amp; Lihat Rekap</button></form><?php endif; ?>
+      <?php if ($bolehUbahInventaris): ?><form method="post" action="inventaris.php?id=<?= $idLaporan ?>" class="d-inline"><?= csrf_input() ?><input type="hidden" name="action" value="simpan_draft"><button class="btn btn-inventaris-primary" type="submit"><i class="bi bi-floppy me-2"></i>Simpan Draft &amp; Lihat Rekap</button></form><?php endif; ?>
       <a class="btn btn-inventaris-primary" href="detail.php?id=<?= $idLaporan ?>"><i class="bi bi-file-earmark-text me-2"></i>Lihat Rekap Inventaris</a>
     </div>
   </div>
 </main>
 
 <?php if ($bolehUbahInventaris): foreach ($inventaris as $row): $lampiranBaris = $lampiranPerInventaris[(int) $row['id_inventaris']] ?? []; ?>
-  <div class="modal fade" id="edit<?= (int) $row['id_inventaris'] ?>" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><form method="post" enctype="multipart/form-data"><div class="modal-header"><h5 class="modal-title">Edit Inventaris</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" name="action" value="edit"><input type="hidden" name="id_inventaris" value="<?= (int) $row['id_inventaris'] ?>"><label class="form-label">Nama Barang</label><input class="form-control mb-3" name="nama_barang" value="<?= htmlspecialchars($row['nama_barang']) ?>" required><label class="form-label">Jumlah</label><input class="form-control mb-3" name="jumlah" type="number" min="1" value="<?= (int) $row['jumlah'] ?>" required><label class="form-label">Keterangan</label><select class="form-select mb-3" name="keterangan" required><?php foreach ($kondisiBarang as $kondisi): ?><option value="<?= htmlspecialchars($kondisi) ?>" <?= $row['keterangan'] === $kondisi ? 'selected' : '' ?>><?= htmlspecialchars($kondisi) ?></option><?php endforeach; ?></select><label class="form-label">Foto Saat Ini</label><?php if ($lampiranBaris): ?><div class="row g-2 mb-3"><?php foreach ($lampiranBaris as $foto): ?><div class="col-sm-4"><label class="border rounded p-2 w-100 text-center"><img src="../../<?= htmlspecialchars($foto['path_file']) ?>" alt="Foto inventaris" class="img-fluid rounded mb-2" style="height:110px;object-fit:cover;"><span class="d-block small"><input type="checkbox" name="hapus_foto[]" value="<?= (int) $foto['id_lampiran'] ?>"> Hapus foto ini</span></label></div><?php endforeach; ?></div><?php else: ?><p class="text-muted small">Belum ada foto untuk barang ini.</p><?php endif; ?><label class="form-label">Tambah atau Ganti Foto</label><input class="form-control" type="file" name="lampiran_foto[]" accept="image/jpeg,image/png,image/webp" multiple><div class="form-text">Pilih foto baru untuk menambah foto. Centang foto lama yang keliru untuk menghapusnya. Maksimal total 5 foto.</div></div><div class="modal-footer"><button class="btn btn-inventaris-primary" type="submit">Simpan Perubahan</button></div></form></div></div></div>
+  <div class="modal fade" id="edit<?= (int) $row['id_inventaris'] ?>" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><form method="post" enctype="multipart/form-data"><?= csrf_input() ?><div class="modal-header"><h5 class="modal-title">Edit Inventaris</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" name="action" value="edit"><input type="hidden" name="id_inventaris" value="<?= (int) $row['id_inventaris'] ?>"><label class="form-label">Nama Barang</label><input class="form-control mb-3" name="nama_barang" value="<?= htmlspecialchars($row['nama_barang']) ?>" required><label class="form-label">Jumlah</label><input class="form-control mb-3" name="jumlah" type="number" min="1" value="<?= (int) $row['jumlah'] ?>" required><label class="form-label">Keterangan</label><select class="form-select mb-3" name="keterangan" required><?php foreach ($kondisiBarang as $kondisi): ?><option value="<?= htmlspecialchars($kondisi) ?>" <?= $row['keterangan'] === $kondisi ? 'selected' : '' ?>><?= htmlspecialchars($kondisi) ?></option><?php endforeach; ?></select><label class="form-label">Foto Saat Ini</label><?php if ($lampiranBaris): ?><div class="row g-2 mb-3"><?php foreach ($lampiranBaris as $foto): ?><div class="col-sm-4"><label class="border rounded p-2 w-100 text-center"><img src="../../<?= htmlspecialchars($foto['path_file']) ?>" alt="Foto inventaris" class="img-fluid rounded mb-2" style="height:110px;object-fit:cover;"><span class="d-block small"><input type="checkbox" name="hapus_foto[]" value="<?= (int) $foto['id_lampiran'] ?>"> Hapus foto ini</span></label></div><?php endforeach; ?></div><?php else: ?><p class="text-muted small">Belum ada foto untuk barang ini.</p><?php endif; ?><label class="form-label">Tambah atau Ganti Foto</label><input class="form-control" type="file" name="lampiran_foto[]" accept="image/jpeg,image/png,image/webp" multiple><div class="form-text">Pilih foto baru untuk menambah foto. Centang foto lama yang keliru untuk menghapusnya. Maksimal total 5 foto.</div></div><div class="modal-footer"><button class="btn btn-inventaris-primary" type="submit">Simpan Perubahan</button></div></form></div></div></div>
 <?php endforeach; endif; ?>
 
 <?php include '../../includes/footer.php'; ?>

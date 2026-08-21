@@ -70,6 +70,7 @@ include '../includes/admin_sidebar.php';
         <?php endif; ?>
 
         <form method="post" enctype="multipart/form-data" class="row g-4">
+          <?= csrf_input() ?>
           <div class="col-12">
             <label class="form-label">Nama Kepala BNN</label>
             <input class="form-control" value="<?= htmlspecialchars($kepala['nama']) ?>" disabled>

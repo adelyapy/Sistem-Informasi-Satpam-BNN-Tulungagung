@@ -27,6 +27,24 @@ function requireRole(string $role, ?string $loginPath = null): void
     exit;
   }
 
+  // Password reset meningkatkan session_version. Dengan memeriksa versi ini
+  // pada setiap halaman privat, semua sesi lama otomatis tidak berlaku.
+  global $conn;
+  if (isset($conn)) {
+    $userId = (int) ($_SESSION['id_user'] ?? 0);
+    $sessionVersion = (int) ($_SESSION['session_version'] ?? 0);
+    $sessionStmt = mysqli_prepare($conn, 'SELECT session_version FROM users WHERE id_user = ? AND status = \'aktif\' LIMIT 1');
+    mysqli_stmt_bind_param($sessionStmt, 'i', $userId);
+    mysqli_stmt_execute($sessionStmt);
+    $userSession = mysqli_fetch_assoc(mysqli_stmt_get_result($sessionStmt));
+
+    if (!$userSession || !hash_equals((string) $userSession['session_version'], (string) $sessionVersion)) {
+      $_SESSION = [];
+      header('Location: ' . ($loginPath ?? loginPath()));
+      exit;
+    }
+  }
+
   // Halaman privat tidak boleh ditampilkan kembali dari cache browser.
   header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
   header('Pragma: no-cache');

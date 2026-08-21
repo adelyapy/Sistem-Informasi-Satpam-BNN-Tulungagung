@@ -127,6 +127,7 @@ if (isset($_POST['update'])) {
           <div class="card-body">
 
             <form method="POST">
+              <?= csrf_input() ?>
 
               <div class="mb-3">
 

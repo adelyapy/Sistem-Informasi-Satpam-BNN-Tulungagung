@@ -118,6 +118,7 @@ if (isset($_POST['simpan'])) {
           <div class="card-body">
 
             <form method="POST">
+              <?= csrf_input() ?>
 
               <div class="mb-3">
 

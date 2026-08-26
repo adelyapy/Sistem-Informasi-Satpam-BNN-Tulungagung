@@ -1,5 +1,5 @@
 <?php
-require_once "database.php";
+require_once __DIR__ . '/database.php';
 
 /* =========================
    FUNGSI LAMA
@@ -53,13 +53,6 @@ function formatTanggal($tanggal)
 function formatJam($jam)
 {
   return date("H:i", strtotime($jam));
-}
-
-function generateKodeSatpam(mysqli $conn): string
-{
-  $result = mysqli_query($conn, "SELECT MAX(CAST(SUBSTRING(kode_satpam, 4) AS UNSIGNED)) AS nomor FROM users WHERE kode_satpam LIKE 'STP%'");
-  $nomor = (int) (mysqli_fetch_assoc($result)['nomor'] ?? 0) + 1;
-  return 'STP' . str_pad((string) $nomor, 3, '0', STR_PAD_LEFT);
 }
 
 /** Menyimpan gambar dari unggahan secara aman; nama asli pengguna tidak pernah dipakai. */

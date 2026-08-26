@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 20 Agu 2026 pada 08.43
+-- Waktu pembuatan: 22 Agu 2026 pada 01.50
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.2.12
 
@@ -41,8 +41,8 @@ CREATE TABLE `anggota_shift` (
 --
 
 INSERT INTO `anggota_shift` (`id_anggota`, `id_laporan`, `id_satpam`, `status_login`, `login_at`, `created_at`) VALUES
-(54, 37, 9, 'sudah_login', '2026-08-13 20:11:37', '2026-08-13 13:11:37'),
-(55, 38, 9, 'sudah_login', '2026-08-13 20:42:38', '2026-08-13 13:42:38');
+(60, 41, 9, 'sudah_login', '2026-08-21 11:28:57', '2026-08-21 02:34:06'),
+(62, 42, 8, 'sudah_login', '2026-08-21 09:59:23', '2026-08-21 02:59:23');
 
 -- --------------------------------------------------------
 
@@ -61,6 +61,62 @@ CREATE TABLE `audit_logs` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data untuk tabel `audit_logs`
+--
+
+INSERT INTO `audit_logs` (`id`, `user_id`, `aktivitas`, `modul`, `record_id`, `ip_address`, `user_agent`, `created_at`) VALUES
+(1, 9, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-20 17:09:36'),
+(2, 1, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-20 17:10:04'),
+(3, 2, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-20 17:10:44'),
+(4, 9, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-20 17:11:15'),
+(5, NULL, 'Login gagal', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 08:37:51'),
+(6, 1, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 08:46:33'),
+(7, 9, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 08:49:49'),
+(8, 9, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:11:04'),
+(9, 9, 'Tambah data', 'inventaris', 40, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:11:15'),
+(10, 9, 'Edit data', 'inventaris', 40, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:11:18'),
+(11, 9, 'Tambah data', 'uraian_kegiatan', 40, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:11:35'),
+(12, 9, 'Edit data', 'uraian_kegiatan', 40, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:11:37'),
+(13, 9, 'Kirim laporan', 'laporan', 40, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:11:41'),
+(14, 1, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:11:57'),
+(15, 2, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:13:43'),
+(16, 2, 'Login berhasil', 'autentikasi', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 09:26:10'),
+(17, 2, 'Login berhasil', 'autentikasi', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 09:26:31'),
+(18, 2, 'Login berhasil', 'autentikasi', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 09:26:57'),
+(19, 2, 'Validasi laporan', 'laporan', 40, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 09:26:57'),
+(20, 9, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:34:06'),
+(21, 9, 'Tambah data', 'inventaris', 41, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:34:27'),
+(22, 9, 'Edit data', 'inventaris', 41, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:34:28'),
+(23, 9, 'Tambah data', 'uraian_kegiatan', 41, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:34:44'),
+(24, 9, 'Edit data', 'uraian_kegiatan', 41, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:34:45'),
+(25, 9, 'Kirim laporan', 'laporan', 41, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:34:49'),
+(26, 2, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:34:59'),
+(27, 2, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:35:17'),
+(28, 2, 'Validasi laporan', 'laporan', 41, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:35:24'),
+(29, 1, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:35:39'),
+(30, NULL, 'Login gagal', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:36:14'),
+(31, 1, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:36:25'),
+(32, 9, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:36:34'),
+(33, 1, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 09:36:56'),
+(34, 8, 'Login berhasil', 'autentikasi', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 09:59:23'),
+(35, 8, 'Tambah data', 'inventaris', 42, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 09:59:23'),
+(36, 8, 'Edit data', 'inventaris', 42, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 09:59:23'),
+(37, 8, 'Hapus data', 'inventaris', 42, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 09:59:23'),
+(38, 9, 'Login berhasil', 'autentikasi', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 10:01:11'),
+(39, 9, 'Login berhasil', 'autentikasi', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 10:01:45'),
+(40, 9, 'Login berhasil', 'autentikasi', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 10:02:24'),
+(41, 2, 'Login berhasil', 'autentikasi', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Microsoft Windows 10.0.26200; en-ID) PowerShell/7.6.4', '2026-08-21 10:03:47'),
+(42, 1, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 10:11:17'),
+(43, 2, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 10:11:29'),
+(44, 9, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 10:11:39'),
+(45, 2, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 10:19:36'),
+(46, 1, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 10:21:14'),
+(47, 2, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 10:21:38'),
+(48, 9, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 10:38:18'),
+(49, 9, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-21 11:28:57'),
+(50, 1, 'Login berhasil', 'autentikasi', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36', '2026-08-22 06:50:07');
+
 -- --------------------------------------------------------
 
 --
@@ -77,13 +133,6 @@ CREATE TABLE `buku_saku` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data untuk tabel `buku_saku`
---
-
-INSERT INTO `buku_saku` (`id_buku`, `judul`, `nama_file`, `path_file`, `ukuran_file`, `uploaded_by`, `created_at`, `updated_at`) VALUES
-(1, 'card', '1785810325_2923.pdf', 'uploads/buku_saku/1785810325_2923.pdf', 3978925, 1, '2026-08-04 02:25:25', '2026-08-04 02:44:04');
 
 -- --------------------------------------------------------
 
@@ -109,7 +158,7 @@ CREATE TABLE `inventaris` (
 --
 
 INSERT INTO `inventaris` (`id_inventaris`, `id_laporan`, `urutan`, `nama_barang`, `jumlah`, `keterangan`, `created_by`, `created_at`, `updated_at`, `sudah_direkap`) VALUES
-(16, 38, 1, 'Kendaraan dinas', 1, 'Lengkap berfungsi dengan baik', 9, '2026-08-13 13:43:01', '2026-08-13 13:43:04', 1);
+(18, 41, 1, 'sapu', 2, 'Lengkap baik', 9, '2026-08-21 02:34:27', '2026-08-21 02:34:28', 1);
 
 -- --------------------------------------------------------
 
@@ -132,7 +181,10 @@ CREATE TABLE `jadwal_shift` (
 
 INSERT INTO `jadwal_shift` (`id_jadwal`, `id_satpam`, `id_shift`, `tanggal`, `status`, `created_at`) VALUES
 (24, 9, 1, '2026-08-13', 'bertugas', '2026-08-13 13:11:37'),
-(25, 9, 2, '2026-08-13', 'bertugas', '2026-08-13 13:42:38');
+(25, 9, 2, '2026-08-13', 'bertugas', '2026-08-13 13:42:38'),
+(26, 9, 1, '2026-08-20', 'bertugas', '2026-08-20 10:09:36'),
+(28, 9, 1, '2026-08-21', 'bertugas', '2026-08-21 01:49:49'),
+(32, 8, 1, '2026-08-21', 'bertugas', '2026-08-21 02:59:23');
 
 -- --------------------------------------------------------
 
@@ -181,8 +233,8 @@ CREATE TABLE `lampiran_foto` (
 --
 
 INSERT INTO `lampiran_foto` (`id_lampiran`, `id_laporan`, `id_uraian`, `id_inventaris`, `nama_file`, `path_file`, `ukuran_file`, `uploaded_by`, `created_at`) VALUES
-(9, 38, NULL, 16, 'c922e4d973ea2474028ee8947be35fac.jpg', 'uploads/lampiran_laporan/c922e4d973ea2474028ee8947be35fac.jpg', 168387, 9, '2026-08-13 13:43:01'),
-(10, 38, 11, NULL, '6f3465718e8f2289733c1b0fd585063b.jpg', 'uploads/lampiran_laporan/6f3465718e8f2289733c1b0fd585063b.jpg', 169072, 9, '2026-08-13 13:43:17');
+(13, 41, NULL, 18, '7354971eb73151452f80af7f7a2c133b.png', 'uploads/lampiran_laporan/7354971eb73151452f80af7f7a2c133b.png', 1377496, 9, '2026-08-21 02:34:27'),
+(14, 41, 13, NULL, '23cb7c70749f91163b07a863e289c32a.png', 'uploads/lampiran_laporan/23cb7c70749f91163b07a863e289c32a.png', 1482933, 9, '2026-08-21 02:34:44');
 
 -- --------------------------------------------------------
 
@@ -213,8 +265,8 @@ CREATE TABLE `laporan` (
 --
 
 INSERT INTO `laporan` (`id_laporan`, `id_jadwal`, `created_by`, `tanggal_laporan`, `status`, `inventaris_selesai`, `inventaris_draft_disimpan`, `uraian_selesai`, `uraian_draft_disimpan`, `validated_by`, `validated_at`, `ttd_kepala`, `ttd_satpam`, `created_at`, `updated_at`) VALUES
-(37, 24, 9, '2026-08-13', 'draft', 0, 0, 0, 0, NULL, NULL, NULL, NULL, '2026-08-13 13:11:37', NULL),
-(38, 25, 9, '2026-08-13', 'tervalidasi', 1, 1, 1, 1, 2, '2026-08-13 20:44:46', 'acfafbcf2992d436.jpeg', '12e89b23b2fe4772.jpeg', '2026-08-13 13:42:38', '2026-08-13 13:44:46');
+(41, 28, 9, '2026-08-21', 'tervalidasi', 1, 1, 1, 1, 2, '2026-08-21 09:35:24', 'acfafbcf2992d436.jpeg', '12e89b23b2fe4772.jpeg', '2026-08-21 02:34:06', '2026-08-21 02:35:24'),
+(42, 32, 8, '2026-08-21', 'draft', 0, 0, 0, 0, NULL, NULL, NULL, NULL, '2026-08-21 02:59:23', NULL);
 
 -- --------------------------------------------------------
 
@@ -349,6 +401,15 @@ CREATE TABLE `password_resets` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data untuk tabel `password_resets`
+--
+
+INSERT INTO `password_resets` (`id`, `user_id`, `token`, `expires_at`, `used_at`, `created_at`) VALUES
+(2, 1, '8a11228e2b7d89c6af41bdf35fb89f59fed74048069d9236336a977593704bbd', '2026-08-21 09:00:27', '2026-08-21 08:46:11', '2026-08-21 08:45:27'),
+(10, 2, '3ec05b290912b1a5b4ea6685281248e62a4bbe97db379d7b8f9cb5b1f048c215', '2026-08-21 10:32:43', '2026-08-21 10:19:23', '2026-08-21 10:17:43'),
+(12, 1, 'db5a6d52153419daca1570fad5076f462e6e5f052a5016dc0813a41bfe449110', '2026-08-22 07:04:24', '2026-08-22 06:49:52', '2026-08-22 06:49:24');
+
 -- --------------------------------------------------------
 
 --
@@ -393,7 +454,7 @@ CREATE TABLE `uraian_kegiatan` (
 --
 
 INSERT INTO `uraian_kegiatan` (`id_uraian`, `id_laporan`, `urutan`, `jam`, `uraian`, `created_by`, `created_at`, `sudah_direkap`) VALUES
-(11, 38, 1, '20:43:17', 'patroli', 9, '2026-08-13 13:43:17', 1);
+(13, 41, 1, '09:34:44', 'patroli', 9, '2026-08-21 02:34:44', 1);
 
 -- --------------------------------------------------------
 
@@ -422,8 +483,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id_user`, `kode_satpam`, `nama`, `username`, `email`, `password`, `session_version`, `foto`, `ttd`, `role`, `status`, `created_at`, `updated_at`) VALUES
-(1, NULL, 'Administrator', 'admin', NULL, '$2y$10$l/WPJwz6ct5CL7qzJq79d.4/Z9C6bWqPdIug0vFN1Zwjw51Nf5XT6', 1, NULL, NULL, 'admin', 'aktif', '2026-07-28 02:38:48', '2026-07-31 09:53:31'),
-(2, NULL, 'Kepala BNN', 'kepala', NULL, '$2y$10$bG0ZGEKPaTZvUrIF6glGoOWWJz9BSC6NiilbvZIU9Vf9y/E3BTTpS', 1, '97abb6de310b77ea.jpeg', 'acfafbcf2992d436.jpeg', 'kepala', 'aktif', '2026-07-28 02:38:48', '2026-08-13 13:10:22'),
+(1, NULL, 'Administrator', 'admin', 'adelyapy23@gmail.com', '$2y$10$ck4wQq0bwCQ4abx4/sLH6ulPXMzx.f2KWR7XeUyo7aJK/WWHWVPha', 3, NULL, NULL, 'admin', 'aktif', '2026-07-28 02:38:48', '2026-08-21 23:49:52'),
+(2, NULL, 'Kepala BNN', 'kepala', 'adelyapy27@gmail.com', '$2y$10$sBlrwoj4Z3GgTT6oaL.y.uDJchOntgRy0oLOHWTy5R6DrEGKnfDka', 2, '97abb6de310b77ea.jpeg', 'acfafbcf2992d436.jpeg', 'kepala', 'aktif', '2026-07-28 02:38:48', '2026-08-21 03:19:23'),
 (8, 'STP006', 'septi', NULL, NULL, NULL, 1, '', '', 'satpam', 'aktif', '2026-08-04 02:57:02', NULL),
 (9, 'STP007', 'adel', NULL, NULL, NULL, 1, '30e67e01a5774561.jpg', '12e89b23b2fe4772.jpeg', 'satpam', 'aktif', '2026-08-04 02:57:11', '2026-08-13 13:10:06');
 
@@ -562,13 +623,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT untuk tabel `anggota_shift`
 --
 ALTER TABLE `anggota_shift`
-  MODIFY `id_anggota` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id_anggota` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
 
 --
 -- AUTO_INCREMENT untuk tabel `audit_logs`
 --
 ALTER TABLE `audit_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT untuk tabel `buku_saku`
@@ -580,31 +641,31 @@ ALTER TABLE `buku_saku`
 -- AUTO_INCREMENT untuk tabel `inventaris`
 --
 ALTER TABLE `inventaris`
-  MODIFY `id_inventaris` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id_inventaris` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT untuk tabel `jadwal_shift`
 --
 ALTER TABLE `jadwal_shift`
-  MODIFY `id_jadwal` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id_jadwal` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT untuk tabel `lampiran_foto`
 --
 ALTER TABLE `lampiran_foto`
-  MODIFY `id_lampiran` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id_lampiran` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT untuk tabel `laporan`
 --
 ALTER TABLE `laporan`
-  MODIFY `id_laporan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id_laporan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT untuk tabel `login_attempts`
 --
 ALTER TABLE `login_attempts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT untuk tabel `nomor_penting`
@@ -616,7 +677,7 @@ ALTER TABLE `nomor_penting`
 -- AUTO_INCREMENT untuk tabel `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT untuk tabel `shift`
@@ -628,7 +689,7 @@ ALTER TABLE `shift`
 -- AUTO_INCREMENT untuk tabel `uraian_kegiatan`
 --
 ALTER TABLE `uraian_kegiatan`
-  MODIFY `id_uraian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_uraian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT untuk tabel `users`

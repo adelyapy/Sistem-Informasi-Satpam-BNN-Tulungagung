@@ -22,8 +22,6 @@ function ensureLaporanTtdKepalaColumn(mysqli $conn): bool
 /** Menyimpan snapshot tanda tangan Satpam ketika laporan difinalisasi. */
 function ensureLaporanTtdSatpamColumn(mysqli $conn): bool
 {
-  // Database lama mungkin belum memiliki ttd_kepala; pastikan lebih dulu
-  // karena kolom ttd_satpam ditempatkan setelahnya.
   if (!ensureLaporanTtdKepalaColumn($conn)) {
     return false;
   }

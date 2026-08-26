@@ -18,30 +18,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $kode = trim($_POST['kode_satpam'] ?? '');
   $nama = trim($_POST['nama'] ?? '');
   $status = $_POST['status'] ?? 'aktif';
-  $fotoBaru = uploadFoto($_FILES['foto'] ?? ['error' => UPLOAD_ERR_NO_FILE]);
-  $ttdBaru = uploadTTD($_FILES['ttd'] ?? ['error' => UPLOAD_ERR_NO_FILE]);
 
   if ($kode === '' || $nama === '' || !in_array($status, ['aktif', 'nonaktif'], true)) {
     $error = 'Lengkapi data Satpam dengan benar.';
   } else {
-    $foto = $fotoBaru ?: $satpam['foto'];
-    $ttd = $ttdBaru ?: $satpam['ttd'];
-    $update = mysqli_prepare($conn, 'UPDATE users SET kode_satpam = ?, nama = ?, status = ?, foto = ?, ttd = ? WHERE id_user = ? AND role = \'satpam\'');
-    mysqli_stmt_bind_param($update, 'sssssi', $kode, $nama, $status, $foto, $ttd, $id);
+    $cekKode = mysqli_prepare($conn, 'SELECT id_user FROM users WHERE kode_satpam = ? AND id_user <> ? LIMIT 1');
+    mysqli_stmt_bind_param($cekKode, 'si', $kode, $id);
+    mysqli_stmt_execute($cekKode);
 
-    if (mysqli_stmt_execute($update)) {
-      logActivity($conn, 'Edit data', 'satpam', $id);
-      if ($fotoBaru && !empty($satpam['foto'])) {
-        @unlink('../uploads/foto/' . $satpam['foto']);
+    if (mysqli_fetch_assoc(mysqli_stmt_get_result($cekKode))) {
+      $error = 'Kode Satpam sudah digunakan. Gunakan kode Satpam lain.';
+    } else {
+      $fotoBaru = uploadFoto($_FILES['foto'] ?? ['error' => UPLOAD_ERR_NO_FILE]);
+      $ttdBaru = uploadTTD($_FILES['ttd'] ?? ['error' => UPLOAD_ERR_NO_FILE]);
+      $foto = $fotoBaru ?: $satpam['foto'];
+      $ttd = $ttdBaru ?: $satpam['ttd'];
+      $update = mysqli_prepare($conn, 'UPDATE users SET kode_satpam = ?, nama = ?, status = ?, foto = ?, ttd = ? WHERE id_user = ? AND role = \'satpam\'');
+      mysqli_stmt_bind_param($update, 'sssssi', $kode, $nama, $status, $foto, $ttd, $id);
+
+      try {
+        mysqli_stmt_execute($update);
+        logActivity($conn, 'Edit data', 'satpam', $id);
+        if ($fotoBaru && !empty($satpam['foto'])) {
+          @unlink('../uploads/foto/' . $satpam['foto']);
+        }
+        if ($ttdBaru && !empty($satpam['ttd'])) {
+          @unlink('../uploads/ttd/' . $satpam['ttd']);
+        }
+        header('Location: detail.php?id=' . $id);
+        exit;
+      } catch (Throwable $exception) {
+        appLog($exception);
+        $error = 'Data tidak dapat diperbarui. Silakan periksa kembali kode Satpam.';
       }
-      if ($ttdBaru && !empty($satpam['ttd'])) {
-        @unlink('../uploads/ttd/' . $satpam['ttd']);
-      }
-      header('Location: detail.php?id=' . $id);
-      exit;
     }
-
-    $error = 'Data tidak dapat diperbarui. Kode Satpam mungkin sudah digunakan.';
   }
 }
 

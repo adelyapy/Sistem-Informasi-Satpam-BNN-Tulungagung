@@ -1,6 +1,7 @@
 <?php
 
 require_once "../config/admin_auth.php";
+require_once "../config/database.php";
 require_once "../config/function.php";
 
 $title = "Data Satpam";
@@ -137,13 +138,13 @@ include "../includes/header.php";
 
                       </a>
 
-                      <button
-                        class="btn btn-danger btn-sm"
-                        onclick="hapusSatpam(<?= $data['id_user']; ?>)">
-
-                        <i class="bi bi-trash"></i>
-
-                      </button>
+                      <form method="post" action="hapus.php" class="d-inline" onsubmit="return hapusSatpam(this);">
+                        <?= csrf_input() ?>
+                        <input type="hidden" name="id" value="<?= (int) $data['id_user']; ?>">
+                        <button class="btn btn-danger btn-sm" type="submit">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
 
                     </td>
 
@@ -192,13 +193,13 @@ include "../includes/header.php";
 </div>
 
 <script>
-  function hapusSatpam(id) {
+  function hapusSatpam(form) {
 
     Swal.fire({
 
-      title: 'Hapus Data?',
+      title: 'Nonaktifkan User?',
 
-      text: 'Data satpam akan dihapus.',
+      text: 'User akan dinonaktifkan dan histori tetap tersimpan.',
 
       icon: 'warning',
 
@@ -208,7 +209,7 @@ include "../includes/header.php";
 
       cancelButtonColor: '#6c757d',
 
-      confirmButtonText: 'Ya, Hapus',
+      confirmButtonText: 'Ya, Nonaktifkan',
 
       cancelButtonText: 'Batal'
 
@@ -216,11 +217,13 @@ include "../includes/header.php";
 
       if (result.isConfirmed) {
 
-        window.location = 'hapus.php?id=' + id;
+        form.submit();
 
       }
 
     });
+
+    return false;
 
   }
 </script>

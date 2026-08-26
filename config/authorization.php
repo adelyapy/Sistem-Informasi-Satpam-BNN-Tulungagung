@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/session.php';
+require_once __DIR__ . '/database.php';
 
 /**
  * Membatasi halaman pada peran yang diizinkan. Path login disediakan oleh
@@ -29,6 +30,7 @@ function requireRole(string $role, ?string $loginPath = null): void
 
   // Password reset meningkatkan session_version. Dengan memeriksa versi ini
   // pada setiap halaman privat, semua sesi lama otomatis tidak berlaku.
+  /** @var mysqli $conn */
   global $conn;
   if (isset($conn)) {
     $userId = (int) ($_SESSION['id_user'] ?? 0);

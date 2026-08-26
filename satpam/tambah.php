@@ -9,56 +9,41 @@ $activeMenu = "data_satpam";
 
 if (isset($_POST['simpan'])) {
 
-  $kode_satpam = generateKodeSatpam($conn);
-  $nama = e($_POST['nama']);
+  $kode_satpam = trim((string) ($_POST['kode_satpam'] ?? ''));
+  $nama = trim((string) ($_POST['nama'] ?? ''));
+  $error = '';
 
-  $foto = uploadFoto($_FILES['foto']);
-  $ttd  = uploadTTD($_FILES['ttd']);
-
-  $query = mysqli_query($conn, "
-        INSERT INTO users
-        (
-            kode_satpam,
-            nama,
-            username,
-            password,
-            foto,
-            ttd,
-            role
-        )
-        VALUES
-        (
-            '$kode_satpam',
-            '$nama',
-            NULL,
-            NULL,
-            '$foto',
-            '$ttd',
-            'satpam'
-        )
-    ");
-
-  if ($query) {
-
-    logActivity($conn, 'Tambah data', 'satpam', (int) mysqli_insert_id($conn));
-
-    header('Location: index.php?success=tambah');
-    exit;
+  if ($kode_satpam === '' || $nama === '') {
+    $error = 'Kode Satpam dan nama Satpam wajib diisi.';
   } else {
+    $cekKode = mysqli_prepare($conn, 'SELECT id_user FROM users WHERE kode_satpam = ? LIMIT 1');
+    mysqli_stmt_bind_param($cekKode, 's', $kode_satpam);
+    mysqli_stmt_execute($cekKode);
 
-    echo "
-        <script>
+    if (mysqli_fetch_assoc(mysqli_stmt_get_result($cekKode))) {
+      $error = 'Kode Satpam sudah digunakan. Gunakan kode Satpam lain.';
+    }
+  }
 
-        Swal.fire({
+  if ($error === '') {
+    $foto = uploadFoto($_FILES['foto'] ?? ['error' => UPLOAD_ERR_NO_FILE]);
+    $ttd = uploadTTD($_FILES['ttd'] ?? ['error' => UPLOAD_ERR_NO_FILE]);
 
-            icon:'error',
-            title:'Gagal',
+    try {
+      $query = mysqli_prepare($conn, "
+        INSERT INTO users (kode_satpam, nama, username, password, foto, ttd, role)
+        VALUES (?, ?, NULL, NULL, ?, ?, 'satpam')
+      ");
+      mysqli_stmt_bind_param($query, 'ssss', $kode_satpam, $nama, $foto, $ttd);
+      mysqli_stmt_execute($query);
 
-            text:'Data gagal disimpan'
-
-        });
-
-        </script>";
+      logActivity($conn, 'Tambah data', 'satpam', (int) mysqli_insert_id($conn));
+      header('Location: index.php?success=tambah');
+      exit;
+    } catch (Throwable $exception) {
+      appLog($exception);
+      $error = 'Data Satpam tidak dapat disimpan. Silakan periksa kembali kode Satpam.';
+    }
   }
 }
 
@@ -101,6 +86,10 @@ include "../includes/header.php";
 
       <div class="card-body">
 
+        <?php if (!empty($error)): ?>
+          <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
         <form method="POST" enctype="multipart/form-data">
           <?= csrf_input() ?>
 
@@ -116,9 +105,11 @@ include "../includes/header.php";
 
               <input
                 type="text"
+                name="kode_satpam"
                 class="form-control"
-                value="<?= generateKodeSatpam($conn); ?>"
-                readonly>
+                value="<?= htmlspecialchars($kode_satpam ?? '') ?>"
+                placeholder="Contoh: STP006"
+                required>
 
             </div>
 

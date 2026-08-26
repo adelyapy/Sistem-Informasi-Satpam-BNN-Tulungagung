@@ -8,6 +8,7 @@ require_once __DIR__ . '/environment.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 try {
+  /** @var mysqli $conn Koneksi database aplikasi yang digunakan bersama. */
   $conn = mysqli_connect(
     requireEnvironment('DB_HOST'),
     requireEnvironment('DB_USERNAME'),

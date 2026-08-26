@@ -166,7 +166,7 @@ include '../../includes/kepala_sidebar.php';
     <div class="inventaris-card mb-4">
       <div class="card-body">
         <h2 class="inventaris-heading">Daftar Inventaris</h2>
-        <div class="inventory-table table-responsive">
+        <div class="inventory-table table-responsive mobile-scroll-table kepala-inventory-table" tabindex="0" aria-label="Tabel daftar inventaris, geser ke samping untuk melihat semua kolom">
           <table class="table align-middle">
             <thead>
               <tr>
@@ -211,13 +211,15 @@ include '../../includes/kepala_sidebar.php';
             </tbody>
           </table>
         </div>
+        <input class="mobile-table-scrollbar" type="range" min="0" value="0" aria-label="Geser tabel inventaris ke samping">
+        <p class="mobile-scroll-hint mb-0"><i class="bi bi-arrow-left-right me-1"></i>Geser tabel ke samping untuk melihat semua kolom.</p>
       </div>
     </div>
 
     <div class="inventaris-card mb-4">
       <div class="card-body">
         <h2 class="inventaris-heading">Uraian Kegiatan</h2>
-        <div class="inventory-table table-responsive">
+        <div class="inventory-table table-responsive mobile-scroll-table activity-list-table" tabindex="0" aria-label="Tabel uraian kegiatan, geser ke samping untuk melihat semua kolom">
           <table class="table align-middle">
             <thead>
               <tr>
@@ -260,6 +262,8 @@ include '../../includes/kepala_sidebar.php';
             </tbody>
           </table>
         </div>
+        <input class="mobile-table-scrollbar" type="range" min="0" value="0" aria-label="Geser tabel uraian kegiatan ke samping">
+        <p class="mobile-scroll-hint mb-0"><i class="bi bi-arrow-left-right me-1"></i>Geser tabel ke samping untuk melihat semua kolom.</p>
       </div>
     </div>
 

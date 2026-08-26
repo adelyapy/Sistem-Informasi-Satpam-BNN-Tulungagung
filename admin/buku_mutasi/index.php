@@ -164,7 +164,7 @@ laporan.id_laporan DESC
         </h2>
 
         <p class="text-muted mb-0">
-          Monitoring seluruh laporan buku mutasi satpam.
+          Monitoring seluruh laporan e-SATPAM — Elektronik Sistem Administrasi Satpam.
         </p>
 
       </div>

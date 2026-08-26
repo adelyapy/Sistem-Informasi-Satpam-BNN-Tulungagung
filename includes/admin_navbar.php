@@ -26,11 +26,11 @@ $appBase = $sectionPos === false ? '' : substr($scriptPath, 0, $sectionPos);
       <div class="navbar-brand-wrap mx-auto text-center">
         <div class="d-flex align-items-center justify-content-center gap-2">
           <div class="brand-logo" aria-label="Logo BNN">
-            <img src="<?= $appBase ?>/assets/img/logo-bnn.png" class="logo-bnn" alt="Logo BNN" onerror="this.remove()">
+            <img src="<?= $appBase ?>/assets/img/logo-esatpam.png" class="logo-bnn" alt="Logo e-SATPAM" onerror="this.remove()">
           </div>
           <div class="text-start">
             <div class="title-app">
-              BUKU MUTASI SATPAM
+              e-SATPAM — Elektronik Sistem Administrasi Satpam
             </div>
 
             <div class="subtitle-app">

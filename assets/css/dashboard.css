@@ -335,11 +335,52 @@ body {
 .inventory-table {
   border: 1px solid #e5eaf2;
   border-radius: 9px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #eef2f7;
 }
 
 .inventory-table table {
   margin: 0;
+}
+
+.inventory-table::-webkit-scrollbar {
+  height: 8px;
+}
+
+.inventory-table::-webkit-scrollbar-track {
+  background: #eef2f7;
+}
+
+.inventory-table::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 999px;
+}
+
+.mobile-scroll-hint {
+  display: none;
+  color: #64748b;
+  font-size: 12px;
+  padding-top: 9px;
+}
+
+.mobile-table-scrollbar {
+  display: none;
+}
+
+.activity-form-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-top: 8px;
+}
+
+.activity-form-meta small:last-child {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .inventory-table thead th {
@@ -392,6 +433,105 @@ body {
 
   .inventaris-card .card-body {
     padding: 20px 16px;
+  }
+
+  .mobile-scroll-table {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: scroll !important;
+    overflow-y: hidden !important;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .mobile-scroll-table > table {
+    width: max-content !important;
+  }
+
+  .mobile-scroll-table:not(.activity-list-table):not(.report-list-table) > table {
+    min-width: 760px;
+  }
+
+  .activity-list-table > table {
+    min-width: 920px;
+  }
+
+  .report-list-table > table {
+    min-width: 900px;
+  }
+
+  .admin-detail-table > table {
+    min-width: 1020px;
+  }
+
+  .report-detail-table-card > .mobile-table-scrollbar {
+    width: calc(100% - 32px);
+    margin-right: 16px;
+    margin-left: 16px;
+  }
+
+  .mobile-scroll-hint {
+    display: block;
+  }
+
+  .mobile-table-scrollbar {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    width: 100%;
+    height: 24px;
+    margin: 8px 0 0;
+    cursor: grab;
+    accent-color: #2d5bff;
+  }
+
+  .mobile-table-scrollbar::-webkit-slider-runnable-track {
+    height: 12px;
+    border-radius: 999px;
+    background: #e5e7eb;
+  }
+
+  .mobile-table-scrollbar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 88px;
+    height: 12px;
+    margin-top: 0;
+    border: 0;
+    border-radius: 999px;
+    background: #2d5bff;
+  }
+
+  .mobile-table-scrollbar::-moz-range-track {
+    height: 12px;
+    border-radius: 999px;
+    background: #e5e7eb;
+  }
+
+  .mobile-table-scrollbar::-moz-range-progress {
+    height: 12px;
+    border-radius: 999px;
+    background: #2d5bff;
+  }
+
+  .mobile-table-scrollbar::-moz-range-thumb {
+    width: 88px;
+    height: 12px;
+    border: 0;
+    border-radius: 999px;
+    background: #2d5bff;
+  }
+
+  .attachment-help {
+    margin-top: 7px;
+    line-height: 1.45;
+  }
+
+  .activity-form-meta {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 10px;
   }
 
   .inventaris-heading {

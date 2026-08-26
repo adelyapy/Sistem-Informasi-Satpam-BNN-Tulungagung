@@ -244,7 +244,7 @@ include '../../includes/header.php';
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
       <div>
         <h2 class="fw-bold mb-1">Detail Laporan</h2>
-        <p class="text-secondary mb-0">Data yang ditampilkan sesuai dengan input buku mutasi satpam.</p>
+        <p class="text-secondary mb-0">Data yang ditampilkan sesuai dengan input e-SATPAM — Elektronik Sistem Administrasi Satpam.</p>
       </div>
       <div class="d-flex gap-2">
         <a href="index.php" class="btn btn-secondary"><i class="bi bi-arrow-left me-1"></i>Kembali</a>
@@ -267,7 +267,7 @@ include '../../includes/header.php';
 
     <section class="card shadow-sm border-0 mb-4 report-detail-table-card">
       <div class="card-header bg-primary text-white fw-semibold">Uraian Kegiatan</div>
-      <div class="table-responsive">
+      <div class="table-responsive mobile-scroll-table activity-list-table admin-detail-table" tabindex="0" aria-label="Tabel uraian kegiatan, geser ke samping untuk melihat semua kolom">
         <table class="table table-bordered align-middle mb-0 report-detail-table">
           <thead><tr><th>No.</th><th>Tanggal &amp; Waktu</th><th>Shift</th><th>Uraian Kegiatan</th><th>Pengunggah</th><th>Lampiran Foto</th></tr></thead>
           <tbody>
@@ -285,11 +285,13 @@ include '../../includes/header.php';
           </tbody>
         </table>
       </div>
+      <input class="mobile-table-scrollbar" type="range" min="0" value="0" aria-label="Geser tabel uraian kegiatan ke samping">
+      <p class="mobile-scroll-hint mb-0 px-3"><i class="bi bi-arrow-left-right me-1"></i>Geser tabel ke samping untuk melihat semua kolom.</p>
     </section>
 
     <section class="card shadow-sm border-0 mb-4 report-detail-table-card">
       <div class="card-header bg-primary text-white fw-semibold">Inventaris</div>
-      <div class="table-responsive">
+      <div class="table-responsive mobile-scroll-table admin-detail-table" tabindex="0" aria-label="Tabel inventaris, geser ke samping untuk melihat semua kolom">
         <table class="table table-bordered align-middle mb-0 report-detail-table">
           <thead><tr><th>No.</th><th>Waktu Input</th><th>Nama Barang</th><th>Jumlah</th><th>Keterangan</th><th>Pengunggah</th><th>Lampiran Foto</th></tr></thead>
           <tbody>
@@ -298,6 +300,8 @@ include '../../includes/header.php';
           </tbody>
         </table>
       </div>
+      <input class="mobile-table-scrollbar" type="range" min="0" value="0" aria-label="Geser tabel inventaris ke samping">
+      <p class="mobile-scroll-hint mb-0 px-3"><i class="bi bi-arrow-left-right me-1"></i>Geser tabel ke samping untuk melihat semua kolom.</p>
     </section>
   </div>
 </main>

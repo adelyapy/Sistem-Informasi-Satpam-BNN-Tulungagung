@@ -85,7 +85,7 @@ include '../../includes/header.php';
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
       <div>
         <h2 class="detail-title">Detail Laporan</h2>
-        <p class="text-muted mb-0">Rincian laporan buku mutasi satpam.</p>
+        <p class="text-muted mb-0">Rincian laporan e-SATPAM — Elektronik Sistem Administrasi Satpam.</p>
       </div><a class="btn btn-light btn-inventaris-outline" href="index.php"><i class="bi bi-arrow-left me-2"></i>Kembali ke Daftar Laporan</a>
     </div>
     <section class="inventaris-card mb-3">

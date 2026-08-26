@@ -552,7 +552,7 @@ $namaAdmin = $_SESSION['nama'] ?? 'Administrator';
 <footer class="dashboard-footer">
   © 2026 BNN Tulungagung
   <span>|</span>
-  Sistem Informasi Buku Mutasi Satpam
+  e-SATPAM — Elektronik Sistem Administrasi Satpam
 </footer>
 
 <?php include "../../includes/footer.php"; ?>

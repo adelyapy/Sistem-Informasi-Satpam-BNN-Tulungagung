@@ -30,7 +30,7 @@ function sendPasswordResetEmail(string $recipientEmail, string $recipientName, s
     $mail->setFrom(requireEnvironment('SMTP_FROM_EMAIL'), requireEnvironment('SMTP_FROM_NAME'));
     $mail->addAddress($recipientEmail, $recipientName);
     $mail->isHTML(true);
-    $mail->Subject = 'Permintaan Reset Password Buku Mutasi Satpam';
+    $mail->Subject = 'Permintaan Reset Password e-SATPAM — Elektronik Sistem Administrasi Satpam';
     $mail->Body = '<p>Halo ' . htmlspecialchars($recipientName, ENT_QUOTES, 'UTF-8') . ',</p>'
         . '<p>Klik tautan berikut untuk membuat password baru. Tautan berlaku selama 15 menit dan hanya dapat digunakan sekali.</p>'
         . '<p><a href="' . htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8') . '">Reset Password</a></p>'

@@ -15,7 +15,7 @@ if (($_SESSION['role'] ?? '') === 'satpam') {
 ?>
 <nav class="navbar navbar-satpam shadow-sm">
   <div class="container-fluid px-3 px-lg-4">
-    <a class="navbar-brand text-primary fw-bold" href="<?= $base_url ?>index.php">Buku Mutasi Satpam</a>
+    <a class="navbar-brand text-primary fw-bold" href="<?= $base_url ?>index.php">e-SATPAM — Elektronik Sistem Administrasi Satpam</a>
     <span class="profile-name"><?= htmlspecialchars($_SESSION['nama'] ?? '') ?></span>
   </div>
 </nav>

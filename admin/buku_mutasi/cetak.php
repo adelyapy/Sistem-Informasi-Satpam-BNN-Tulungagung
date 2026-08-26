@@ -58,20 +58,23 @@ if (!$petugasShift && !empty($laporan['nama_pembuat'])) {
 }
 
 $uraianStmt = mysqli_prepare($conn, '
-  SELECT id_uraian, jam, uraian
-  FROM uraian_kegiatan
-  WHERE id_laporan = ?
-  ORDER BY urutan ASC, id_uraian ASC
+  SELECT uk.id_uraian, uk.jam, uk.uraian, pengguna.nama AS nama_input
+  FROM uraian_kegiatan uk
+  LEFT JOIN users pengguna ON pengguna.id_user = uk.created_by
+  WHERE uk.id_laporan = ?
+  ORDER BY uk.urutan ASC, uk.id_uraian ASC
 ');
 mysqli_stmt_bind_param($uraianStmt, 'i', $idLaporan);
 mysqli_stmt_execute($uraianStmt);
 $uraianKegiatan = mysqli_fetch_all(mysqli_stmt_get_result($uraianStmt), MYSQLI_ASSOC);
 
 $inventarisStmt = mysqli_prepare($conn, '
-  SELECT id_inventaris, nama_barang, jumlah, keterangan
-  FROM inventaris
-  WHERE id_laporan = ?
-  ORDER BY urutan ASC, id_inventaris ASC
+  SELECT i.id_inventaris, i.nama_barang, i.jumlah, i.keterangan, i.created_at,
+         pengguna.nama AS nama_input
+  FROM inventaris i
+  LEFT JOIN users pengguna ON pengguna.id_user = i.created_by
+  WHERE i.id_laporan = ?
+  ORDER BY i.urutan ASC, i.id_inventaris ASC
 ');
 mysqli_stmt_bind_param($inventarisStmt, 'i', $idLaporan);
 mysqli_stmt_execute($inventarisStmt);
@@ -146,10 +149,11 @@ function cetakFoto(array $foto, string $label): string
     .identity-table .label { width: 145px; font-weight: 700; }
     .identity-table .colon { width: 12px; text-align: center; }
     .petugas-list { margin: 0; padding-left: 19px; }
-    .report-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; }
+    .report-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; border: 1px solid #222; }
     .report-table th, .report-table td { border: 1px solid #222; padding: 6px; vertical-align: top; overflow-wrap: anywhere; }
     .report-table th { background: #e9ecef; text-align: center; font-weight: 700; }
     .number, .time, .quantity { text-align: center; }
+    .table-time { white-space: nowrap; }
     .photo-list { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
     .report-photo { width: 54px; height: 54px; border: 1px solid #888; object-fit: cover; }
     .empty-photo { display: inline-block; min-width: 12px; text-align: center; }
@@ -192,11 +196,11 @@ function cetakFoto(array $foto, string $label): string
 
   <main class="report-page">
     <header class="letterhead">
-      <img src="../../assets/img/logo-bnn.png" alt="Logo Badan Narkotika Nasional">
+      <img src="../../assets/img/logo-esatpam.png" alt="Logo e-SATPAM">
       <div class="letterhead-title">
         <p class="institution">BADAN NARKOTIKA NASIONAL</p>
         <p class="unit">KABUPATEN TULUNGAGUNG</p>
-        <p class="document">BUKU MUTASI SATPAM</p>
+        <p class="document">e-SATPAM — Elektronik Sistem Administrasi Satpam</p>
         <p class="subtitle">LAPORAN KEGIATAN SATPAM</p>
       </div>
     </header>
@@ -223,25 +227,27 @@ function cetakFoto(array $foto, string $label): string
     <section>
       <h2 class="section-title">Uraian Kegiatan</h2>
       <table class="report-table">
-        <thead><tr><th style="width: 7%">No</th><th style="width: 13%">Jam</th><th>Uraian Kegiatan</th><th style="width: 21%">Dokumentasi</th></tr></thead>
+        <thead><tr><th style="width: 6%">No.</th><th style="width: 20%">Tanggal &amp; Waktu</th><th style="width: 10%">Shift</th><th>Uraian Kegiatan</th><th style="width: 17%">Pengunggah</th><th style="width: 16%">Lampiran Foto</th></tr></thead>
         <tbody>
           <?php if ($uraianKegiatan): ?>
             <?php foreach ($uraianKegiatan as $index => $uraian): ?>
               <tr>
                 <td class="number"><?= $index + 1 ?></td>
-                <td class="time"><?= htmlspecialchars(substr((string) $uraian['jam'], 0, 5)) ?> WIB</td>
+                <td><?= htmlspecialchars($tanggalLaporan) ?><br><span class="table-time"><?= htmlspecialchars(substr((string) $uraian['jam'], 0, 5)) ?> WIB</span></td>
+                <td><?= htmlspecialchars($laporan['nama_shift'] ?: '-') ?></td>
                 <td><?= nl2br(htmlspecialchars($uraian['uraian'])) ?></td>
-                <td><?= cetakFoto($fotoUraian[(int) $uraian['id_uraian']] ?? [], 'Dokumentasi kegiatan') ?></td>
+                <td><?= htmlspecialchars($uraian['nama_input'] ?: '-') ?></td>
+                <td><?= cetakFoto($fotoUraian[(int) $uraian['id_uraian']] ?? [], 'Lampiran kegiatan') ?></td>
               </tr>
             <?php endforeach; ?>
           <?php else: ?>
-            <tr><td colspan="4" class="number">Belum ada uraian kegiatan.</td></tr>
+            <tr><td colspan="6" class="number">Belum ada uraian kegiatan.</td></tr>
           <?php endif; ?>
         </tbody>
       </table>
     </section>
 
-    <?php if ($fotoUraian): ?>
+    <?php if (false && $fotoUraian): ?>
       <section class="photo-attachment-section">
         <h2 class="section-title">Lampiran Foto Kegiatan</h2>
         <div class="attachment-grid">
@@ -260,20 +266,22 @@ function cetakFoto(array $foto, string $label): string
     <section>
       <h2 class="section-title">Inventaris</h2>
       <table class="report-table">
-        <thead><tr><th style="width: 7%">No</th><th>Nama Barang</th><th style="width: 11%">Jumlah</th><th style="width: 29%">Kondisi / Keterangan</th><th style="width: 18%">Foto</th></tr></thead>
+        <thead><tr><th style="width: 6%">No.</th><th style="width: 17%">Waktu Input</th><th style="width: 19%">Nama Barang</th><th style="width: 8%">Jumlah</th><th>Keterangan</th><th style="width: 16%">Pengunggah</th><th style="width: 14%">Lampiran Foto</th></tr></thead>
         <tbody>
           <?php if ($inventaris): ?>
             <?php foreach ($inventaris as $index => $item): ?>
               <tr>
                 <td class="number"><?= $index + 1 ?></td>
+                <td><?= date('d-m-Y', strtotime($item['created_at'])) ?><br><span class="table-time"><?= date('H:i', strtotime($item['created_at'])) ?> WIB</span></td>
                 <td><?= htmlspecialchars($item['nama_barang']) ?></td>
                 <td class="quantity"><?= (int) $item['jumlah'] ?></td>
                 <td><?= nl2br(htmlspecialchars($item['keterangan'])) ?></td>
-                <td><?= cetakFoto($fotoInventaris[(int) $item['id_inventaris']] ?? [], 'Foto inventaris') ?></td>
+                <td><?= htmlspecialchars($item['nama_input'] ?: '-') ?></td>
+                <td><?= cetakFoto($fotoInventaris[(int) $item['id_inventaris']] ?? [], 'Lampiran foto inventaris') ?></td>
               </tr>
             <?php endforeach; ?>
           <?php else: ?>
-            <tr><td colspan="5" class="number">Belum ada data inventaris.</td></tr>
+            <tr><td colspan="7" class="number">Belum ada data inventaris.</td></tr>
           <?php endif; ?>
         </tbody>
       </table>

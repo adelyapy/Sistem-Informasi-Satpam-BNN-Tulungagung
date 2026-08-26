@@ -81,7 +81,7 @@ include '../../includes/header.php';
     <section class="inventaris-card">
       <div class="card-body">
         <h2 class="inventaris-heading">Daftar Laporan</h2>
-        <div class="inventory-table table-responsive">
+        <div class="inventory-table table-responsive mobile-scroll-table report-list-table" tabindex="0" aria-label="Tabel daftar laporan, geser ke samping untuk melihat semua kolom">
           <table class="table align-middle report-table">
             <thead>
               <tr>
@@ -116,6 +116,8 @@ include '../../includes/header.php';
             </tbody>
           </table>
         </div>
+        <input class="mobile-table-scrollbar" type="range" min="0" value="0" aria-label="Geser tabel daftar laporan ke samping">
+        <p class="mobile-scroll-hint mb-0"><i class="bi bi-arrow-left-right me-1"></i>Geser tabel ke samping untuk melihat semua kolom.</p>
         <?php if ($totalData > 0) {
           $awal = (($halaman - 1) * $perHalaman) + 1;
           $akhir = min($halaman * $perHalaman, $totalData); ?>

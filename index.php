@@ -1,5 +1,5 @@
 <?php
-$title = 'Buku Mutasi Satpam';
+$title = 'e-SATPAM — Elektronik Sistem Administrasi Satpam';
 $base_url = './';
 
 include 'includes/header.php';
@@ -11,9 +11,9 @@ include 'includes/header.php';
   <section class="landing-hero">
     <div class="container landing-content">
       <div class="landing-intro">
-        <img src="assets/img/logo-bnn.png" alt="Logo BNN" class="landing-logo">
+        <img src="assets/img/logo-esatpam.png" alt="Logo e-SATPAM" class="landing-logo">
 
-        <h1>BUKU MUTASI SATPAM</h1>
+        <h1>e-SATPAM — Elektronik Sistem Administrasi Satpam</h1>
         <h2>BADAN NARKOTIKA NASIONAL</h2>
         <h3>KABUPATEN TULUNGAGUNG</h3>
         <span class="landing-divider" aria-hidden="true"></span>
@@ -37,7 +37,7 @@ include 'includes/header.php';
         <div class="col-lg-4 col-md-6">
           <a href="login.php" class="landing-card">
             <span class="landing-card-icon"><i class="bi bi-clipboard2-check"></i></span>
-            <h4>Buku Mutasi Satpam</h4>
+            <h4>e-SATPAM — Elektronik Sistem Administrasi Satpam</h4>
             <p>Masuk ke sistem pengelolaan Buku Mutasi.</p>
             <span class="landing-card-action">Masuk <i class="bi bi-arrow-right"></i></span>
           </a>

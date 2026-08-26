@@ -292,9 +292,9 @@ include '../../includes/header.php';
             <div class="mt-3">
               <label class="form-label" for="lampiran_foto">Lampiran Foto <span class="text-muted fw-normal">(opsional)</span></label>
               <input class="form-control" type="file" id="lampiran_foto" name="lampiran_foto[]" accept="image/jpeg,image/png,image/webp" multiple>
-              <div class="form-text">JPG, PNG, atau WEBP; maksimal 5 foto, masing-masing maksimal 5 MB.</div>
+              <div class="form-text attachment-help">JPG, PNG, atau WEBP; maksimal 5 foto, masing-masing maksimal 5 MB.</div>
             </div>
-            <div class="d-flex justify-content-between align-items-center mt-1"><small class="text-muted">Waktu dicatat otomatis saat kegiatan ditambahkan.</small><small class="text-muted"><span id="jumlahKarakter">0</span> / 500</small></div>
+            <div class="activity-form-meta"><small class="text-muted">Waktu dicatat otomatis saat kegiatan ditambahkan.</small><small class="text-muted"><span id="jumlahKarakter">0</span> / 500 karakter</small></div>
             <div class="text-end mt-3"><button class="btn btn-inventaris-primary" type="submit"><i class="bi bi-plus-lg me-2"></i>Tambah Kegiatan</button></div>
           </form>
         <?php } elseif ($uraianTersimpan) { ?>
@@ -309,7 +309,7 @@ include '../../includes/header.php';
     <section class="inventaris-card">
       <div class="card-body">
         <h2 class="inventaris-heading">Daftar Uraian Kegiatan</h2>
-        <div class="inventory-table table-responsive">
+        <div class="inventory-table table-responsive mobile-scroll-table activity-list-table" tabindex="0" aria-label="Tabel daftar uraian kegiatan, geser ke samping untuk melihat semua kolom">
           <table class="table align-middle">
             <thead>
               <tr>
@@ -344,6 +344,8 @@ include '../../includes/header.php';
             </tbody>
           </table>
         </div>
+        <input class="mobile-table-scrollbar" type="range" min="0" value="0" aria-label="Geser tabel uraian kegiatan ke samping">
+        <p class="mobile-scroll-hint mb-0"><i class="bi bi-arrow-left-right me-1"></i>Geser tabel ke samping untuk melihat semua kolom.</p>
       </div>
     </section>
 

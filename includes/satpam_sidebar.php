@@ -8,9 +8,9 @@ $activeMenu = $activeMenu ?? '';
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header text-center">
     <div class="sidebar-logo" aria-label="Logo BNN">
-      <img src="<?= $appBase ?>/assets/img/logo-bnn.png" alt="Logo BNN" onerror="this.remove()">
+      <img src="<?= $appBase ?>/assets/img/logo-esatpam.png" alt="Logo e-SATPAM" onerror="this.remove()">
     </div>
-    <h5 class="mt-3 mb-1">Buku Mutasi Satpam</h5>
+    <h5 class="mt-3 mb-1">e-SATPAM — Elektronik Sistem Administrasi Satpam</h5>
     <small>BNN TULUNGAGUNG</small>
   </div>
 

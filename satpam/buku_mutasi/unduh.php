@@ -112,7 +112,7 @@ header('Content-Disposition: attachment; filename="' . $namaFile . '"');
 </head>
 
 <body>
-  <h1>Laporan Buku Mutasi Satpam</h1>
+  <h1>Laporan e-SATPAM — Elektronik Sistem Administrasi Satpam</h1>
   <table class="meta">
     <tr>
       <td>Tanggal</td>

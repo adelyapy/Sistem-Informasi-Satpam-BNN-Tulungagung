@@ -77,7 +77,7 @@ include "includes/header.php";
             <div class="text-center mb-4">
 
               <img
-                src="assets/img/logo-bnn.png"
+                src="assets/img/logo-esatpam.png"
                 class="login-logo mb-3"
                 width="90"
                 alt="Logo">
@@ -87,7 +87,7 @@ include "includes/header.php";
               </h3>
 
               <p class="text-muted mb-0">
-                Sistem Informasi Buku Mutasi Satpam
+                e-SATPAM — Elektronik Sistem Administrasi Satpam
               </p>
 
             </div>

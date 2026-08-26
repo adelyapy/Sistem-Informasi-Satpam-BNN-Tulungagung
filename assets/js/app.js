@@ -19,6 +19,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 4000);
   });
 
+  document.querySelectorAll(".mobile-scroll-table").forEach((tableWrapper) => {
+    const scrollbar = tableWrapper.parentElement.querySelector(".mobile-table-scrollbar");
+    if (!scrollbar) return;
+
+    const syncScrollbar = () => {
+      const maxScroll = Math.max(0, tableWrapper.scrollWidth - tableWrapper.clientWidth);
+      scrollbar.max = String(maxScroll);
+      scrollbar.value = String(Math.min(tableWrapper.scrollLeft, maxScroll));
+      scrollbar.disabled = maxScroll === 0;
+    };
+
+    scrollbar.addEventListener("input", () => {
+      tableWrapper.scrollLeft = Number(scrollbar.value);
+    });
+    tableWrapper.addEventListener("scroll", () => {
+      scrollbar.value = String(tableWrapper.scrollLeft);
+    }, { passive: true });
+    window.addEventListener("resize", syncScrollbar);
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(syncScrollbar).observe(tableWrapper);
+    }
+    syncScrollbar();
+    requestAnimationFrame(syncScrollbar);
+    window.setTimeout(syncScrollbar, 150);
+  });
+
 });
 
 

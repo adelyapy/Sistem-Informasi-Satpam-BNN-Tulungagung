@@ -283,7 +283,7 @@ include '../../includes/header.php';
     <section class="inventaris-card">
       <div class="card-body">
         <h2 class="inventaris-heading">Daftar Inventaris</h2>
-        <div class="inventory-table table-responsive">
+        <div class="inventory-table table-responsive mobile-scroll-table" tabindex="0" aria-label="Tabel daftar inventaris, geser ke samping untuk melihat semua kolom">
           <table class="table align-middle">
             <thead><tr><th>No.</th><th>Nama Barang</th><th>Jumlah</th><th>Keterangan</th><th>Lampiran Foto</th><?php if ($bolehUbahInventaris): ?><th class="text-center">Aksi</th><?php endif; ?></tr></thead>
             <tbody>
@@ -298,6 +298,8 @@ include '../../includes/header.php';
             </tbody>
           </table>
         </div>
+        <input class="mobile-table-scrollbar" type="range" min="0" value="0" aria-label="Geser tabel inventaris ke samping">
+        <p class="mobile-scroll-hint mb-0"><i class="bi bi-arrow-left-right me-1"></i>Geser tabel ke samping untuk melihat semua kolom.</p>
       </div>
     </section>
 

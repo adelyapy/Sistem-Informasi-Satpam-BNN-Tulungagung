@@ -38,6 +38,17 @@ mysqli_stmt_bind_param($uraianStmt, 'i', $idLaporan);
 mysqli_stmt_execute($uraianStmt);
 $uraian = mysqli_fetch_all(mysqli_stmt_get_result($uraianStmt), MYSQLI_ASSOC);
 
+$anggotaStmt = mysqli_prepare($conn, '
+    SELECT u.nama, u.kode_satpam
+    FROM anggota_shift anggota
+    INNER JOIN users u ON u.id_user = anggota.id_satpam
+    WHERE anggota.id_laporan = ?
+    ORDER BY u.nama ASC
+');
+mysqli_stmt_bind_param($anggotaStmt, 'i', $idLaporan);
+mysqli_stmt_execute($anggotaStmt);
+$anggotaShift = mysqli_fetch_all(mysqli_stmt_get_result($anggotaStmt), MYSQLI_ASSOC);
+
 $fotoStmt = mysqli_prepare($conn, 'SELECT id_lampiran, id_uraian, id_inventaris, path_file, nama_file FROM lampiran_foto WHERE id_laporan = ? ORDER BY created_at ASC, id_lampiran ASC');
 mysqli_stmt_bind_param($fotoStmt, 'i', $idLaporan);
 mysqli_stmt_execute($fotoStmt);
@@ -57,7 +68,6 @@ $statusTervalidasi = $laporan['status'] === 'tervalidasi';
 $statusMenunggu = $laporan['status'] === 'menunggu_validasi';
 $inventarisTersimpan = (int) ($laporan['inventaris_draft_disimpan'] ?? 0) === 1;
 $uraianTersimpan = (int) ($laporan['uraian_draft_disimpan'] ?? 0) === 1;
-$adalahPembuatLaporan = (int) $laporan['created_by'] === $idSatpam;
 $title = 'Detail Laporan';
 $pageTitle = 'Detail Laporan';
 $base_url = '../../';
@@ -93,6 +103,14 @@ include '../../includes/header.php';
           <div class="col-md-4">
             <div class="detail-label">Dibuat Oleh</div>
             <div class="detail-value"><?= htmlspecialchars($laporan['nama_pembuat'] ?: 'Satpam') ?></div>
+          </div>
+          <div class="col-md-12">
+            <div class="detail-label">Petugas Shift</div>
+            <div class="detail-value">
+              <?php foreach ($anggotaShift as $anggota): ?>
+                <div><?= htmlspecialchars($anggota['nama']) ?> <small class="text-muted">(<?= htmlspecialchars($anggota['kode_satpam']) ?>)</small></div>
+              <?php endforeach; ?>
+            </div>
           </div>
           <?php if ($statusTervalidasi || $statusMenunggu) { ?>
             <div class="col-12"><span class="report-status <?= $statusTervalidasi ? 'report-status-valid' : 'report-status-pending' ?>"><i class="bi <?= $statusTervalidasi ? 'bi-check-circle-fill' : 'bi-clock-history' ?> me-1"></i><?= $statusTervalidasi ? 'Sudah divalidasi Kepala BNN' : 'Menunggu validasi Kepala BNN' ?></span></div>
@@ -163,18 +181,16 @@ include '../../includes/header.php';
       </div>
     </section>
 
-    <?php if (!$statusTervalidasi && !$statusMenunggu && $adalahPembuatLaporan) { ?>
+    <?php if (!$statusTervalidasi && !$statusMenunggu) { ?>
       <section class="inventaris-card mt-3">
         <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
           <div>
             <h2 class="inventaris-heading mb-1">Finalisasi Laporan</h2>
-            <p class="text-muted mb-0">Inventaris: <?= $inventarisTersimpan ? 'sudah disimpan' : 'belum disimpan' ?> · Uraian kegiatan: <?= $uraianTersimpan ? 'sudah disimpan' : 'belum disimpan' ?>. Setelah difinalisasi, laporan tidak dapat diubah dan dikirim ke Kepala BNN untuk validasi.</p>
+            <p class="text-muted mb-0">Inventaris: <?= $inventarisTersimpan ? 'sudah disimpan' : 'belum disimpan' ?> · Uraian kegiatan: <?= $uraianTersimpan ? 'sudah disimpan' : 'belum disimpan' ?>. Seluruh anggota shift dapat melakukan finalisasi setelah data lengkap. Setelah difinalisasi, laporan tidak dapat diubah dan dikirim ke Kepala BNN untuk validasi.</p>
           </div>
           <a class="btn btn-inventaris-primary" href="kirim.php?id=<?= $idLaporan ?>"><i class="bi bi-send-check me-2"></i>Finalisasi &amp; Kirim ke Kepala</a>
         </div>
       </section>
-    <?php } elseif (!$statusTervalidasi && !$statusMenunggu) { ?>
-      <div class="alert alert-info mt-3"><i class="bi bi-info-circle-fill me-2"></i>Anda dapat melihat laporan ini sebagai anggota shift. Finalisasi hanya dapat dilakukan oleh Satpam yang membuat laporan.</div>
     <?php } ?>
   </div>
 </main>

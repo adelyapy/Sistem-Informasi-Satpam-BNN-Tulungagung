@@ -1,6 +1,7 @@
 <?php
-require_once "../../config/admin_auth.php";
-require_once "../../config/report_signature.php";
+
+require_once '../../config/admin_auth.php';
+require_once '../../config/report_signature.php';
 require_once '../../config/report_attachment.php';
 
 ensureLaporanTtdKepalaColumn($conn);
@@ -9,489 +10,308 @@ if (!ensureLampiranFotoTable($conn)) {
   exit('Tabel lampiran foto tidak dapat disiapkan.');
 }
 
-if (!isset($_GET['id'])) {
-  header("Location:index.php");
+$idLaporan = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+if (!$idLaporan) {
+  header('Location: index.php');
   exit;
 }
 
-$id = (int) $_GET['id'];
-
-$query = mysqli_query($conn, "
-
-SELECT
-
-laporan.*,
-
-users.nama,
-users.kode_satpam,
-
-jadwal_shift.tanggal,
-
-shift.nama_shift,
-shift.jam_mulai,
-shift.jam_selesai
-
-,validator.nama AS nama_kepala
-,laporan.ttd_kepala
-,laporan.ttd_satpam
-
-FROM laporan
-
-LEFT JOIN users
-ON users.id_user = laporan.created_by
-
-LEFT JOIN jadwal_shift
-ON jadwal_shift.id_jadwal = laporan.id_jadwal
-
-LEFT JOIN shift
-ON shift.id_shift = jadwal_shift.id_shift
-
-LEFT JOIN users validator
-ON validator.id_user = laporan.validated_by
-
-WHERE laporan.id_laporan='$id'
-
-LIMIT 1
-
-");
-
-if (mysqli_num_rows($query) == 0) {
-
-  header("Location:index.php");
+$laporanStmt = mysqli_prepare($conn, '
+  SELECT l.*, pembuat.nama AS nama_pembuat, pembuat.kode_satpam AS kode_pembuat,
+         s.nama_shift, s.jam_mulai, s.jam_selesai,
+         kepala.nama AS nama_kepala
+  FROM laporan l
+  LEFT JOIN users pembuat ON pembuat.id_user = l.created_by
+  LEFT JOIN jadwal_shift jadwal ON jadwal.id_jadwal = l.id_jadwal
+  LEFT JOIN shift s ON s.id_shift = jadwal.id_shift
+  LEFT JOIN users kepala ON kepala.id_user = l.validated_by
+  WHERE l.id_laporan = ?
+  LIMIT 1
+');
+mysqli_stmt_bind_param($laporanStmt, 'i', $idLaporan);
+mysqli_stmt_execute($laporanStmt);
+$laporan = mysqli_fetch_assoc(mysqli_stmt_get_result($laporanStmt));
+if (!$laporan) {
+  header('Location: index.php');
   exit;
 }
 
-$data = mysqli_fetch_assoc($query);
+$petugasStmt = mysqli_prepare($conn, '
+  SELECT u.id_user, u.nama, u.kode_satpam, u.ttd
+  FROM anggota_shift anggota
+  INNER JOIN users u ON u.id_user = anggota.id_satpam
+  WHERE anggota.id_laporan = ?
+  ORDER BY u.nama ASC
+');
+mysqli_stmt_bind_param($petugasStmt, 'i', $idLaporan);
+mysqli_stmt_execute($petugasStmt);
+$petugasShift = mysqli_fetch_all(mysqli_stmt_get_result($petugasStmt), MYSQLI_ASSOC);
 
-$inventaris = mysqli_query($conn, "
+// Laporan lama tanpa anggota_shift tetap dapat dicetak dengan data pembuat laporan.
+if (!$petugasShift && !empty($laporan['nama_pembuat'])) {
+  $petugasShift[] = [
+    'id_user' => (int) $laporan['created_by'],
+    'nama' => $laporan['nama_pembuat'],
+    'kode_satpam' => $laporan['kode_pembuat'],
+    'ttd' => $laporan['ttd_satpam'] ?? null,
+  ];
+}
 
-SELECT *
+$uraianStmt = mysqli_prepare($conn, '
+  SELECT id_uraian, jam, uraian
+  FROM uraian_kegiatan
+  WHERE id_laporan = ?
+  ORDER BY urutan ASC, id_uraian ASC
+');
+mysqli_stmt_bind_param($uraianStmt, 'i', $idLaporan);
+mysqli_stmt_execute($uraianStmt);
+$uraianKegiatan = mysqli_fetch_all(mysqli_stmt_get_result($uraianStmt), MYSQLI_ASSOC);
 
-FROM inventaris
+$inventarisStmt = mysqli_prepare($conn, '
+  SELECT id_inventaris, nama_barang, jumlah, keterangan
+  FROM inventaris
+  WHERE id_laporan = ?
+  ORDER BY urutan ASC, id_inventaris ASC
+');
+mysqli_stmt_bind_param($inventarisStmt, 'i', $idLaporan);
+mysqli_stmt_execute($inventarisStmt);
+$inventaris = mysqli_fetch_all(mysqli_stmt_get_result($inventarisStmt), MYSQLI_ASSOC);
 
-WHERE id_laporan='$id'
+$lampiranStmt = mysqli_prepare($conn, '
+  SELECT id_lampiran, id_uraian, id_inventaris, path_file, nama_file
+  FROM lampiran_foto
+  WHERE id_laporan = ?
+  ORDER BY created_at ASC, id_lampiran ASC
+');
+mysqli_stmt_bind_param($lampiranStmt, 'i', $idLaporan);
+mysqli_stmt_execute($lampiranStmt);
+$fotoUraian = [];
+$fotoInventaris = [];
+$lampiranResult = mysqli_stmt_get_result($lampiranStmt);
+while ($foto = mysqli_fetch_assoc($lampiranResult)) {
+  if (!empty($foto['id_uraian'])) {
+    $fotoUraian[(int) $foto['id_uraian']][] = $foto;
+  }
+  if (!empty($foto['id_inventaris'])) {
+    $fotoInventaris[(int) $foto['id_inventaris']][] = $foto;
+  }
+}
 
-ORDER BY urutan ASC
+$bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+$tanggalObjek = new DateTimeImmutable($laporan['tanggal_laporan']);
+$tanggalLaporan = $tanggalObjek->format('d') . ' ' . $bulan[(int) $tanggalObjek->format('n')] . ' ' . $tanggalObjek->format('Y');
+$jamShift = substr((string) $laporan['jam_mulai'], 0, 5) . ' - ' . substr((string) $laporan['jam_selesai'], 0, 5) . ' WIB';
 
-");
+function cetakFoto(array $foto, string $label): string
+{
+  if (!$foto) {
+    return '<span class="empty-photo">-</span>';
+  }
 
-$uraian = mysqli_query($conn, "
-
-SELECT *
-
-FROM uraian_kegiatan
-
-WHERE id_laporan='$id'
-
-ORDER BY urutan ASC
-
-");
-
-$lampiran = mysqli_query($conn, "
-SELECT f.*, u.uraian, u.jam, i.nama_barang
-FROM lampiran_foto f
-LEFT JOIN uraian_kegiatan u ON u.id_uraian = f.id_uraian
-LEFT JOIN inventaris i ON i.id_inventaris = f.id_inventaris
-WHERE f.id_laporan='$id'
-ORDER BY f.created_at ASC, f.id_lampiran ASC
-");
+  $html = '<div class="photo-list">';
+  foreach ($foto as $item) {
+    $path = htmlspecialchars('../../' . ltrim((string) $item['path_file'], '/'), ENT_QUOTES, 'UTF-8');
+    $alt = htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
+    $html .= '<img src="' . $path . '" alt="' . $alt . '" class="report-photo">';
+  }
+  return $html . '</div>';
+}
 ?>
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-
 <head>
-  <meta charset="UTF-8">
-
-  <title>
-    Cetak Laporan
-  </title>
-
-  <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laporan Kegiatan Satpam - <?= htmlspecialchars($tanggalLaporan) ?></title>
   <style>
-    body {
+    @page { size: A4 portrait; margin: 14mm 13mm; }
 
-      font-size: 13px;
-
-    }
-
-    .header {
-
-      text-align: center;
-
-      margin-bottom: 20px;
-
-    }
-
-    .header h4 {
-
-      margin: 0;
-
-      font-weight: bold;
-
-    }
-
-    .header p {
-
-      margin: 0;
-
-    }
-
-    .info {
-
-      margin-top: 20px;
-
-      margin-bottom: 20px;
-
-    }
-
-    .table {
-
-      font-size: 13px;
-
-    }
-
-    .table th {
-
-      background: #f2f2f2;
-
-    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #111; font-family: "Times New Roman", Times, serif; font-size: 11pt; line-height: 1.35; }
+    .print-actions { margin: 18px; text-align: right; font-family: Arial, sans-serif; }
+    .print-actions button { border: 0; border-radius: 4px; padding: 9px 14px; cursor: pointer; font-weight: 700; }
+    .btn-print { background: #0d6a35; color: #fff; }
+    .btn-back { background: #6c757d; color: #fff; margin-left: 8px; }
+    .report-page { max-width: 794px; margin: 0 auto; padding: 12mm 13mm; }
+    .letterhead { display: flex; align-items: center; justify-content: center; gap: 14px; padding-bottom: 9px; border-bottom: 3px solid #111; text-align: center; }
+    .letterhead img { width: 62px; height: 62px; object-fit: contain; flex: 0 0 auto; }
+    .letterhead-title { letter-spacing: .2px; }
+    .letterhead-title .institution { margin: 0; font-size: 14pt; font-weight: 700; line-height: 1.15; }
+    .letterhead-title .unit { margin: 2px 0 0; font-size: 12pt; font-weight: 700; }
+    .letterhead-title .document { margin: 6px 0 0; font-size: 12pt; font-weight: 700; text-decoration: underline; }
+    .letterhead-title .subtitle { margin: 1px 0 0; font-size: 10.5pt; font-weight: 700; }
+    .section-title { margin: 20px 0 8px; font-size: 11pt; font-weight: 700; text-transform: uppercase; }
+    .identity-table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; }
+    .identity-table td { padding: 3px 0; vertical-align: top; }
+    .identity-table .label { width: 145px; font-weight: 700; }
+    .identity-table .colon { width: 12px; text-align: center; }
+    .petugas-list { margin: 0; padding-left: 19px; }
+    .report-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0; }
+    .report-table th, .report-table td { border: 1px solid #222; padding: 6px; vertical-align: top; overflow-wrap: anywhere; }
+    .report-table th { background: #e9ecef; text-align: center; font-weight: 700; }
+    .number, .time, .quantity { text-align: center; }
+    .photo-list { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+    .report-photo { width: 54px; height: 54px; border: 1px solid #888; object-fit: cover; }
+    .empty-photo { display: inline-block; min-width: 12px; text-align: center; }
+    .photo-attachment-section { margin-top: 12px; break-inside: avoid; page-break-inside: avoid; }
+    .attachment-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+    .attachment-item { margin: 0; border: 1px solid #777; padding: 4px; text-align: center; break-inside: avoid; page-break-inside: avoid; }
+    .attachment-item img { width: 100%; height: 92px; object-fit: cover; display: block; }
+    .attachment-item figcaption { margin-top: 4px; font-size: 8pt; line-height: 1.2; }
+    .signature-section { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(210px, 1fr); gap: 28px; margin-top: 35px; break-inside: avoid; page-break-inside: avoid; }
+    .signature-heading { margin: 0 0 8px; font-weight: 700; text-transform: uppercase; }
+    .petugas-signature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; }
+    .signature-card { min-height: 138px; text-align: center; break-inside: avoid; page-break-inside: avoid; }
+    .signature-image { display: block; width: 145px; height: 66px; margin: 10px auto 5px; object-fit: contain; }
+    .signature-space { height: 81px; }
+    .signature-line { margin: 0 auto 3px; border-top: 1px solid #111; width: 150px; }
+    .signature-name { font-weight: 700; }
+    .signature-code { font-size: 9.5pt; }
+    .kepala-signature { text-align: center; min-height: 180px; }
+    .kepala-signature .date { margin: 0 0 12px; }
+    .kepala-signature .role { margin: 0; font-weight: 700; text-transform: uppercase; }
 
     @media print {
-
-      button {
-
-        display: none;
-
-      }
-
+      html, body { width: 210mm; min-height: 297mm; background: #fff; }
+      body { font-size: 10.5pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .print-actions { display: none !important; }
+      .report-page { width: auto; max-width: none; margin: 0; padding: 0; }
+      .letterhead, .identity-table, .report-table, .photo-attachment-section, .signature-section, .attachment-item, .signature-card { break-inside: avoid; page-break-inside: avoid; }
+      .report-table { page-break-inside: auto; }
+      .report-table tr { break-inside: avoid; page-break-inside: avoid; }
+      .report-table thead { display: table-header-group; }
+      .report-photo, .attachment-item img, .signature-image { image-rendering: auto; }
     }
   </style>
-
 </head>
-
 <body>
-  <div class="container mt-4">
-    <div class="text-end mb-3">
-      <button onclick="window.print()" class="btn btn-success">
-        Cetak
-      </button>
+  <div class="print-actions">
+    <button class="btn-print" type="button" onclick="window.print()">Cetak</button>
+    <button class="btn-back" type="button" onclick="window.history.back()">Kembali</button>
+  </div>
 
-      <button onclick="window.history.back()" class="btn btn-secondary">
-        Kembali
-      </button>
-    </div>
+  <main class="report-page">
+    <header class="letterhead">
+      <img src="../../assets/img/logo-bnn.png" alt="Logo Badan Narkotika Nasional">
+      <div class="letterhead-title">
+        <p class="institution">BADAN NARKOTIKA NASIONAL</p>
+        <p class="unit">KABUPATEN TULUNGAGUNG</p>
+        <p class="document">BUKU MUTASI SATPAM</p>
+        <p class="subtitle">LAPORAN KEGIATAN SATPAM</p>
+      </div>
+    </header>
 
-    <div class="header">
-      <h4>
-        BUKU MUTASI SATPAM
-      </h4>
-
-      <p>
-        Laporan Kegiatan Satpam
-      </p>
-
-      <hr>
-    </div>
-
-    <table class="table table-borderless info">
-      <tr>
-        <td width="180">
-          Tanggal
-        </td>
-
-        <td>
-          :
-          <?= date('d F Y', strtotime($data['tanggal_laporan'])) ?>
-        </td>
-      </tr>
-
-      <tr>
-        <td>
-          Kode Satpam
-        </td>
-
-        <td>
-          :
-          <?= htmlspecialchars($data['kode_satpam']) ?>
-        </td>
-      </tr>
-
-      <tr>
-        <td>
-          Nama Satpam
-        </td>
-
-        <td>
-          :
-          <?= htmlspecialchars($data['nama']) ?>
-        </td>
-      </tr>
-
-      <tr>
-        <td>
-          Shift
-        </td>
-
-        <td>
-          :
-          <?= htmlspecialchars($data['nama_shift']) ?>
-          (
-          <?= substr($data['jam_mulai'], 0, 5) ?>
-          -
-          <?= substr($data['jam_selesai'], 0, 5) ?>
-          )
-        </td>
-      </tr>
-    </table>
-
-    <h5 class="mt-4 mb-3">
-      Uraian Kegiatan
-    </h5>
-
-    <div class="table-responsive">
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th width="60">No</th>
-
-            <th width="120">Jam</th>
-
-            <th>Uraian</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          <?php
-
-          $no = 1;
-
-          if (mysqli_num_rows($uraian) > 0) {
-
-            while ($u = mysqli_fetch_assoc($uraian)) {
-
-          ?>
-
-              <tr>
-
-                <td class="text-center">
-
-                  <?= $no++ ?>
-                </td>
-
-                <td class="text-center">
-                  <?= substr($u['jam'], 0, 5) ?>
-                </td>
-
-                <td>
-                  <?= nl2br(htmlspecialchars($u['uraian'])) ?>
-                </td>
-
-              </tr>
-
-            <?php
-
-            }
-          } else {
-
-            ?>
-
-            <tr>
-
-              <td colspan="3" class="text-center">
-
-                Belum ada uraian kegiatan.
-
-              </td>
-
-            </tr>
-
-          <?php } ?>
-
-        </tbody>
-
+    <section>
+      <h2 class="section-title">Identitas Laporan</h2>
+      <table class="identity-table">
+        <tr><td class="label">Tanggal Laporan</td><td class="colon">:</td><td><?= htmlspecialchars($tanggalLaporan) ?></td></tr>
+        <tr><td class="label">Shift</td><td class="colon">:</td><td><?= htmlspecialchars($laporan['nama_shift'] ?: '-') ?></td></tr>
+        <tr><td class="label">Jam Shift</td><td class="colon">:</td><td><?= htmlspecialchars($jamShift) ?></td></tr>
+        <tr>
+          <td class="label">Petugas Shift</td><td class="colon">:</td>
+          <td>
+            <ol class="petugas-list">
+              <?php foreach ($petugasShift as $petugas): ?>
+                <li><?= htmlspecialchars($petugas['nama']) ?> (<?= htmlspecialchars($petugas['kode_satpam']) ?>)</li>
+              <?php endforeach; ?>
+            </ol>
+          </td>
+        </tr>
       </table>
+    </section>
 
-    </div>
-
-    <h5 class="mt-4 mb-3">
-      Lampiran Foto
-    </h5>
-
-    <div class="table-responsive">
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th width="60">No</th>
-            <th width="110">Foto</th>
-            <th>Uraian Kegiatan / Inventaris</th>
-            <th width="120">Jam</th>
-          </tr>
-        </thead>
+    <section>
+      <h2 class="section-title">Uraian Kegiatan</h2>
+      <table class="report-table">
+        <thead><tr><th style="width: 7%">No</th><th style="width: 13%">Jam</th><th>Uraian Kegiatan</th><th style="width: 21%">Dokumentasi</th></tr></thead>
         <tbody>
-          <?php $no = 1; ?>
-          <?php if (mysqli_num_rows($lampiran) > 0): ?>
-            <?php while ($foto = mysqli_fetch_assoc($lampiran)): ?>
+          <?php if ($uraianKegiatan): ?>
+            <?php foreach ($uraianKegiatan as $index => $uraian): ?>
               <tr>
-                <td class="text-center"><?= $no++ ?></td>
-                <td class="text-center"><img src="../../<?= htmlspecialchars($foto['path_file']) ?>" alt="Lampiran kegiatan" style="width:80px;height:80px;object-fit:cover;"></td>
-                <td><?php if ($foto['uraian']): ?><?= nl2br(htmlspecialchars($foto['uraian'])) ?><?php elseif ($foto['nama_barang']): ?>Inventaris: <?= htmlspecialchars($foto['nama_barang']) ?><?php else: ?>-<?php endif; ?></td>
-                <td class="text-center"><?= $foto['jam'] ? htmlspecialchars(substr($foto['jam'], 0, 5)) . ' WIB' : '-' ?></td>
+                <td class="number"><?= $index + 1 ?></td>
+                <td class="time"><?= htmlspecialchars(substr((string) $uraian['jam'], 0, 5)) ?> WIB</td>
+                <td><?= nl2br(htmlspecialchars($uraian['uraian'])) ?></td>
+                <td><?= cetakFoto($fotoUraian[(int) $uraian['id_uraian']] ?? [], 'Dokumentasi kegiatan') ?></td>
               </tr>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
           <?php else: ?>
-            <tr><td colspan="4" class="text-center">Belum ada lampiran foto.</td></tr>
+            <tr><td colspan="4" class="number">Belum ada uraian kegiatan.</td></tr>
           <?php endif; ?>
         </tbody>
       </table>
-    </div>
+    </section>
 
-    <h5 class="mt-4 mb-3">
-      Inventaris
-    </h5>
+    <?php if ($fotoUraian): ?>
+      <section class="photo-attachment-section">
+        <h2 class="section-title">Lampiran Foto Kegiatan</h2>
+        <div class="attachment-grid">
+          <?php foreach ($uraianKegiatan as $uraian): ?>
+            <?php foreach ($fotoUraian[(int) $uraian['id_uraian']] ?? [] as $foto): ?>
+              <figure class="attachment-item">
+                <img src="../../<?= htmlspecialchars($foto['path_file']) ?>" alt="Lampiran kegiatan">
+                <figcaption><?= htmlspecialchars(substr((string) $uraian['jam'], 0, 5)) ?> WIB — <?= htmlspecialchars(mb_strimwidth($uraian['uraian'], 0, 55, '…')) ?></figcaption>
+              </figure>
+            <?php endforeach; ?>
+          <?php endforeach; ?>
+        </div>
+      </section>
+    <?php endif; ?>
 
-    <div class="table-responsive">
-
-      <table class="table table-bordered">
-
-        <thead>
-
-          <tr>
-
-            <th width="60">No</th>
-            <th>Nama Barang</th>
-            <th width="100">Jumlah</th>
-            <th>Keterangan</th>
-
-          </tr>
-
-        </thead>
-
+    <section>
+      <h2 class="section-title">Inventaris</h2>
+      <table class="report-table">
+        <thead><tr><th style="width: 7%">No</th><th>Nama Barang</th><th style="width: 11%">Jumlah</th><th style="width: 29%">Kondisi / Keterangan</th><th style="width: 18%">Foto</th></tr></thead>
         <tbody>
-
-          <?php
-
-          $no = 1;
-
-          if (mysqli_num_rows($inventaris) > 0) {
-
-            while ($i = mysqli_fetch_assoc($inventaris)) {
-
-          ?>
-
+          <?php if ($inventaris): ?>
+            <?php foreach ($inventaris as $index => $item): ?>
               <tr>
-
-                <td class="text-center">
-                  <?= $no++ ?>
-                </td>
-
-                <td>
-                  <?= htmlspecialchars($i['nama_barang']) ?>
-                </td>
-
-                <td class="text-center">
-                  <?= $i['jumlah'] ?>
-                </td>
-
-                <td>
-                  <?= htmlspecialchars($i['keterangan']) ?>
-                </td>
-
+                <td class="number"><?= $index + 1 ?></td>
+                <td><?= htmlspecialchars($item['nama_barang']) ?></td>
+                <td class="quantity"><?= (int) $item['jumlah'] ?></td>
+                <td><?= nl2br(htmlspecialchars($item['keterangan'])) ?></td>
+                <td><?= cetakFoto($fotoInventaris[(int) $item['id_inventaris']] ?? [], 'Foto inventaris') ?></td>
               </tr>
-
-            <?php
-
-            }
-          } else {
-
-            ?>
-
-            <tr>
-
-              <td colspan="4" class="text-center">
-
-                Belum ada data inventaris.
-
-              </td>
-
-            </tr>
-
-          <?php } ?>
-
+            <?php endforeach; ?>
+          <?php else: ?>
+            <tr><td colspan="5" class="number">Belum ada data inventaris.</td></tr>
+          <?php endif; ?>
         </tbody>
-
       </table>
+    </section>
 
-    </div>
-
-    <br><br>
-    <div class="row">
-      <div class="col-6 text-center">
-        Mengetahui,
-
-        <br>
-
-
-        <?php if ($data['status'] === 'tervalidasi' && !empty($data['ttd_kepala'])): ?>
-
-          <img src="../../uploads/ttd/<?= rawurlencode($data['ttd_kepala']) ?>" alt="Tanda tangan Kepala BNN" style="max-width:150px;max-height:75px;object-fit:contain;margin:10px 0;">
-
-        <?php else: ?>
-
-          <br><br><br>
-
-        <?php endif;
-
-        ?>
-
-        <br>
-        _________________________
-
-        <br>
-
-        <?= htmlspecialchars($data['nama_kepala'] ?: 'Kepala BNN') ?>
-
+    <section class="signature-section">
+      <div>
+        <p class="signature-heading">Petugas Shift</p>
+        <div class="petugas-signature-grid">
+          <?php foreach ($petugasShift as $petugas): ?>
+            <div class="signature-card">
+              <?php if (!empty($petugas['ttd'])): ?>
+                <img class="signature-image" src="../../uploads/ttd/<?= rawurlencode($petugas['ttd']) ?>" alt="Tanda tangan <?= htmlspecialchars($petugas['nama']) ?>">
+              <?php else: ?>
+                <div class="signature-space"></div>
+              <?php endif; ?>
+              <div class="signature-line"></div>
+              <div class="signature-name"><?= htmlspecialchars($petugas['nama']) ?></div>
+              <div class="signature-code"><?= htmlspecialchars($petugas['kode_satpam']) ?></div>
+            </div>
+          <?php endforeach; ?>
+        </div>
       </div>
-
-      <div class="col-6 text-center">
-
-        Malang,
-        <?= date('d F Y') ?>
-
-        <br>
-
-        <?php if (!empty($data['ttd_satpam'])): ?>
-          <img src="../../uploads/ttd/<?= rawurlencode($data['ttd_satpam']) ?>" alt="Tanda tangan Satpam" style="max-width:150px;max-height:75px;object-fit:contain;margin:10px 0;">
+      <div class="kepala-signature">
+        <p class="date">Tulungagung, <?= htmlspecialchars($tanggalLaporan) ?></p>
+        <p>Mengetahui,</p>
+        <p class="role">Kepala BNN Kabupaten Tulungagung</p>
+        <?php if ($laporan['status'] === 'tervalidasi' && !empty($laporan['ttd_kepala'])): ?>
+          <img class="signature-image" src="../../uploads/ttd/<?= rawurlencode($laporan['ttd_kepala']) ?>" alt="Tanda tangan Kepala BNN">
         <?php else: ?>
-          <br><br><br>
+          <div class="signature-space"></div>
         <?php endif; ?>
-
-        <br>
-
-        _________________________
-
-        <br>
-
-        Petugas Satpam
-
+        <div class="signature-line"></div>
+        <div class="signature-name"><?= htmlspecialchars($laporan['nama_kepala'] ?: 'Kepala BNN') ?></div>
       </div>
+    </section>
+  </main>
 
-    </div>
-
-  </div>
-  
-  <script>
-    window.onload = function() {
-
-      window.print();
-
-    };
-  </script>
-
+  <script>window.onload = () => window.print();</script>
 </body>
-
 </html>

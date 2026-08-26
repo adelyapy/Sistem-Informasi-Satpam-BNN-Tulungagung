@@ -7,26 +7,30 @@ $nama       = $_SESSION['nama'] ?? 'Satpam';
 $id_laporan = (int) ($_SESSION['id_laporan'] ?? 0);
 $activeMenu = 'dashboard';
 
-$query = mysqli_query($conn, "
+$query = mysqli_prepare($conn, "
 SELECT
     l.*,
     j.tanggal,
+    j.id_shift,
     s.nama_shift,
     s.jam_mulai,
     s.jam_selesai
 FROM laporan l
+JOIN anggota_shift a ON a.id_laporan = l.id_laporan
 JOIN jadwal_shift j ON l.id_jadwal = j.id_jadwal
 JOIN shift s ON j.id_shift = s.id_shift
-WHERE l.id_laporan = '$id_laporan'
+WHERE l.id_laporan = ? AND a.id_satpam = ?
 LIMIT 1
 ");
-
-$laporan = mysqli_fetch_assoc($query);
+mysqli_stmt_bind_param($query, 'ii', $id_laporan, $id_user);
+mysqli_stmt_execute($query);
+$laporan = mysqli_fetch_assoc(mysqli_stmt_get_result($query));
 $laporanAktif = $laporan !== null;
 
 if (!$laporanAktif) {
   $laporan = [
     'tanggal' => date('Y-m-d'),
+    'id_shift' => 0,
     'nama_shift' => 'Belum ada shift',
     'jam_mulai' => '00:00:00',
     'jam_selesai' => '00:00:00',
@@ -89,6 +93,13 @@ include "../includes/satpam_sidebar.php";
 ?>
 
 <div class="main-content satpam-dashboard">
+
+  <?php if (!empty($_SESSION['anggota_error'])): ?>
+    <div class="alert alert-danger mb-4"><?= htmlspecialchars($_SESSION['anggota_error']); unset($_SESSION['anggota_error']); ?></div>
+  <?php endif; ?>
+  <?php if (!empty($_SESSION['anggota_success'])): ?>
+    <div class="alert alert-success mb-4"><?= htmlspecialchars($_SESSION['anggota_success']); unset($_SESSION['anggota_success']); ?></div>
+  <?php endif; ?>
 
   <div class="dashboard-header row align-items-start mb-4">
     <div class="col-lg-8">
@@ -253,12 +264,22 @@ include "../includes/satpam_sidebar.php";
             <select class="form-select" name="id_satpam" required>
               <option value="">Pilih Nama</option>
               <?php
-              $q = mysqli_query($conn, "
-                                SELECT id_user, nama
-                                FROM users
-                                WHERE role='satpam'
-                                ORDER BY nama
+              $q = mysqli_prepare($conn, "
+                                SELECT u.id_user, u.nama
+                                FROM users u
+                                WHERE u.role = 'satpam'
+                                  AND u.status = 'aktif'
+                                  AND u.id_user <> ?
+                                  AND NOT EXISTS (
+                                    SELECT 1
+                                    FROM anggota_shift anggota
+                                    WHERE anggota.id_laporan = ? AND anggota.id_satpam = u.id_user
+                                  )
+                                ORDER BY u.nama
                             ");
+              mysqli_stmt_bind_param($q, 'ii', $id_user, $id_laporan);
+              mysqli_stmt_execute($q);
+              $q = mysqli_stmt_get_result($q);
               while ($row = mysqli_fetch_assoc($q)) {
               ?>
                 <option value="<?= $row['id_user'] ?>"><?= htmlspecialchars($row['nama']) ?></option>
@@ -267,19 +288,8 @@ include "../includes/satpam_sidebar.php";
           </div>
           <div class="mb-3">
             <label class="form-label">Shift</label>
-            <select class="form-select" name="id_shift" required>
-              <option value="">Pilih Shift</option>
-              <?php
-              $q = mysqli_query($conn, "
-                                SELECT id_shift, nama_shift
-                                FROM shift
-                                ORDER BY id_shift
-                            ");
-              while ($row = mysqli_fetch_assoc($q)) {
-              ?>
-                <option value="<?= $row['id_shift'] ?>"><?= htmlspecialchars($row['nama_shift']) ?></option>
-              <?php } ?>
-            </select>
+            <input class="form-control" value="<?= htmlspecialchars($laporan['nama_shift']) ?>" readonly>
+            <div class="form-text">Anggota yang ditambahkan akan bergabung pada shift laporan ini.</div>
           </div>
         </div>
         <div class="modal-footer">

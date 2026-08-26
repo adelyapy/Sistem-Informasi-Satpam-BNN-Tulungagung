@@ -148,7 +148,7 @@ include '../../includes/kepala_sidebar.php';
             <small class="text-muted"><?= substr($laporan['jam_mulai'], 0, 5) ?> - <?= substr($laporan['jam_selesai'], 0, 5) ?> WIB</small>
           </div>
           <div class="col-md-3">
-            <div class="detail-label">Anggota Shift</div>
+            <div class="detail-label">Petugas Shift</div>
             <div class="detail-value">
               <?php if ($anggotaShift): ?>
                 <?php foreach ($anggotaShift as $anggota): ?>

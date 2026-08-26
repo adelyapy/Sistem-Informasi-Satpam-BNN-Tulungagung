@@ -34,12 +34,6 @@ if (mysqli_num_rows($hasilLaporan) === 0) {
 
 $laporan = mysqli_fetch_assoc($hasilLaporan);
 
-if ((int) $laporan['created_by'] !== $id_user) {
-  $_SESSION['finalisasi_error'] = 'Hanya Satpam yang membuat laporan ini yang dapat melakukan finalisasi dan mengirimkannya ke Kepala BNN.';
-  header("Location: detail.php?id={$id_laporan}");
-  exit;
-}
-
 if ($laporan['status'] != 'draft') {
   echo "<script>
         alert('Laporan sudah dikirim.');
@@ -74,8 +68,16 @@ WHERE id_laporan='$id_laporan' AND sudah_direkap = 0
 
 $errors = [];
 
-$satpamQuery = mysqli_query($conn, "SELECT ttd FROM users WHERE id_user='$id_user' LIMIT 1");
-$satpam = mysqli_fetch_assoc($satpamQuery);
+$anggotaStmt = mysqli_prepare($conn, '
+  SELECT anggota.id_satpam, u.nama, u.ttd
+  FROM anggota_shift anggota
+  INNER JOIN users u ON u.id_user = anggota.id_satpam
+  WHERE anggota.id_laporan = ?
+  ORDER BY u.nama ASC
+');
+mysqli_stmt_bind_param($anggotaStmt, 'i', $id_laporan);
+mysqli_stmt_execute($anggotaStmt);
+$anggotaShift = mysqli_fetch_all(mysqli_stmt_get_result($anggotaStmt), MYSQLI_ASSOC);
 
 if ($inventaris === 0) {
   $errors[] = "Inventaris belum diisi.";
@@ -101,8 +103,14 @@ if ($uraianBelumDirekap > 0) {
   $errors[] = "Masih ada uraian kegiatan baru yang belum disimpan ke rekap.";
 }
 
-if (empty($satpam['ttd'])) {
-  $errors[] = "Tanda tangan Satpam belum diunggah oleh Administrator.";
+if (!$anggotaShift) {
+  $errors[] = 'Laporan belum memiliki anggota shift.';
+}
+
+foreach ($anggotaShift as $anggota) {
+  if (empty($anggota['ttd'])) {
+    $errors[] = 'Tanda tangan Satpam ' . $anggota['nama'] . ' belum diunggah oleh Administrator.';
+  }
 }
 
 if (isset($_POST['kirim'])) {
@@ -113,21 +121,42 @@ if (isset($_POST['kirim'])) {
     exit;
   }
 
-  if (!ensureLaporanTtdSatpamColumn($conn)) {
+  if (!ensureLaporanTtdSatpamColumn($conn) || !ensureAnggotaShiftTtdColumn($conn)) {
     echo "<script>alert('Sistem tidak dapat menyiapkan tanda tangan laporan.');history.back();</script>";
     exit;
   }
 
-  $ttdSatpam = $satpam['ttd'];
-  $update = mysqli_prepare($conn, "
-        UPDATE laporan
-        SET status='menunggu_validasi', ttd_satpam=?, updated_at=NOW()
-        WHERE id_laporan=? AND status='draft'
-    ");
-  mysqli_stmt_bind_param($update, 'si', $ttdSatpam, $id_laporan);
-  mysqli_stmt_execute($update);
+  try {
+    mysqli_begin_transaction($conn);
 
-  if (mysqli_stmt_affected_rows($update) !== 1) {
+    // Semua tanda tangan disalin ke relasi anggota_shift sebagai snapshot laporan.
+    $snapshot = mysqli_prepare($conn, '
+      UPDATE anggota_shift anggota
+      INNER JOIN users u ON u.id_user = anggota.id_satpam
+      SET anggota.ttd_satpam = u.ttd
+      WHERE anggota.id_laporan = ?
+    ');
+    mysqli_stmt_bind_param($snapshot, 'i', $id_laporan);
+    mysqli_stmt_execute($snapshot);
+
+    // Kolom lama dipertahankan agar laporan lama dan halaman cetak lama tetap kompatibel.
+    $ttdSatpamLegacy = $anggotaShift[0]['ttd'];
+    $update = mysqli_prepare($conn, "
+          UPDATE laporan
+          SET status='menunggu_validasi', ttd_satpam=?, updated_at=NOW()
+          WHERE id_laporan=? AND status='draft'
+      ");
+    mysqli_stmt_bind_param($update, 'si', $ttdSatpamLegacy, $id_laporan);
+    mysqli_stmt_execute($update);
+
+    if (mysqli_stmt_affected_rows($update) !== 1) {
+      throw new RuntimeException('Laporan tidak dapat dikirim. Muat ulang halaman lalu coba kembali.');
+    }
+
+    mysqli_commit($conn);
+  } catch (Throwable $exception) {
+    mysqli_rollback($conn);
+    appLog($exception);
     $_SESSION['finalisasi_error'] = 'Laporan tidak dapat dikirim. Muat ulang halaman lalu coba kembali.';
     header("Location: detail.php?id={$id_laporan}");
     exit;

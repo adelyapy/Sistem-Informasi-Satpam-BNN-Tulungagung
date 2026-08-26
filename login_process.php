@@ -135,11 +135,11 @@ try {
         FROM laporan l
         INNER JOIN jadwal_shift j ON j.id_jadwal = l.id_jadwal
         INNER JOIN anggota_shift a ON a.id_laporan = l.id_laporan
-        WHERE l.tanggal_laporan = ? AND j.id_shift = ? AND a.id_satpam = ?
-        ORDER BY
-            (EXISTS (SELECT 1 FROM inventaris i WHERE i.id_laporan = l.id_laporan)
-             + EXISTS (SELECT 1 FROM uraian_kegiatan u WHERE u.id_laporan = l.id_laporan)) DESC,
-            l.created_at ASC
+        WHERE l.tanggal_laporan = ?
+          AND j.id_shift = ?
+          AND a.id_satpam = ?
+          AND l.status = 'draft'
+        ORDER BY l.created_at ASC
         LIMIT 1
     ");
     mysqli_stmt_bind_param($laporanStmt, 'sii', $tanggal, $idShift, $idUser);

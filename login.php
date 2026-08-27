@@ -50,9 +50,7 @@ $qShift = mysqli_query($conn, "
 ");
 
 while ($row = mysqli_fetch_assoc($qShift)) {
-  // Shift gabungan adalah jadwal administrasi, bukan pilihan login.
-  // Satpam hanya dapat masuk pada shift yang sedang berlangsung.
-  if ($row['nama_shift'] !== 'Shift 1 & 2' && shiftSedangBerlangsung($row)) {
+  if (shiftDapatDipilihSaatLogin($row)) {
     $shift[] = $row;
   }
 }
@@ -87,7 +85,7 @@ include "includes/header.php";
               </h3>
 
               <p class="text-muted mb-0">
-                e-SATPAM — Elektronik Sistem Administrasi Satpam
+                e-SATPAM <br>Elektronik Sistem Administrasi Satpam
               </p>
 
             </div>
@@ -127,7 +125,7 @@ include "includes/header.php";
                   </option>
 
                   <option value="kepala">
-                    Kepala BNN
+                    Kepala BNN Kabupaten Tulungagung
                   </option>
 
                   <option value="satpam">

@@ -18,6 +18,11 @@ if ($idShift > 0) {
   $where[] = "js.id_shift=$idShift";
 }
 $filterSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+$tanggalCetak = $tanggal !== '' ? $tanggal : date('Y-m-d');
+$parameterCetak = ['tanggal' => $tanggalCetak];
+if ($idShift > 0) {
+  $parameterCetak['shift'] = $idShift;
+}
 
 $jadwal = mysqli_query($conn, "SELECT js.*, u.nama, u.kode_satpam, s.nama_shift, s.jam_mulai, s.jam_selesai
     FROM jadwal_shift js
@@ -39,7 +44,14 @@ include "../../includes/admin_sidebar.php";
         <h2 class="fw-bold mb-1">Jadwal Satpam</h2>
         <p class="text-muted mb-0">Atur penugasan shift harian untuk setiap anggota satpam.</p>
       </div>
-      <a href="tambah.php" class="btn btn-primary"><i class="bi bi-plus-circle me-2"></i>Tambah Jadwal</a>
+      <div class="d-flex flex-wrap gap-2 justify-content-end">
+        <div class="btn-group" role="group" aria-label="Pilihan cetak jadwal shift">
+          <a href="cetak.php?<?= htmlspecialchars(http_build_query(array_merge($parameterCetak, ['periode' => 'harian']))) ?>" class="btn btn-outline-primary"><i class="bi bi-printer me-1"></i>Cetak Harian</a>
+          <a href="cetak.php?<?= htmlspecialchars(http_build_query(array_merge($parameterCetak, ['periode' => 'mingguan']))) ?>" class="btn btn-outline-primary">Mingguan</a>
+          <a href="cetak.php?<?= htmlspecialchars(http_build_query(array_merge($parameterCetak, ['periode' => 'bulanan']))) ?>" class="btn btn-outline-primary">Bulanan</a>
+        </div>
+        <a href="tambah.php" class="btn btn-primary"><i class="bi bi-plus-circle me-2"></i>Tambah Jadwal</a>
+      </div>
     </div>
 
     <div class="card shadow-sm border-0 mb-4">

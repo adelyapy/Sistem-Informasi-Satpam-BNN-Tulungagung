@@ -46,8 +46,14 @@ function shiftSedangBerlangsung(array $shift, ?string $waktu = null): bool
   $mulai = (string) ($shift['jam_mulai'] ?? '');
   $selesai = (string) ($shift['jam_selesai'] ?? '');
 
-  if ($mulai === '' || $selesai === '' || $mulai === $selesai) {
+  if ($mulai === '' || $selesai === '') {
     return false;
+  }
+
+  // Shift dobel 07:30 - 07:30 berdurasi satu hari penuh. Pilihan ini
+  // tetap tersedia bersama shift aktif agar satpam dapat ditugaskan dua shift.
+  if ($mulai === $selesai) {
+    return ($shift['nama_shift'] ?? '') === 'Shift 1 & 2';
   }
 
   if ($mulai < $selesai) {
@@ -55,4 +61,20 @@ function shiftSedangBerlangsung(array $shift, ?string $waktu = null): bool
   }
 
   return $sekarang >= $mulai || $sekarang < $selesai;
+}
+
+/**
+ * Menentukan pilihan shift yang diperbolehkan ketika satpam login.
+ * Shift dobel hanya dapat dimulai pada rentang Shift 1 agar berakhir
+ * pada hari yang sama. Saat Shift 2 berlangsung, satpam hanya memilih Shift 2.
+ */
+function shiftDapatDipilihSaatLogin(array $shift, ?string $waktu = null): bool
+{
+  $sekarang = $waktu ?? (new DateTimeImmutable('now', new DateTimeZone('Asia/Jakarta')))->format('H:i:s');
+
+  if (($shift['nama_shift'] ?? '') === 'Shift 1 & 2') {
+    return $sekarang >= '07:30:00' && $sekarang < '19:30:00';
+  }
+
+  return shiftSedangBerlangsung($shift, $sekarang);
 }

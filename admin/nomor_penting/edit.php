@@ -97,7 +97,7 @@ include "../../includes/header.php";
 <?php include "../../includes/navbar.php"; ?>
 <?php include "../../includes/admin_sidebar.php"; ?>
 
-<div class="main-content">
+<div class="main-content admin-monitoring-content">
 
   <div class="container-fluid">
 

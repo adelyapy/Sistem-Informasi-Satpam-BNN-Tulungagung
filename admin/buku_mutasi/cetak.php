@@ -4,6 +4,8 @@ require_once '../../config/admin_auth.php';
 require_once '../../config/report_signature.php';
 require_once '../../config/report_attachment.php';
 
+date_default_timezone_set('Asia/Jakarta');
+
 ensureLaporanTtdKepalaColumn($conn);
 ensureLaporanTtdSatpamColumn($conn);
 if (!ensureLampiranFotoTable($conn)) {
@@ -104,6 +106,7 @@ $bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', '
 $tanggalObjek = new DateTimeImmutable($laporan['tanggal_laporan']);
 $tanggalLaporan = $tanggalObjek->format('d') . ' ' . $bulan[(int) $tanggalObjek->format('n')] . ' ' . $tanggalObjek->format('Y');
 $jamShift = substr((string) $laporan['jam_mulai'], 0, 5) . ' - ' . substr((string) $laporan['jam_selesai'], 0, 5) . ' WIB';
+$tanggalCetak = date('d/m/Y H:i') . ' WIB';
 
 function cetakFoto(array $foto, string $label): string
 {
@@ -136,13 +139,26 @@ function cetakFoto(array $foto, string $label): string
     .btn-print { background: #0d6a35; color: #fff; }
     .btn-back { background: #6c757d; color: #fff; margin-left: 8px; }
     .report-page { max-width: 794px; margin: 0 auto; padding: 12mm 13mm; }
-    .letterhead { display: flex; align-items: center; justify-content: center; gap: 14px; padding-bottom: 9px; border-bottom: 3px solid #111; text-align: center; }
-    .letterhead img { width: 62px; height: 62px; object-fit: contain; flex: 0 0 auto; }
-    .letterhead-title { letter-spacing: .2px; }
-    .letterhead-title .institution { margin: 0; font-size: 14pt; font-weight: 700; line-height: 1.15; }
-    .letterhead-title .unit { margin: 2px 0 0; font-size: 12pt; font-weight: 700; }
-    .letterhead-title .document { margin: 6px 0 0; font-size: 12pt; font-weight: 700; text-decoration: underline; }
-    .letterhead-title .subtitle { margin: 1px 0 0; font-size: 10.5pt; font-weight: 700; }
+    .letterhead { display: grid; grid-template-columns: 175px minmax(0, 1fr) 145px; align-items: end; gap: 4px; margin: 0; padding: 0 0 8px; border-bottom: 3px solid #111; }
+    .letterhead-logo { align-self: center; text-align: center; }
+    .letterhead-logo img { display: block; width: 105px; height: 105px; margin: 0 auto; object-fit: contain; }
+    .letterhead-logo p { margin: 2px 0 0; font-family: Arial, sans-serif; font-size: 10.5pt; font-weight: 800; line-height: 1.02; text-transform: uppercase; }
+    .letterhead-title { align-self: center; text-align: center; letter-spacing: .2px; }
+    .letterhead-title p { margin-left: 0; margin-right: 0; }
+    .letterhead-title .institution { margin-top: 0; margin-bottom: 0; font-family: Arial, sans-serif; font-size: 16pt; font-weight: 800; line-height: 1.08; }
+    .letterhead-title .unit { margin-top: 2px; margin-bottom: 0; font-family: Arial, sans-serif; font-size: 15pt; font-weight: 800; line-height: 1.08; }
+    .letterhead-title .address, .letterhead-title .contact, .letterhead-title .email { margin-top: 2px; margin-bottom: 0; font-family: Arial, sans-serif; font-size: 11.5pt; line-height: 1.12; }
+    .letterhead-postal { margin: 0 0 5px; font-family: Arial, sans-serif; font-size: 10.5pt; text-align: right; white-space: nowrap; }
+    .letterhead { display: grid; grid-template-columns: 175px minmax(0, 1fr) 145px; align-items: end; gap: 4px; margin: 0; padding: 0 0 8px; border-bottom: 3px solid #111; }
+    .letterhead-logo { align-self: center; text-align: center; }
+    .letterhead-logo img { display: block; width: 105px; height: 105px; margin: 0 auto; object-fit: contain; }
+    .letterhead-logo p { margin: 2px 0 0; font-family: Arial, sans-serif; font-size: 10.5pt; font-weight: 800; line-height: 1.02; text-transform: uppercase; }
+    .letterhead-title { align-self: center; text-align: center; letter-spacing: .2px; }
+    .letterhead-title p { margin-left: 0; margin-right: 0; }
+    .letterhead-title .institution { margin-top: 0; margin-bottom: 0; font-family: Arial, sans-serif; font-size: 16pt; font-weight: 800; line-height: 1.08; }
+    .letterhead-title .unit { margin-top: 2px; margin-bottom: 0; font-family: Arial, sans-serif; font-size: 15pt; font-weight: 800; line-height: 1.08; }
+    .letterhead-title .address, .letterhead-title .contact, .letterhead-title .email { margin-top: 2px; margin-bottom: 0; font-family: Arial, sans-serif; font-size: 11.5pt; line-height: 1.12; }
+    .letterhead-postal { margin: 0 0 5px; font-family: Arial, sans-serif; font-size: 10.5pt; text-align: right; white-space: nowrap; }
     .section-title { margin: 20px 0 8px; font-size: 11pt; font-weight: 700; text-transform: uppercase; }
     .identity-table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; }
     .identity-table td { padding: 3px 0; vertical-align: top; }
@@ -162,8 +178,11 @@ function cetakFoto(array $foto, string $label): string
     .attachment-item { margin: 0; border: 1px solid #777; padding: 4px; text-align: center; break-inside: avoid; page-break-inside: avoid; }
     .attachment-item img { width: 100%; height: 92px; object-fit: cover; display: block; }
     .attachment-item figcaption { margin-top: 4px; font-size: 8pt; line-height: 1.2; }
-    .signature-section { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(210px, 1fr); gap: 28px; margin-top: 35px; break-inside: avoid; page-break-inside: avoid; }
-    .signature-heading { margin: 0 0 8px; font-weight: 700; text-transform: uppercase; }
+    .signature-section { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px; margin-top: 35px; break-inside: avoid; page-break-inside: avoid; }
+    .signature-party { min-width: 0; text-align: center; }
+    .signature-party-head { min-height: 63px; display: flex; flex-direction: column; justify-content: flex-start; }
+    .signature-heading { margin: 0; font-weight: 700; text-transform: uppercase; text-align: left; }
+    .signature-party:first-child .signature-heading { margin-top: 39px; }
     .petugas-signature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; }
     .signature-card { min-height: 138px; text-align: center; break-inside: avoid; page-break-inside: avoid; }
     .signature-image { display: block; width: 145px; height: 66px; margin: 10px auto 5px; object-fit: contain; }
@@ -171,9 +190,10 @@ function cetakFoto(array $foto, string $label): string
     .signature-line { margin: 0 auto 3px; border-top: 1px solid #111; width: 150px; }
     .signature-name { font-weight: 700; }
     .signature-code { font-size: 9.5pt; }
-    .kepala-signature { text-align: center; min-height: 180px; }
-    .kepala-signature .date { margin: 0 0 12px; }
+    .kepala-signature { text-align: center; }
+    .kepala-signature .date { margin: 0 0 3px; }
     .kepala-signature .role { margin: 0; font-weight: 700; text-transform: uppercase; }
+    .print-date-footer { display: none; }
 
     @media print {
       html, body { width: 210mm; min-height: 297mm; background: #fff; }
@@ -185,24 +205,30 @@ function cetakFoto(array $foto, string $label): string
       .report-table tr { break-inside: avoid; page-break-inside: avoid; }
       .report-table thead { display: table-header-group; }
       .report-photo, .attachment-item img, .signature-image { image-rendering: auto; }
+      .print-date-footer { display: block; position: fixed; left: 0; bottom: 0; font-size: 8.5pt; }
     }
   </style>
 </head>
 <body>
   <div class="print-actions">
     <button class="btn-print" type="button" onclick="window.print()">Cetak</button>
-    <button class="btn-back" type="button" onclick="window.history.back()">Kembali</button>
+    <button class="btn-back" type="button" onclick="window.location.href='index.php'">Kembali ke Monitoring Laporan</button>
   </div>
 
   <main class="report-page">
     <header class="letterhead">
-      <img src="../../assets/img/logo-esatpam.png" alt="Logo e-SATPAM">
+      <div class="letterhead-logo">
+        <img src="../../assets/img/logo-bnn-manual.png" alt="Logo Badan Narkotika Nasional">
+        <p>Kabupaten<br>Tulungagung</p>
+      </div>
       <div class="letterhead-title">
         <p class="institution">BADAN NARKOTIKA NASIONAL</p>
         <p class="unit">KABUPATEN TULUNGAGUNG</p>
-        <p class="document">e-SATPAM — Elektronik Sistem Administrasi Satpam</p>
-        <p class="subtitle">LAPORAN KEGIATAN SATPAM</p>
+        <p class="address">Jln. SULTAN AGUNG III No. 1 A</p>
+        <p class="contact">Call Center 0821 5224 9911</p>
+        <p class="email">Email. Bnnkab_tulungagung@bnn.go.id</p>
       </div>
+      <p class="letterhead-postal">Kode Pos 66226</p>
     </header>
 
     <section>
@@ -288,8 +314,10 @@ function cetakFoto(array $foto, string $label): string
     </section>
 
     <section class="signature-section">
-      <div>
-        <p class="signature-heading">Petugas Shift</p>
+      <div class="signature-party">
+        <div class="signature-party-head">
+          <p class="signature-heading">Petugas Shift</p>
+        </div>
         <div class="petugas-signature-grid">
           <?php foreach ($petugasShift as $petugas): ?>
             <div class="signature-card">
@@ -305,10 +333,12 @@ function cetakFoto(array $foto, string $label): string
           <?php endforeach; ?>
         </div>
       </div>
-      <div class="kepala-signature">
-        <p class="date">Tulungagung, <?= htmlspecialchars($tanggalLaporan) ?></p>
-        <p>Mengetahui,</p>
-        <p class="role">Kepala BNN Kabupaten Tulungagung</p>
+      <div class="signature-party kepala-signature">
+        <div class="signature-party-head">
+          <p class="date">Tulungagung, <?= htmlspecialchars($tanggalLaporan) ?></p>
+          <p style="margin: 0;">Mengetahui,</p>
+          <p class="role">Kepala BNN Kabupaten Tulungagung</p>
+        </div>
         <?php if ($laporan['status'] === 'tervalidasi' && !empty($laporan['ttd_kepala'])): ?>
           <img class="signature-image" src="../../uploads/ttd/<?= rawurlencode($laporan['ttd_kepala']) ?>" alt="Tanda tangan Kepala BNN">
         <?php else: ?>
@@ -320,6 +350,22 @@ function cetakFoto(array $foto, string $label): string
     </section>
   </main>
 
+  <div class="print-date-footer">Dicetak: <?= htmlspecialchars($tanggalCetak) ?></div>
+
   <script>window.onload = () => window.print();</script>
+  <script>
+    window.onload = () => {
+      const halamanLaporan = document.querySelector('.report-page');
+      const bagian = Array.from(halamanLaporan.children).filter((elemen) => elemen.tagName === 'SECTION');
+      const uraian = bagian.find((elemen) => elemen.querySelector('.section-title')?.textContent.trim() === 'Uraian Kegiatan');
+      const inventaris = bagian.find((elemen) => elemen.querySelector('.section-title')?.textContent.trim() === 'Inventaris');
+
+      if (uraian && inventaris) {
+        halamanLaporan.insertBefore(inventaris, uraian);
+      }
+
+      window.print();
+    };
+  </script>
 </body>
 </html>

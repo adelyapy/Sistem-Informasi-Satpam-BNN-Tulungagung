@@ -16,7 +16,7 @@ $activeMenu = $activeMenu ?? '';
         alt="Logo BNN">
     </div>
 
-    <div class="sidebar-brand-name">e-SATPAM — Elektronik Sistem Administrasi Satpam</div>
+    <div class="sidebar-brand-name">e-SATPAM <br>Elektronik Sistem Administrasi Satpam</div>
     <div class="sidebar-brand-unit">BNN TULUNGAGUNG</div>
 
   </div>

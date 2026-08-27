@@ -352,7 +352,11 @@ include '../../includes/header.php';
     <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
       <a class="btn btn-light btn-inventaris-outline" href="../dashboard.php"><i class="bi bi-arrow-left me-2"></i>Kembali ke Dashboard</a>
       <?php if ($bolehUbahUraian): ?><form method="post" action="uraian.php?id=<?= $idLaporan ?>" class="d-inline"><?= csrf_input() ?><input type="hidden" name="action" value="simpan_draft"><button class="btn btn-inventaris-primary" type="submit"><i class="bi bi-floppy me-2"></i>Simpan Draft &amp; Lihat Rekap</button></form><?php endif; ?>
-      <a class="btn btn-inventaris-primary" href="detail.php?id=<?= $idLaporan ?>"><i class="bi bi-file-earmark-text me-2"></i>Lihat Rekap Uraian Kegiatan</a>
+      <?php if ($uraianTersimpan): ?>
+        <a class="btn btn-inventaris-primary" href="detail.php?id=<?= $idLaporan ?>"><i class="bi bi-file-earmark-text me-2"></i>Lihat Rekap Uraian Kegiatan</a>
+      <?php else: ?>
+        <button class="btn btn-inventaris-primary" type="button" disabled title="Simpan draft uraian kegiatan terlebih dahulu"><i class="bi bi-file-earmark-text me-2"></i>Lihat Rekap Uraian Kegiatan</button>
+      <?php endif; ?>
     </div>
   </div>
 </main>

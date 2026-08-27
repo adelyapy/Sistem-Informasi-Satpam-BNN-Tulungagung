@@ -99,12 +99,12 @@ try {
     mysqli_stmt_bind_param($shiftStmt, 'i', $idShift);
     mysqli_stmt_execute($shiftStmt);
     $shiftTerpilih = mysqli_fetch_assoc(mysqli_stmt_get_result($shiftStmt));
-    if (!$shiftTerpilih || $shiftTerpilih['nama_shift'] === 'Shift 1 & 2') {
-        throw new RuntimeException('Shift yang dipilih tidak tersedia.');
+    if (!$shiftTerpilih) {
+      throw new RuntimeException('Shift yang dipilih tidak tersedia.');
     }
 
-    if (!shiftSedangBerlangsung($shiftTerpilih)) {
-        throw new RuntimeException('Anda hanya dapat login pada jam shift yang sedang berlangsung.');
+    if (!shiftDapatDipilihSaatLogin($shiftTerpilih)) {
+      throw new RuntimeException('Anda hanya dapat login pada jam shift yang sedang berlangsung.');
     }
 
     $jadwalStmt = mysqli_prepare($conn, "

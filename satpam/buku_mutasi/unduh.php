@@ -1,4 +1,8 @@
 <?php
+// Template resmi yang sama dengan cetak laporan pada dashboard admin.
+require_once __DIR__ . '/unduh_template.php';
+exit;
+
 require_once '../../config/satpam_auth.php';
 require_once '../../config/report_signature.php';
 

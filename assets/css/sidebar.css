@@ -48,8 +48,8 @@
 
 .sidebar-logo img {
   position: absolute;
-  max-width: 62px;
-  max-height: 62px;
+  max-width: 70px;
+  max-height: 70px;
   object-fit: contain;
 }
 
@@ -61,7 +61,7 @@
   display: block;
   max-width: 100%;
   color: #fff;
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 800;
   line-height: 1.25;
   text-align: center;

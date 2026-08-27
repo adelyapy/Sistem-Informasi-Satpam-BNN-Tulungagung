@@ -9,7 +9,7 @@ $activeMenu = $activeMenu ?? '';
     <div class="sidebar-logo">
         <img src="<?= $appBase ?>/assets/img/logo-esatpam.png" alt="Logo e-SATPAM">
     </div>
-    <div class="sidebar-brand-name">e-SATPAM — Elektronik Sistem Administrasi Satpam</div>
+    <div class="sidebar-brand-name">e-SATPAM <br>Elektronik Sistem Administrasi Satpam</div>
     <div class="sidebar-brand-unit">BNN TULUNGAGUNG</div>
   </div>
   <ul class="sidebar-menu">

@@ -2,7 +2,7 @@
 require_once '../../config/satpam_auth.php';
 require_once '../../config/report_attachment.php';
 
-if (!ensureLampiranFotoTable($conn)) {
+if (!ensureLampiranFotoTable($conn) || !ensureStatusRekapColumns($conn)) {
   exit('Tabel lampiran foto tidak dapat disiapkan.');
 }
 
@@ -28,12 +28,12 @@ if (!$laporan) {
   exit;
 }
 
-$inventarisStmt = mysqli_prepare($conn, 'SELECT id_inventaris, nama_barang, jumlah, keterangan FROM inventaris WHERE id_laporan = ? ORDER BY urutan ASC');
+$inventarisStmt = mysqli_prepare($conn, 'SELECT id_inventaris, nama_barang, jumlah, keterangan FROM inventaris WHERE id_laporan = ? AND sudah_direkap = 1 ORDER BY urutan ASC');
 mysqli_stmt_bind_param($inventarisStmt, 'i', $idLaporan);
 mysqli_stmt_execute($inventarisStmt);
 $inventaris = mysqli_fetch_all(mysqli_stmt_get_result($inventarisStmt), MYSQLI_ASSOC);
 
-$uraianStmt = mysqli_prepare($conn, 'SELECT id_uraian, jam, uraian FROM uraian_kegiatan WHERE id_laporan = ? ORDER BY urutan ASC');
+$uraianStmt = mysqli_prepare($conn, 'SELECT id_uraian, jam, uraian FROM uraian_kegiatan WHERE id_laporan = ? AND sudah_direkap = 1 ORDER BY urutan ASC');
 mysqli_stmt_bind_param($uraianStmt, 'i', $idLaporan);
 mysqli_stmt_execute($uraianStmt);
 $uraian = mysqli_fetch_all(mysqli_stmt_get_result($uraianStmt), MYSQLI_ASSOC);
